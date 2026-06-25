@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>Symbio AI - We catch and convert leads in real time.</title>
+    <meta name="description" content="Symbio AI builds websites, custom apps, AI agents, and booking and lead systems for local businesses, nonprofits, schools, and creators. Start with a free scan." />
+
+    <link rel="icon" href="assets/img/logo-symbio.svg" type="image/svg+xml" />
+
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Symbio AI" />
+    <meta property="og:title" content="Symbio AI" />
+    <meta property="og:description" content="Symbio AI builds websites, custom apps, AI agents, and booking and lead systems for local businesses, nonprofits, schools, and creators. Start with a free scan." />
+    <meta property="og:image" content="assets/img/logo-symbio-color.svg" />
+    <meta name="twitter:card" content="summary" />
+
+    
+    <script>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("symbio-theme");
+          if (t === "light" || t === "dark") {
+            d.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* localStorage may be unavailable; fall back to CSS media query. */
+        }
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!window.__symbioReady) d.classList.remove("js");
+          }, 1500);
+        });
+      })();
+    </script>
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/main.js" defer></script>
+  </head>
+  <body class="page page--home">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    
+<header class="site-header" data-header>
+  <div class="container site-header__inner">
+    
+<a class="brand " href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list" id="primary-menu" data-nav-menu>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="index.html"
+              aria-current="page"
+              >Home</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="about.html"
+              
+              >About</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="services.html"
+              
+              >Services</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="pricing.html"
+              
+              >Pricing</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="portfolio.html"
+              
+              >Portfolio</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="reviews.html"
+              
+              >Reviews</a
+            >
+          </li>
+        
+        <li class="site-nav__item site-nav__item--cta">
+          <a
+            class="btn btn--primary btn--sm"
+            href="scan.html"
+            
+            >Send us your site</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        class="theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Switch to dark theme"
+        title="Toggle light / dark theme"
+      >
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2.5" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="21.5" />
+            <line x1="2.5" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="21.5" y2="12" />
+            <line x1="5.1" y1="5.1" x2="6.9" y2="6.9" />
+            <line x1="17.1" y1="17.1" x2="18.9" y2="18.9" />
+            <line x1="5.1" y1="18.9" x2="6.9" y2="17.1" />
+            <line x1="17.1" y1="6.9" x2="18.9" y2="5.1" />
+          </g>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M20 14.2A8 8 0 1 1 9.8 4 6.4 6.4 0 0 0 20 14.2Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        data-nav-toggle
+        aria-expanded="false"
+        aria-controls="primary-menu"
+        aria-label="Open menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+    <main id="main" class="site-main">
+      
+
+<section class="hero">
+  <div class="hero__aurora" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero__grid">
+      <div class="hero__content">
+        <span class="hero__pill">
+          <span class="hero__pill-dot" aria-hidden="true"></span>
+          Live lead capture, working while you sleep
+        </span>
+
+        <h1 class="hero__title">
+          Turn visitors into
+          <span
+            class="hero__rotator"
+            data-rotator
+            data-words="booked leads,booked calls,new clients,real revenue"
+          >
+            <span class="hero__rotator-word">booked leads</span></span
+          >.
+        </h1>
+
+        <p class="hero__lead">
+          We build websites, apps, and smart business systems that turn attention into leads, bookings, and saved hours. Built around how you actually work, with practical automation
+          and a real team reviewing the important details.
+        </p>
+
+        <div class="hero__cta btn-row">
+          <a class="btn btn--primary btn--lg" href="scan.html">Send us your site</a>
+          <a class="btn btn--ghost btn--lg" href="chatbot-demo.html">See the live demo</a>
+        </div>
+
+        <p class="hero__note">
+          No commitment. Send us your site and we will reply with the first fixes we would make
+          to help it earn more calls, bookings, and trust.
+        </p>
+      </div>
+
+      
+      <aside class="lead-inbox" aria-label="Example live lead inbox">
+        <div class="lead-inbox__bar">
+          <span class="lead-inbox__title">
+            <span class="lead-inbox__live" aria-hidden="true"></span>
+            Lead inbox
+          </span>
+          <span class="lead-inbox__count">
+            <strong data-inbox-count>27</strong> today
+          </span>
+        </div>
+
+        <ul class="lead-inbox__list" data-inbox>
+          <li class="lead">
+            <span class="lead__avatar" aria-hidden="true">JM</span>
+            <span class="lead__body">
+              <span class="lead__name">Jordan M.</span>
+              <span class="lead__msg">Do you take new patients this week?</span>
+            </span>
+            <span class="badge badge--booked">Booked</span>
+          </li>
+          <li class="lead">
+            <span class="lead__avatar" aria-hidden="true">SR</span>
+            <span class="lead__body">
+              <span class="lead__name">Sarah R.</span>
+              <span class="lead__msg">Can I get a quote for a kitchen remodel?</span>
+            </span>
+            <span class="badge badge--replied">Replied</span>
+          </li>
+          <li class="lead">
+            <span class="lead__avatar" aria-hidden="true">AT</span>
+            <span class="lead__body">
+              <span class="lead__name">Alex T.</span>
+              <span class="lead__msg">Are you open this Saturday?</span>
+            </span>
+            <span class="badge badge--booked">Booked</span>
+          </li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tight">
+  <div class="container">
+    <p class="audience" data-reveal>
+      <span class="audience__label">Built for</span>
+      
+        <span class="chip">Local businesses</span>
+      
+        <span class="chip">Nonprofits</span>
+      
+        <span class="chip">Schools</span>
+      
+        <span class="chip">Creators</span>
+      
+        <span class="chip">Small teams</span>
+      
+    </p>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center" data-reveal>More than a website</span>
+    <h2 class="section__title" data-reveal>Websites are only the beginning</h2>
+    <p class="section__lead" data-reveal>
+      Some businesses need more than a site. We build custom apps, dashboards, booking systems,
+      client portals, and smart workflows that help you <em>run</em> the business, not just
+      advertise it.
+    </p>
+    <div class="btn-row btn-row--center mt-6" data-reveal>
+      <a class="btn btn--primary" href="services.html">See what we can build</a>
+      <a class="btn btn--ghost" href="scan.html">Start with a free scan</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">How it works</span>
+      <h2 class="section__title">From missed visitors to booked customers</h2>
+      <p class="section__lead">
+        A simple, honest process. We look first, explain what matters, then build only what helps.
+      </p>
+    </div>
+
+    <ol class="grid grid--4">
+      <li class="step" data-reveal>
+        <span class="step__num">1</span>
+        <h3 class="step__title">Scan</h3>
+        <p class="step__text">
+          We review your site, offer, forms, booking flow, and follow-up path.
+        </p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="1">
+        <span class="step__num">2</span>
+        <h3 class="step__title">Map</h3>
+        <p class="step__text">We show the smallest set of fixes that can move revenue the most.</p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="2">
+        <span class="step__num">3</span>
+        <h3 class="step__title">Build</h3>
+        <p class="step__text">
+          We build the site, app, booking flow, or AI assistant around your actual business.
+        </p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="3">
+        <span class="step__num">4</span>
+        <h3 class="step__title">Polish</h3>
+        <p class="step__text">We tune copy, speed, mobile flow, and follow-up until it feels ready.</p>
+      </li>
+    </ol>
+
+    <div class="btn-row btn-row--center mt-6" data-reveal>
+      <a class="btn btn--secondary" href="about.html">See our vision and process</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">What we build</span>
+      <h2 class="section__title">Websites, apps, and the systems that run on them</h2>
+    </div>
+
+    <div class="grid grid--3">
+      <article class="card card--link" data-reveal>
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="14" rx="2" />
+            <path d="M3 8h18M7 12h6" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h3 class="card__title">Websites and redesigns</h3>
+        <p class="card__text">
+          Fast, modern sites that earn trust and turn clicks into customers. Mobile-first and built
+          to convert.
+        </p>
+        <a class="card__link" href="services.html">Explore websites</a>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="1">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 9h18M8 14h3v3H8zM14 14h3v3h-3z" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <h3 class="card__title">Custom apps and dashboards</h3>
+        <p class="card__text">
+          Client portals, booking apps, internal dashboards, and staff tools built around your
+          workflow.
+        </p>
+        <a class="card__link" href="services.html">Explore custom apps</a>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="2">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="4" y="7" width="16" height="12" rx="3" />
+            <path d="M12 7V4M9 13h.01M15 13h.01" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h3 class="card__title">AI agents and automation</h3>
+        <p class="card__text">
+          Smart tools that reply quickly, qualify leads, book appointments, and hand off to a real
+          person.
+        </p>
+        <a class="card__link" href="services.html">Explore AI agents</a>
+      </article>
+    </div>
+
+    <div class="btn-row btn-row--center mt-6" data-reveal>
+      <a class="btn btn--secondary" href="services.html">See everything we can build</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tint">
+  <div class="container">
+    <div class="grid grid--4">
+      <a class="card card--link" href="pricing.html" data-reveal>
+        <h3 class="card__title">Honest pricing</h3>
+        <p class="card__text">Clear starting points by service. Free scan first, real number second.</p>
+        <span class="card__link">See pricing</span>
+      </a>
+      <a class="card card--link" href="portfolio.html" data-reveal data-reveal-delay="1">
+        <h3 class="card__title">What we have shipped</h3>
+        <p class="card__text">Dashboards, a live assistant demo, example portfolios, and pilot builds.</p>
+        <span class="card__link">See the work</span>
+      </a>
+      <a class="card card--link" href="reviews.html" data-reveal data-reveal-delay="2">
+        <h3 class="card__title">Proof you can test</h3>
+        <p class="card__text">Try the demo, review examples, and judge us by the free scan we send back.</p>
+        <span class="card__link">See the proof</span>
+      </a>
+      <a class="card card--link" href="about.html" data-reveal data-reveal-delay="3">
+        <h3 class="card__title">Who builds it</h3>
+        <p class="card__text">Powered by international AI engineers and devs. You can reach the founders directly.</p>
+        <span class="card__link">Meet the team</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Send us your site and start making more money</h2>
+      <p class="cta-band__text">
+        We will review your site and send back the first fixes we would make to help it convert
+        more visitors into real leads.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="scan.html">Send us your site</a>
+        <a class="btn btn--secondary btn--lg" href="chatbot-demo.html">Try the live demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+    </main>
+
+    
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__col site-footer__col--brand">
+      
+      
+<a class="brand brand--footer" href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+      <p class="site-footer__blurb">We catch and convert leads in real time.</p>
+      <p class="site-footer__small">Powered by international AI engineers and devs.</p>
+      <a class="btn btn--primary" href="scan.html">Send us your site</a>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Footer explore">
+      <h2 class="site-footer__heading">Explore</h2>
+      <ul class="site-footer__list">
+        
+          <li><a href="index.html">Home</a></li>
+        
+          <li><a href="about.html">About</a></li>
+        
+          <li><a href="services.html">Services</a></li>
+        
+          <li><a href="pricing.html">Pricing</a></li>
+        
+          <li><a href="portfolio.html">Portfolio</a></li>
+        
+          <li><a href="reviews.html">Reviews</a></li>
+        
+        <li><a href="scan.html">Send us your site</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Footer work">
+      <h2 class="site-footer__heading">Work</h2>
+      <ul class="site-footer__list">
+        <li><a href="chatbot-demo.html">Live chatbot demo</a></li>
+        <li><a href="portfolio.html">Example portfolio build</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__heading">Talk to us</h2>
+      <ul class="site-footer__list site-footer__list--contacts">
+        <li>
+          <span class="site-footer__person">Symbio AI</span>
+          <span class="site-footer__role">Business inbox</span>
+          <a href="mailto:symbioaiiii@gmail.com">symbioaiiii@gmail.com</a>
+        </li>
+        
+          <li>
+            <span class="site-footer__person">Mohammed H. Majeed</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+            
+              <a href="tel:5105857136">510-585-7136</a>
+            
+          </li>
+        
+          <li>
+            <span class="site-footer__person">Ravi Kumar</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+            
+              <a href="tel:9255978128">925-597-8128</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <p class="site-footer__credit">
+      &copy; 2026 Symbio AI. Built by Mohammed and Ravi.
+    </p>
+    <p class="site-footer__small">Honest builds. Real numbers. A free site review before anything else.</p>
+  </div>
+</footer>
+
+
+    
+    <script>
+      window.SymbioConfig = {
+        businessName: "Symbio AI",
+        accent: "#2f6bff",
+        services: ["Websites & landing pages", "Booking & lead systems", "AI agents & automation"],
+        hours: "Mon-Fri, 9am-6pm PT",
+        location: "Online - we build remote",
+        phone: "510-585-7136",
+        price: "with a free scan first",
+        position: "right",
+        theme: "auto",
+        greeting:
+          "Hi! 👋 I'm Symbio's assistant. Want a free scan of your site, or a question about what we build?",
+      };
+    </script>
+    <script src="assets/js/symbio-widget.js" defer></script>
+  </body>
+</html>

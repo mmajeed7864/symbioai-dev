@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Symbio AI - Live Chatbot Demo</title>
+    <meta
+      name="description"
+      content="A self-contained sales demo of the Symbio AI embeddable assistant. Switch industries to rebrand the page live, then watch leads land in real time."
+    />
+
+    <style>
+      /* ---- Self-contained demo page styles (the widget styles itself) ---- */
+      :root {
+        --accent: #e0457b;
+        --ink: #0c1322;
+        --muted: #5a6477;
+        --bg: #f6f7fb;
+        --surface: #fff;
+        --border: rgba(12, 19, 34, 0.12);
+        --shadow: 0 18px 44px -22px rgba(12, 19, 34, 0.4);
+        --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial,
+          sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.6;
+      }
+      a {
+        color: var(--accent);
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.4em;
+      }
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+        padding: 0.8rem 1.4rem;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        text-decoration: none;
+        transition: transform 0.15s ease, filter 0.15s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+      }
+      .btn--ghost {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+
+      /* Demo control bar */
+      .demobar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 20px;
+        background: #0c1322;
+        color: #fff;
+        font-size: 14px;
+      }
+      .demobar strong {
+        color: #fff;
+      }
+      .demobar__tag {
+        background: rgba(255, 255, 255, 0.16);
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        margin-left: 8px;
+      }
+      .demobar__actions {
+        display: flex;
+        gap: 8px;
+      }
+      .demobar button,
+      .demobar a {
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: transparent;
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 999px;
+        text-decoration: none;
+      }
+      .demobar button:hover,
+      .demobar a:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      /* Sample business site */
+      .hero {
+        padding: clamp(3rem, 8vw, 6rem) 0;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, #fff), var(--bg));
+      }
+      .hero__eyebrow {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 13px;
+        color: var(--accent);
+      }
+      .hero h1 {
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        margin-top: 0.4rem;
+      }
+      .hero p {
+        font-size: 1.15rem;
+        color: var(--muted);
+        max-width: 38rem;
+      }
+      .hero__cta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 1.6rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 1.6rem;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .section {
+        padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+      }
+      .section h2 {
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+      }
+      .cards {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-top: 1.6rem;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.4rem;
+        box-shadow: var(--shadow);
+      }
+      .card h3 {
+        font-size: 1.1rem;
+      }
+      .card .tick {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .footer {
+        padding: 2.5rem 0;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Control panels (Customize + Leads) */
+      .panel {
+        position: fixed;
+        left: 16px;
+        z-index: 60;
+        width: 320px;
+        max-width: calc(100vw - 32px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(calc(-100% - 24px));
+        transition: transform 0.25s ease;
+      }
+      .panel.is-open {
+        transform: none;
+      }
+      .panel--customize {
+        top: 64px;
+        max-height: calc(100vh - 88px);
+      }
+      .panel--leads {
+        bottom: 16px;
+        max-height: 60vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .panel--tour {
+        left: auto;
+        right: 16px;
+        top: 64px;
+        width: 360px;
+        max-height: calc(100vh - 88px);
+        transform: translateX(calc(100% + 24px));
+      }
+      .panel__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel__head h2 {
+        margin: 0;
+        font-size: 15px;
+      }
+      .panel__head button {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+        color: var(--muted);
+      }
+      .panel__body {
+        padding: 16px 16px 28px;
+        overflow-y: auto;
+      }
+      .panel__body p.hint {
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .presets button {
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        padding: 9px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--ink);
+        transition: border-color 0.15s ease;
+      }
+      .presets button:hover,
+      .presets button[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .field {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .field input {
+        display: block;
+        width: 100%;
+        margin-top: 5px;
+        font: inherit;
+        font-weight: 400;
+        padding: 9px 11px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--ink);
+      }
+      .field input[type="color"] {
+        height: 40px;
+        padding: 4px;
+      }
+
+      .leadlist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .leadlist .empty {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .leaditem {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: var(--bg);
+        animation: pop 0.3s ease;
+      }
+      @keyframes pop {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .leaditem strong {
+        display: block;
+        font-size: 14px;
+      }
+      .leaditem span {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .leaditem time {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .count {
+        background: var(--accent);
+        color: #fff;
+        border-radius: 999px;
+        padding: 1px 8px;
+        font-size: 12px;
+        margin-left: 6px;
+      }
+      .tour-list {
+        list-style: none;
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+      }
+      .tour-list li {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--bg);
+        padding: 12px;
+      }
+      .tour-list strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .tour-list p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .tour-action {
+        border: 1px solid var(--accent);
+        background: var(--surface);
+        color: var(--accent);
+        border-radius: 999px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 7px 10px;
+      }
+      .tour-action:hover {
+        background: var(--accent);
+        color: #fff;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Demo control bar ------------------------------------------------- -->
+    <div class="demobar">
+      <span>
+        <strong>Symbio AI</strong> live demo
+        <span class="demobar__tag">sample business - pick an industry -></span>
+      </span>
+      <span class="demobar__actions">
+        <button type="button" data-toggle="tour">How it works</button>
+        <button type="button" data-toggle="customize">Customize</button>
+        <button type="button" data-toggle="leads">Leads <span class="count" data-lead-count>0</span></button>
+        <a href="index.html"><- Back to Symbio</a>
+      </span>
+    </div>
+
+    <!-- Sample business site (content is set live by the demo script) ---- -->
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <p class="hero__eyebrow" data-biz-eyebrow>Welcome</p>
+          <h1 data-biz-name>Glow Salon</h1>
+          <p data-biz-tagline>Look good. Feel better.</p>
+          <div class="hero__cta">
+            <button class="btn" type="button" data-open-chat>Chat with us</button>
+            <a class="btn btn--ghost" href="#services">See services</a>
+          </div>
+          <div class="meta">
+            <span>🕑 <span data-biz-hours>Tue-Sat, 9am-6pm</span></span>
+            <span>📍 <span data-biz-location>Oakland, CA</span></span>
+            <span>📞 <span data-biz-phone>510-555-0142</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="services">
+        <div class="wrap">
+          <h2>What we offer</h2>
+          <div class="cards" data-biz-services></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2>Why people choose us</h2>
+          <div class="cards">
+            <div class="card"><h3><span class="tick">✓</span> Instant replies</h3><p>Questions answered in seconds, day or night.</p></div>
+            <div class="card"><h3><span class="tick">✓</span> Easy booking</h3><p>Capture details and book without the phone tag.</p></div>
+            <div class="card"><h3><span class="tick">✓</span> A real follow-up</h3><p>Every lead reaches a real person on the team.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        This is a Symbio AI demo page. The chat bubble (bottom-right) is the embeddable widget.
+        Leave your details in the chat to see a lead appear in the Leads panel.
+      </div>
+    </main>
+
+    <!-- Customize panel -------------------------------------------------- -->
+    <aside class="panel panel--customize" data-panel="customize" aria-label="Customize the demo">
+      <div class="panel__head">
+        <h2>Customize</h2>
+        <button type="button" data-close aria-label="Close customize panel">×</button>
+      </div>
+      <div class="panel__body">
+        <p class="hint">Pick an industry - the page <em>and</em> the assistant rebrand instantly.</p>
+        <div class="presets" data-presets></div>
+        <label class="field">Business name
+          <input type="text" data-cz-name />
+        </label>
+        <label class="field">Accent colour
+          <input type="color" data-cz-accent value="#e0457b" />
+        </label>
+        <label class="field">Live chat connection <em>(optional)</em>
+          <input type="url" data-cz-ai placeholder="https://your-chat-service.com" />
+        </label>
+        <button class="btn" type="button" data-cz-apply>Apply changes</button>
+      </div>
+    </aside>
+
+    <!-- Tour panel ------------------------------------------------------- -->
+    <aside class="panel panel--tour" data-panel="tour" aria-label="How the demo works">
+      <div class="panel__head">
+        <h2>How this demo works</h2>
+        <button type="button" data-close aria-label="Close tour panel">×</button>
+      </div>
+      <div class="panel__body">
+        <p class="hint">Try the same flow a real customer would see on a business website.</p>
+        <ol class="tour-list">
+          <li>
+            <strong>1. Pick a business type</strong>
+            <p>Use the presets to see the page and assistant change for a salon, gym, law office, restaurant, plumber, or dental office.</p>
+            <button class="tour-action" type="button" data-tour-action="customize">Open Customize</button>
+          </li>
+          <li>
+            <strong>2. Watch the page rebrand</strong>
+            <p>The colors, business name, services, hours, and assistant all update together.</p>
+            <button class="tour-action" type="button" data-tour-action="sampleRebrand">Try a gym example</button>
+          </li>
+          <li>
+            <strong>3. Open the assistant</strong>
+            <p>Click the chat bubble or use the button below. Type <strong>book</strong> to start a lead capture flow.</p>
+            <button class="tour-action" type="button" data-tour-action="chat">Open chat</button>
+          </li>
+          <li>
+            <strong>4. See the lead arrive</strong>
+            <p>After a visitor leaves details, the lead appears in the dashboard so the business can follow up.</p>
+            <button class="tour-action" type="button" data-tour-action="sampleLead">Add sample lead</button>
+          </li>
+        </ol>
+      </div>
+    </aside>
+
+    <!-- Leads panel ------------------------------------------------------ -->
+    <aside class="panel panel--leads" data-panel="leads" aria-label="Captured leads">
+      <div class="panel__head">
+        <h2>Leads <span class="count" data-lead-count>0</span></h2>
+        <button type="button" data-close aria-label="Close leads panel">×</button>
+      </div>
+      <div class="panel__body">
+        <ul class="leadlist" data-lead-list>
+          <li class="empty">No leads yet - open the chat and say "book", then leave your details.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- 1) Widget config (read by the inlined widget below) -------------- -->
+    <script>
+      window.SymbioConfig = {
+        businessName: "Glow Salon",
+        accent: "#e0457b",
+        services: ["Haircut", "Color", "Blowout", "Beard trim"],
+        hours: "Tue-Sat, 9am-6pm",
+        location: "Oakland, CA",
+        phone: "510-555-0142",
+        price: "from $35",
+        position: "right",
+      };
+    </script>
+
+    <!-- 2) The Symbio Widget, inlined so this file is fully self-contained.
+            This is a copy of assets/js/symbio-widget.js - keep them in sync. -->
+    <script>
+      (function () {
+        "use strict";
+        if (window.SymbioWidget && window.SymbioWidget.__loaded) return;
+
+        function resolveConfig() {
+          let script = document.currentScript;
+          const attr = (name) =>
+            script && script.hasAttribute("data-" + name) ? script.getAttribute("data-" + name) : null;
+          const toList = (value) => {
+            if (Array.isArray(value)) return value.slice();
+            if (typeof value === "string")
+              return value.split(/[,|]/).map((s) => s.trim()).filter(Boolean);
+            return null;
+          };
+          const user = window.SymbioConfig || {};
+          const theme = (attr("theme") || user.theme || "auto").toLowerCase();
+          return {
+            businessName: attr("business-name") || user.businessName || "Our Business",
+            accent: attr("accent") || user.accent || "#1f6bff",
+            services:
+              toList(attr("services")) || toList(user.services) || ["General enquiry", "Pricing", "Booking"],
+            hours: attr("hours") || user.hours || "Mon-Fri, 9am-5pm",
+            location: attr("location") || user.location || "",
+            phone: attr("phone") || user.phone || "",
+            price: attr("price") || user.price || "",
+            position:
+              (attr("position") || user.position || "right").toLowerCase() === "left" ? "left" : "right",
+            theme: theme === "light" || theme === "dark" ? theme : "auto",
+            greeting: attr("greeting") || user.greeting || "",
+            leadEndpoint: attr("lead-endpoint") || user.leadEndpoint || "",
+            aiEndpoint: attr("ai-endpoint") || user.aiEndpoint || "",
+            onLead: typeof user.onLead === "function" ? user.onLead : null,
+          };
+        }
+
+        const cfg = resolveConfig();
+        let isOpen = false;
+        let mounted = false;
+        let shadow = null;
+        const el = {};
+        const history = [];
+        let lead = { step: null, name: "", contact: "", detail: "" };
+
+        function escapeHtml(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+        function firstName(name) {
+          return String(name).trim().split(/\s+/)[0] || "there";
+        }
+        function looksLikeContact(text) {
+          const t = String(text);
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t.trim()) || t.replace(/[^0-9]/g, "").length >= 7;
+        }
+        function defaultGreeting() {
+          return (
+            cfg.greeting ||
+            "Hi! 👋 I'm the assistant for " +
+              cfg.businessName +
+              ". Ask about our services, hours, or say 'book' to get started."
+          );
+        }
+
+        function styles() {
+          return `
+            :host { all: initial; }
+            *, *::before, *::after { box-sizing: border-box; }
+            .root { --sa: ${cfg.accent}; --bg:#fff; --bg-2:#f3f5f9; --text:#0c1322; --muted:#5a6477;
+              --border:rgba(12,19,34,0.12); --shadow:0 24px 60px -18px rgba(12,19,34,0.35);
+              position:fixed; bottom:20px; ${cfg.position}:20px; z-index:2147483000;
+              font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+              font-size:15px; line-height:1.5; color:var(--text); }
+            .root[data-theme="dark"] { --bg:#131a27; --bg-2:#1b2433; --text:#eef2fb;
+              --muted:#a3afc6; --border:rgba(255,255,255,0.12); --shadow:0 24px 60px -18px rgba(0,0,0,0.7); }
+            @media (prefers-color-scheme: dark) { .root[data-theme="auto"] { --bg:#131a27; --bg-2:#1b2433; --text:#eef2fb;
+              --muted:#a3afc6; --border:rgba(255,255,255,0.12); --shadow:0 24px 60px -18px rgba(0,0,0,0.7); } }
+            .launcher { appearance:none; border:0; cursor:pointer; width:60px; height:60px; border-radius:50%;
+              background:var(--sa); background:linear-gradient(135deg,var(--sa),color-mix(in srgb,var(--sa),#000 16%));
+              color:#fff; box-shadow:var(--shadow); display:grid; place-items:center; transition:transform .18s ease,opacity .18s ease; }
+            .launcher:hover { transform:translateY(-2px) scale(1.04); }
+            .launcher svg { width:28px; height:28px; }
+            .launcher:focus-visible { outline:3px solid var(--sa); outline-offset:3px; }
+            .root.is-open .launcher { transform:scale(.9); opacity:0; pointer-events:none; }
+            .panel { position:absolute; bottom:0; ${cfg.position}:0; width:370px; max-width:calc(100vw - 32px);
+              height:560px; max-height:calc(100vh - 40px); background:var(--bg); border:1px solid var(--border);
+              border-radius:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden;
+              opacity:0; transform:translateY(16px) scale(.98); transform-origin:bottom ${cfg.position};
+              pointer-events:none; transition:opacity .2s ease,transform .2s ease; }
+            .root.is-open .panel { opacity:1; transform:none; pointer-events:auto; }
+            .header { background:var(--sa); background:linear-gradient(135deg,var(--sa),color-mix(in srgb,var(--sa),#000 16%));
+              color:#fff; padding:16px 18px; display:flex; align-items:center; gap:12px; }
+            .avatar { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.22);
+              display:grid; place-items:center; font-weight:700; flex:none; }
+            .htext { flex:1; min-width:0; }
+            .hname { font-weight:700; font-size:15px; }
+            .hsub { font-size:12px; opacity:.9; display:flex; align-items:center; gap:6px; }
+            .dot { width:7px; height:7px; border-radius:50%; background:#57e08a; }
+            .close { appearance:none; border:0; cursor:pointer; width:32px; height:32px; border-radius:50%;
+              background:rgba(255,255,255,.18); color:#fff; display:grid; place-items:center; flex:none; }
+            .close:hover { background:rgba(255,255,255,.3); }
+            .messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; background:var(--bg-2); }
+            .msg { max-width:84%; padding:10px 13px; border-radius:14px; white-space:pre-wrap; word-wrap:break-word; }
+            .msg--bot { align-self:flex-start; background:var(--bg); border:1px solid var(--border); border-bottom-left-radius:4px; }
+            .msg--user { align-self:flex-end; color:#fff; background:var(--sa);
+              background:linear-gradient(135deg,var(--sa),color-mix(in srgb,var(--sa),#000 16%)); border-bottom-right-radius:4px; }
+            .typing { display:inline-flex; gap:4px; align-items:center; }
+            .typing span { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:sb-typing 1.2s infinite ease-in-out; }
+            .typing span:nth-child(2){animation-delay:.15s;} .typing span:nth-child(3){animation-delay:.3s;}
+            @keyframes sb-typing { 0%,60%,100%{opacity:.3;transform:translateY(0);} 30%{opacity:1;transform:translateY(-3px);} }
+            .chips { display:flex; flex-wrap:wrap; gap:6px; padding:0 16px 6px; background:var(--bg-2); }
+            .chip { appearance:none; cursor:pointer; font:inherit; font-size:13px; padding:7px 12px; border-radius:999px;
+              border:1px solid var(--sa); color:var(--sa); background:transparent; transition:background .15s ease,color .15s ease; }
+            .chip:hover { background:var(--sa); color:#fff; }
+            .composer { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); background:var(--bg); }
+            .input { flex:1; font:inherit; font-size:14px; padding:11px 14px; border:1px solid var(--border);
+              border-radius:999px; background:var(--bg-2); color:var(--text); }
+            .input:focus { outline:none; border-color:var(--sa); }
+            .send { appearance:none; border:0; cursor:pointer; flex:none; width:44px; height:44px; border-radius:50%;
+              color:#fff; background:var(--sa); background:linear-gradient(135deg,var(--sa),color-mix(in srgb,var(--sa),#000 16%));
+              display:grid; place-items:center; }
+            .send svg { width:18px; height:18px; }
+            .footer { text-align:center; font-size:11px; color:var(--muted); padding:8px; background:var(--bg); }
+            .footer a { color:var(--muted); }
+            @media (prefers-reduced-motion: reduce) { .launcher,.panel,.typing span { transition:none; animation:none; } }
+            @media (max-width:480px) { .panel { height:calc(100vh - 32px); } }
+          `;
+        }
+
+        function template() {
+          const initial = (cfg.businessName || "S").trim().charAt(0).toUpperCase();
+          return `
+            <div class="root" data-theme="${cfg.theme}">
+              <button class="launcher" type="button" aria-label="Open chat with ${escapeHtml(cfg.businessName)}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8 8.38 8.38 0 0 1 8.5-8.5 8.38 8.38 0 0 1 8.5 8.5Z"/>
+                </svg>
+              </button>
+              <section class="panel" role="dialog" aria-modal="false" aria-label="Chat with ${escapeHtml(cfg.businessName)}">
+                <header class="header">
+                  <span class="avatar" aria-hidden="true">${escapeHtml(initial)}</span>
+                  <span class="htext">
+                    <span class="hname" data-name>${escapeHtml(cfg.businessName)}</span>
+                    <span class="hsub"><span class="dot"></span> <span>Online now</span></span>
+                  </span>
+                  <button class="close" type="button" aria-label="Close chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                  </button>
+                </header>
+                <div class="messages" data-messages role="log" aria-live="polite"></div>
+                <div class="chips" data-chips></div>
+                <form class="composer" data-form>
+                  <input class="input" data-input type="text" autocomplete="off" placeholder="Type your message..." aria-label="Type your message" />
+                  <button class="send" type="submit" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z"/></svg>
+                  </button>
+                </form>
+                <div class="footer">Powered by Symbio AI</div>
+              </section>
+            </div>`;
+        }
+
+        function addMessage(role, text, opts) {
+          const options = opts || {};
+          const item = document.createElement("div");
+          item.className = "msg msg--" + (role === "user" ? "user" : "bot");
+          if (options.html) item.innerHTML = options.html;
+          else item.textContent = text;
+          el.messages.appendChild(item);
+          el.messages.scrollTop = el.messages.scrollHeight;
+          if (!options.transient) history.push({ role: role === "user" ? "user" : "assistant", text });
+          return item;
+        }
+
+        let typingEl = null;
+        function showTyping() {
+          if (typingEl) return;
+          typingEl = addMessage("bot", "", {
+            html: '<span class="typing"><span></span><span></span><span></span></span>',
+            transient: true,
+          });
+        }
+        function hideTyping() {
+          if (typingEl) {
+            typingEl.remove();
+            typingEl = null;
+          }
+        }
+
+        function setChips(items) {
+          el.chips.innerHTML = "";
+          (items || []).forEach((label) => {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "chip";
+            chip.textContent = label;
+            chip.addEventListener("click", () => handleUserText(label));
+            el.chips.appendChild(chip);
+          });
+        }
+        function defaultChips() {
+          const chips = ["Services", "Hours"];
+          if (cfg.location) chips.push("Location");
+          chips.push("Book now");
+          return chips;
+        }
+
+        function has(text, words) {
+          return words.some((w) => text.indexOf(w) !== -1);
+        }
+        function isLeadTrigger(text) {
+          return has(text, ["book", "appointment", "schedule", "quote", "sign up", "signup",
+            "get started", "contact", "call me", "reach me", "leave my details", "leave details", "interested"]);
+        }
+        function intentReply(raw) {
+          const text = raw.toLowerCase();
+          if (has(text, ["hour", "open", "close", "when are you"]))
+            return { text: cfg.businessName + " is open " + cfg.hours + "." };
+          if (has(text, ["where", "location", "address", "find you"]))
+            return { text: cfg.location ? "We're located in " + cfg.location + "." : "We mostly work online - tell me where you are and we'll sort it out." };
+          if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
+            const base = cfg.price ? "Pricing starts " + cfg.price + ". " : "Pricing depends on what you need. ";
+            return { text: base + "Want me to have someone follow up with a quote?", offerLead: true };
+          }
+          if (has(text, ["service", "what do you", "offer", "do you do", "help with"]))
+            return { text: "We help with: " + cfg.services.join(", ") + ". Which one fits?" };
+          if (has(text, ["phone", "number", "call"]))
+            return { text: cfg.phone ? "You can reach us at " + cfg.phone + ", or leave your details and we'll call you." : "Leave your details and we'll call you back.", offerLead: true };
+          if (has(text, ["thank", "thanks", "cheers", "appreciate"]))
+            return { text: "You're welcome! Anything else I can help with?" };
+          if (text === "hi" || text === "hello" || has(text, ["hello", "hey"]))
+            return { text: "Hey! How can I help you today?" };
+          return { text: "I can help with our services, hours" + (cfg.location ? ", location" : "") + ", or getting you booked. What do you need?" };
+        }
+
+        function systemPrompt() {
+          const parts = ["You are the friendly assistant for " + cfg.businessName + ".",
+            "Services: " + cfg.services.join(", ") + ".", "Hours: " + cfg.hours + "."];
+          if (cfg.location) parts.push("Location: " + cfg.location + ".");
+          if (cfg.phone) parts.push("Phone: " + cfg.phone + ".");
+          if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
+          parts.push("Be concise and helpful. Encourage the visitor to leave their name and contact so the team can follow up.");
+          return parts.join(" ");
+        }
+        async function aiReply() {
+          const messages = history.map((m) => ({ role: m.role, content: m.text }));
+          const res = await fetch(cfg.aiEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages, system: systemPrompt() }),
+          });
+      if (!res.ok) throw new Error("chat connection " + res.status);
+          const data = await res.json();
+          return data && data.reply ? String(data.reply) : null;
+        }
+
+        function startLead() {
+          lead = { step: "name", name: "", contact: "", detail: "" };
+          setChips([]);
+          addMessage("bot", "Happy to help with that. First - what's your name?");
+        }
+        function advanceLead(text) {
+          if (lead.step === "name") {
+            lead.name = text;
+            lead.step = "contact";
+            addMessage("bot", "Thanks, " + firstName(text) + "! What's the best email or phone to reach you?");
+          } else if (lead.step === "contact") {
+            if (!looksLikeContact(text)) {
+              addMessage("bot", "Hmm, that doesn't look like an email or phone - mind trying again?");
+              return;
+            }
+            lead.contact = text;
+            lead.step = "detail";
+            addMessage("bot", "Got it. Briefly, what do you need help with?");
+          } else if (lead.step === "detail") {
+            lead.detail = text;
+            lead.step = null;
+            finishLead();
+          }
+        }
+        function finishLead() {
+          const record = {
+            name: lead.name, contact: lead.contact, detail: lead.detail,
+            business: cfg.businessName, page: window.location.href, at: new Date().toISOString(),
+          };
+          addMessage("bot", "Perfect - thanks, " + firstName(record.name) + ". " + cfg.businessName + " will follow up shortly. done");
+          deliverLead(record);
+          setChips(defaultChips());
+        }
+        function deliverLead(record) {
+          try { window.dispatchEvent(new CustomEvent("symbio:lead", { detail: record })); } catch (e) {}
+          if (cfg.onLead) { try { cfg.onLead(record); } catch (e) {} }
+          if (cfg.leadEndpoint) {
+            try {
+              fetch(cfg.leadEndpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(record) }).catch(function () {});
+            } catch (e) {}
+          }
+        }
+
+        async function handleUserText(raw) {
+          const text = String(raw).trim();
+          if (!text) return;
+          addMessage("user", text);
+          el.input.value = "";
+          if (lead.step) { advanceLead(text); return; }
+          if (isLeadTrigger(text)) { startLead(); return; }
+          if (cfg.aiEndpoint) {
+            showTyping();
+            try {
+              const reply = await aiReply();
+              hideTyping();
+              if (reply) { addMessage("bot", reply); setChips(defaultChips()); return; }
+            } catch (e) { hideTyping(); }
+          }
+          const result = intentReply(text);
+          addMessage("bot", result.text);
+          if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
+          else setChips(defaultChips());
+        }
+
+        function openPanel() {
+          if (!mounted) mount();
+          isOpen = true;
+          el.root.classList.add("is-open");
+          el.launcher.setAttribute("aria-expanded", "true");
+          if (!history.length) { addMessage("bot", defaultGreeting()); setChips(defaultChips()); }
+          window.setTimeout(() => el.input.focus(), 60);
+        }
+        function closePanel() {
+          isOpen = false;
+          if (el.root) {
+            el.root.classList.remove("is-open");
+            el.launcher.setAttribute("aria-expanded", "false");
+            el.launcher.focus();
+          }
+        }
+        function togglePanel() { if (isOpen) closePanel(); else openPanel(); }
+
+        const BRANDING_KEYS = ["businessName", "accent", "services", "hours", "location", "phone", "price", "greeting"];
+        function configure(partial) {
+          if (!partial) return;
+          const brandingChanged = BRANDING_KEYS.some((key) => key in partial);
+          Object.keys(partial).forEach((key) => {
+            if (key === "services") { if (Array.isArray(partial.services)) cfg.services = partial.services.slice(); }
+            else if (partial[key] !== undefined) cfg[key] = partial[key];
+          });
+          if (!mounted) return;
+          el.root.style.setProperty("--sa", cfg.accent);
+          el.root.setAttribute("data-theme", cfg.theme);
+          if (el.name) el.name.textContent = cfg.businessName;
+          if (brandingChanged) {
+            history.length = 0;
+            lead = { step: null, name: "", contact: "", detail: "" };
+            el.messages.innerHTML = "";
+            if (isOpen) { addMessage("bot", defaultGreeting()); setChips(defaultChips()); }
+          }
+        }
+
+        function mount() {
+          if (mounted) return;
+          const host = document.createElement("div");
+          host.id = "symbio-widget-host";
+          document.body.appendChild(host);
+          shadow = host.attachShadow({ mode: "open" });
+          const styleTag = document.createElement("style");
+          styleTag.textContent = styles();
+          shadow.appendChild(styleTag);
+          const wrap = document.createElement("div");
+          wrap.innerHTML = template();
+          shadow.appendChild(wrap.firstElementChild);
+          el.root = shadow.querySelector(".root");
+          el.launcher = shadow.querySelector(".launcher");
+          el.messages = shadow.querySelector("[data-messages]");
+          el.chips = shadow.querySelector("[data-chips]");
+          el.input = shadow.querySelector("[data-input]");
+          el.form = shadow.querySelector("[data-form]");
+          el.name = shadow.querySelector("[data-name]");
+          el.launcher.addEventListener("click", togglePanel);
+          shadow.querySelector(".close").addEventListener("click", closePanel);
+          el.form.addEventListener("submit", (event) => { event.preventDefault(); handleUserText(el.input.value); });
+          shadow.addEventListener("keydown", (event) => { if (event.key === "Escape") closePanel(); });
+          mounted = true;
+        }
+
+        window.SymbioWidget = { open: openPanel, close: closePanel, toggle: togglePanel, configure: configure, __loaded: true };
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
+        else mount();
+      })();
+    </script>
+
+    <!-- 3) Demo controller: presets, live rebrand, leads panel ----------- -->
+    <script>
+      (function () {
+        "use strict";
+
+        const PRESETS = {
+          Salon: {
+            businessName: "Glow Salon",
+            accent: "#e0457b",
+            eyebrow: "Hair & beauty",
+            tagline: "Look good. Feel better.",
+            services: ["Haircut", "Color", "Blowout", "Beard trim"],
+            hours: "Tue-Sat, 9am-6pm",
+            location: "Oakland, CA",
+            phone: "510-555-0142",
+            price: "from $35",
+          },
+          Dental: {
+            businessName: "BrightSmile Dental",
+            accent: "#1f9bd1",
+            eyebrow: "Dental care",
+            tagline: "Healthy smiles, gentle care.",
+            services: ["Checkup & cleaning", "Whitening", "Implants", "Emergency care"],
+            hours: "Mon-Fri, 8am-5pm",
+            location: "San Jose, CA",
+            phone: "408-555-0190",
+            price: "from $99",
+          },
+          Restaurant: {
+            businessName: "Bella Cucina",
+            accent: "#e0732f",
+            eyebrow: "Italian kitchen",
+            tagline: "Handmade pasta, every night.",
+            services: ["Dinner reservations", "Private events", "Catering", "Takeout"],
+            hours: "Daily, 5pm-11pm",
+            location: "Berkeley, CA",
+            phone: "510-555-0177",
+            price: "",
+          },
+          Law: {
+            businessName: "Hayes & Co. Law",
+            accent: "#2f5fe0",
+            eyebrow: "Legal services",
+            tagline: "Clear advice when it matters.",
+            services: ["Free consultation", "Family law", "Business law", "Estate planning"],
+            hours: "Mon-Fri, 9am-6pm",
+            location: "San Francisco, CA",
+            phone: "415-555-0123",
+            price: "",
+          },
+          Gym: {
+            businessName: "Forge Fitness",
+            accent: "#19b36b",
+            eyebrow: "Gym & training",
+            tagline: "Stronger every day.",
+            services: ["Free trial pass", "Personal training", "Group classes", "Memberships"],
+            hours: "Daily, 5am-11pm",
+            location: "Oakland, CA",
+            phone: "510-555-0160",
+            price: "from $29/mo",
+          },
+          Plumber: {
+            businessName: "RapidFlow Plumbing",
+            accent: "#1f6bff",
+            eyebrow: "Plumbing",
+            tagline: "Fast, no-mess plumbing.",
+            services: ["Emergency callout", "Pipe repair", "Water heaters", "Drain cleaning"],
+            hours: "Open 24/7",
+            location: "Bay Area",
+            phone: "510-555-0111",
+            price: "",
+          },
+        };
+
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+        let leadCount = 0;
+
+        function setText(sel, value) {
+          const node = $(sel);
+          if (node) node.textContent = value;
+        }
+
+        function applyPreset(preset, pressedBtn) {
+          // Rebrand the visible page.
+          document.documentElement.style.setProperty("--accent", preset.accent);
+          setText("[data-biz-eyebrow]", preset.eyebrow);
+          setText("[data-biz-name]", preset.businessName);
+          setText("[data-biz-tagline]", preset.tagline);
+          setText("[data-biz-hours]", preset.hours);
+          setText("[data-biz-location]", preset.location);
+          setText("[data-biz-phone]", preset.phone);
+          document.title = preset.businessName + " - Symbio AI demo";
+
+          const wrap = $("[data-biz-services]");
+          if (wrap) {
+            wrap.innerHTML = "";
+            preset.services.forEach((svc) => {
+              const card = document.createElement("div");
+              card.className = "card";
+              const h = document.createElement("h3");
+              h.textContent = svc;
+              const p = document.createElement("p");
+              p.textContent = "Ask the assistant about " + svc.toLowerCase() + ".";
+              card.appendChild(h);
+              card.appendChild(p);
+              wrap.appendChild(card);
+            });
+          }
+
+          // Sync the form inputs.
+          const nameInput = $("[data-cz-name]");
+          const accentInput = $("[data-cz-accent]");
+          if (nameInput) nameInput.value = preset.businessName;
+          if (accentInput) accentInput.value = preset.accent;
+
+          // Rebrand the widget.
+          if (window.SymbioWidget) {
+            window.SymbioWidget.configure({
+              businessName: preset.businessName,
+              accent: preset.accent,
+              services: preset.services,
+              hours: preset.hours,
+              location: preset.location,
+              phone: preset.phone,
+              price: preset.price,
+            });
+          }
+
+          $$("[data-presets] button").forEach((b) =>
+            b.setAttribute("aria-pressed", b === pressedBtn ? "true" : "false")
+          );
+        }
+
+        // Build preset buttons.
+        const presetWrap = $("[data-presets]");
+        Object.keys(PRESETS).forEach((key) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = key;
+          btn.addEventListener("click", () => applyPreset(PRESETS[key], btn));
+          presetWrap.appendChild(btn);
+        });
+
+        // Manual "Apply changes".
+        $("[data-cz-apply]").addEventListener("click", () => {
+          const name = $("[data-cz-name]").value.trim();
+          const accent = $("[data-cz-accent]").value;
+          const ai = $("[data-cz-ai]").value.trim();
+          if (accent) document.documentElement.style.setProperty("--accent", accent);
+          if (name) setText("[data-biz-name]", name);
+          if (window.SymbioWidget) {
+            window.SymbioWidget.configure({
+              businessName: name || undefined,
+              accent: accent || undefined,
+              aiEndpoint: ai || undefined,
+            });
+          }
+        });
+
+        // Panel open/close.
+        function openPanel(name) {
+          const panel = $('[data-panel="' + name + '"]');
+          if (panel) panel.classList.add("is-open");
+        }
+
+        $$("[data-toggle]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const panel = $('[data-panel="' + btn.getAttribute("data-toggle") + '"]');
+            if (panel) panel.classList.toggle("is-open");
+          });
+        });
+        $$("[data-close]").forEach((btn) => {
+          btn.addEventListener("click", () => btn.closest("[data-panel]").classList.remove("is-open"));
+        });
+
+        // "Chat with us" buttons open the widget.
+        $$("[data-open-chat]").forEach((btn) =>
+          btn.addEventListener("click", () => window.SymbioWidget && window.SymbioWidget.open())
+        );
+
+        // Tour actions show the demo flow without making visitors guess.
+        $$("[data-tour-action]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const action = btn.getAttribute("data-tour-action");
+            if (action === "customize") {
+              openPanel("customize");
+            }
+            if (action === "sampleRebrand") {
+              const gymBtn = Array.from(presetWrap.querySelectorAll("button")).find((button) => button.textContent === "Gym");
+              applyPreset(PRESETS.Gym, gymBtn || presetWrap.querySelector("button"));
+              openPanel("customize");
+            }
+            if (action === "chat") {
+              if (window.SymbioWidget) window.SymbioWidget.open();
+            }
+            if (action === "sampleLead") {
+              window.dispatchEvent(
+                new CustomEvent("symbio:lead", {
+                  detail: {
+                    name: "Taylor Brooks",
+                    contact: "taylor@example.com",
+                    detail: "Asked for Saturday availability and pricing.",
+                    at: new Date().toISOString(),
+                  },
+                })
+              );
+              openPanel("leads");
+            }
+          });
+        });
+
+        // Listen for captured leads and render them.
+        window.addEventListener("symbio:lead", (event) => {
+          const lead = event.detail || {};
+          leadCount += 1;
+          $$("[data-lead-count]").forEach((node) => (node.textContent = String(leadCount)));
+
+          const list = $("[data-lead-list]");
+          const empty = list.querySelector(".empty");
+          if (empty) empty.remove();
+
+          const li = document.createElement("li");
+          li.className = "leaditem";
+          const strong = document.createElement("strong");
+          strong.textContent = lead.name || "New lead";
+          const contact = document.createElement("span");
+          contact.textContent = lead.contact || "";
+          const detail = document.createElement("span");
+          detail.textContent = lead.detail || "";
+          const time = document.createElement("time");
+          const when = lead.at ? new Date(lead.at) : new Date();
+          time.textContent = when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          li.appendChild(strong);
+          li.appendChild(contact);
+          li.appendChild(detail);
+          li.appendChild(time);
+          list.insertBefore(li, list.firstChild);
+
+          // Auto-open the leads panel so the result is visible.
+          $('[data-panel="leads"]').classList.add("is-open");
+        });
+
+        // Start on the Salon preset and open Customize so the demo is discoverable.
+        applyPreset(PRESETS.Salon, presetWrap.querySelector("button"));
+        $('[data-panel="customize"]').classList.add("is-open");
+      })();
+    </script>
+  </body>
+</html>

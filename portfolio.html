@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>Portfolio | Symbio AI</title>
+    <meta name="description" content="Example builds, live demos, custom apps, AI assistants, and pilot systems from Symbio AI." />
+
+    <link rel="icon" href="assets/img/logo-symbio.svg" type="image/svg+xml" />
+
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Symbio AI" />
+    <meta property="og:title" content="Portfolio | Symbio AI" />
+    <meta property="og:description" content="Example builds, live demos, custom apps, AI assistants, and pilot systems from Symbio AI." />
+    <meta property="og:image" content="assets/img/logo-symbio-color.svg" />
+    <meta name="twitter:card" content="summary" />
+
+    
+    <script>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("symbio-theme");
+          if (t === "light" || t === "dark") {
+            d.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* localStorage may be unavailable; fall back to CSS media query. */
+        }
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!window.__symbioReady) d.classList.remove("js");
+          }, 1500);
+        });
+      })();
+    </script>
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/main.js" defer></script>
+  </head>
+  <body class="page page--portfolio">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    
+<header class="site-header" data-header>
+  <div class="container site-header__inner">
+    
+<a class="brand " href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list" id="primary-menu" data-nav-menu>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="index.html"
+              
+              >Home</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="about.html"
+              
+              >About</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="services.html"
+              
+              >Services</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="pricing.html"
+              
+              >Pricing</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="portfolio.html"
+              aria-current="page"
+              >Portfolio</a
+            >
+          </li>
+        
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="reviews.html"
+              
+              >Reviews</a
+            >
+          </li>
+        
+        <li class="site-nav__item site-nav__item--cta">
+          <a
+            class="btn btn--primary btn--sm"
+            href="scan.html"
+            
+            >Send us your site</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        class="theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Switch to dark theme"
+        title="Toggle light / dark theme"
+      >
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2.5" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="21.5" />
+            <line x1="2.5" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="21.5" y2="12" />
+            <line x1="5.1" y1="5.1" x2="6.9" y2="6.9" />
+            <line x1="17.1" y1="17.1" x2="18.9" y2="18.9" />
+            <line x1="5.1" y1="18.9" x2="6.9" y2="17.1" />
+            <line x1="17.1" y1="6.9" x2="18.9" y2="5.1" />
+          </g>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M20 14.2A8 8 0 1 1 9.8 4 6.4 6.4 0 0 0 20 14.2Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        data-nav-toggle
+        aria-expanded="false"
+        aria-controls="primary-menu"
+        aria-label="Open menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+    <main id="main" class="site-main">
+      
+
+<section class="section section--tight">
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Portfolio</span>
+    <h1 class="section__title">Examples of what we can build</h1>
+    <p class="section__lead">
+      We are a young studio, so this page mixes real internal tools, live demos, and concept builds.
+      The goal is simple: show the kind of finish and usefulness we bring to client work.
+    </p>
+  </div>
+</section>
+
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="grid grid--2">
+      <article class="card" data-reveal>
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 16v-3M12 16v-6M17 16v-4" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">AI operations dashboard</h2>
+        <p class="card__text">
+          An internal tool for tracking leads, replies, bookings, and follow-ups in one place so
+          nothing gets forgotten.
+        </p>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="1">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M5 5h14v10H8l-3 3z" stroke-linejoin="round" />
+            <path d="M9 9h6M9 11.5h4" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">White-label AI assistant</h2>
+        <p class="card__text">
+          The embeddable chat assistant we can adapt for salons, dental offices, restaurants, law
+          firms, gyms, service businesses, and more.
+        </p>
+        <a class="card__link" href="chatbot-demo.html">Open the live demo</a>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="2">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="4" y="5" width="16" height="14" rx="2" />
+            <path d="M8 9h8M8 12h5M8 15h7" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">Example portfolio build</h2>
+        <p class="card__text">
+          A proof-driven portfolio layout for founders, contractors, job seekers, creators, and
+          service businesses that need to look credible fast.
+        </p>
+        <a class="card__link" href="scan.html">Ask for this style</a>
+      </article>
+
+      <article class="card" data-reveal data-reveal-delay="3">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">Client pilot builds</h2>
+        <p class="card__text">
+          We are building early client pilots now. As they wrap, we will add named case studies
+          with screenshots, numbers, and the exact problem solved.
+        </p>
+      </article>
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">Built by people</span>
+      <p>
+        Powered by international AI engineers and devs. We use AI heavily, but real builders still review the direction,
+        details, and final polish.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Concepts we can build</span>
+      <h2 class="section__title">Examples of systems we put together</h2>
+      <p class="section__lead">
+        These are concept examples to show what is possible. We shape the final version around
+        your business, your customers, and your workflow.
+      </p>
+    </div>
+
+    <div class="grid grid--auto">
+      <article class="card" data-reveal>
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">Free scan intake app</h3>
+        <p class="card__text">
+          A guided intake that turns interest into a structured lead your team can act on.
+        </p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="1">
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">Client booking dashboard</h3>
+        <p class="card__text">One screen for bookings, reminders, status, and no-show tracking.</p>
+      </article>
+      <article class="card card--link" data-reveal data-reveal-delay="2">
+        <span class="badge badge--booked">Live demo</span>
+        <h3 class="card__title">AI lead follow-up agent</h3>
+        <p class="card__text">
+          Replies in seconds, qualifies the lead, and hands off to a real person.
+        </p>
+        <a class="card__link" href="chatbot-demo.html">Try the live demo</a>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="3">
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">School or nonprofit request portal</h3>
+        <p class="card__text">
+          A simple portal for requests, approvals, and status updates. Less email, less confusion.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Want your business to be the next example?</h2>
+      <p class="cta-band__text">
+        Start with a free scan and we will show you what we would build first.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="scan.html">Send us your site</a>
+        <a class="btn btn--secondary btn--lg" href="chatbot-demo.html">Try the live demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+    </main>
+
+    
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__col site-footer__col--brand">
+      
+      
+<a class="brand brand--footer" href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+      <p class="site-footer__blurb">We catch and convert leads in real time.</p>
+      <p class="site-footer__small">Powered by international AI engineers and devs.</p>
+      <a class="btn btn--primary" href="scan.html">Send us your site</a>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Footer explore">
+      <h2 class="site-footer__heading">Explore</h2>
+      <ul class="site-footer__list">
+        
+          <li><a href="index.html">Home</a></li>
+        
+          <li><a href="about.html">About</a></li>
+        
+          <li><a href="services.html">Services</a></li>
+        
+          <li><a href="pricing.html">Pricing</a></li>
+        
+          <li><a href="portfolio.html">Portfolio</a></li>
+        
+          <li><a href="reviews.html">Reviews</a></li>
+        
+        <li><a href="scan.html">Send us your site</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Footer work">
+      <h2 class="site-footer__heading">Work</h2>
+      <ul class="site-footer__list">
+        <li><a href="chatbot-demo.html">Live chatbot demo</a></li>
+        <li><a href="portfolio.html">Example portfolio build</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__heading">Talk to us</h2>
+      <ul class="site-footer__list site-footer__list--contacts">
+        <li>
+          <span class="site-footer__person">Symbio AI</span>
+          <span class="site-footer__role">Business inbox</span>
+          <a href="mailto:symbioaiiii@gmail.com">symbioaiiii@gmail.com</a>
+        </li>
+        
+          <li>
+            <span class="site-footer__person">Mohammed H. Majeed</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+            
+              <a href="tel:5105857136">510-585-7136</a>
+            
+          </li>
+        
+          <li>
+            <span class="site-footer__person">Ravi Kumar</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+            
+              <a href="tel:9255978128">925-597-8128</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <p class="site-footer__credit">
+      &copy; 2026 Symbio AI. Built by Mohammed and Ravi.
+    </p>
+    <p class="site-footer__small">Honest builds. Real numbers. A free site review before anything else.</p>
+  </div>
+</footer>
+
+
+    
+    <script>
+      window.SymbioConfig = {
+        businessName: "Symbio AI",
+        accent: "#2f6bff",
+        services: ["Websites & landing pages", "Booking & lead systems", "AI agents & automation"],
+        hours: "Mon-Fri, 9am-6pm PT",
+        location: "Online - we build remote",
+        phone: "510-585-7136",
+        price: "with a free scan first",
+        position: "right",
+        theme: "auto",
+        greeting:
+          "Hi! 👋 I'm Symbio's assistant. Want a free scan of your site, or a question about what we build?",
+      };
+    </script>
+    <script src="assets/js/symbio-widget.js" defer></script>
+  </body>
+</html>

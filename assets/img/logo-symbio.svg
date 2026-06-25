@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512" fill="none" role="img" aria-label="Symbio AI">
+  <defs>
+    <linearGradient id="g" x1="30" y1="16" x2="70" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2F6BFF" />
+      <stop offset="1" stop-color="#7A4DFF" />
+    </linearGradient>
+    <style>
+      .ink { stroke: #0e1116; }
+      @media (prefers-color-scheme: dark) {
+        .ink { stroke: #f7f8fa; }
+      }
+    </style>
+  </defs>
+  <path class="ink" d="M66,16 C40,27 40,43 54,50 C40,57 40,73 66,84" stroke-width="6" stroke-linecap="round" />
+  <path d="M34,16 C60,27 60,43 46,50 C60,57 60,73 34,84" stroke="url(#g)" stroke-width="6" stroke-linecap="round" />
+  <path class="ink" d="M54,50 C40,57 40,73 66,84" stroke-width="6" stroke-linecap="round" />
+</svg>
