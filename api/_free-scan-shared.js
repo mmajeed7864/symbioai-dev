@@ -230,7 +230,8 @@ async function sendSms(payload) {
     return { configured: false, ok: false, detail: "Twilio SMS is not configured." };
   }
 
-  const body = [
+  const trialTemplate = compact(process.env.TWILIO_TRIAL_SMS_TEMPLATE || "", 120);
+  const body = trialTemplate || [
     "New Symbio free scan",
     payload.business || payload.name || "Unknown lead",
     payload.phone ? `Phone: ${payload.phone}` : "",
