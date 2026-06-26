@@ -618,7 +618,7 @@
             cfg.greeting ||
             "Hey, this is " +
               cfg.businessName +
-              ". Tell us what you want built or fixed, and I will point you toward the right next step."
+              ". Send your website or tell us what you want redesigned, and I will point you toward the right next step."
           );
         }
 
@@ -790,24 +790,24 @@
           if (has(text, ["where", "location", "address", "find you"]))
             return { text: serviceAreaLine() + " Most work is remote, so we can help whether you are local or out of state. " + contactLine() };
           if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
-            return { text: "Pricing depends on what you need built, but we start with a free scan so you know what is actually worth fixing before spending money. Send your site or idea and we will point you to the cleanest next step.", offerLead: true };
+            return { text: "Pricing depends on the site and scope, but we start with a free scan or planning call so you know what is actually worth building before spending money. If you need an app, chatbot, or automation after that, we can price it separately.", offerLead: true };
           }
           if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
-            return { text: "The free scan is simple: send your website, Instagram, business page, or app idea. We look for the first fixes that can improve trust, speed, booking, leads, or follow-up.", offerLead: true };
+            return { text: "The free scan is simple: send your website, Instagram, or business page. We look for the first fixes that can improve trust, mobile flow, speed, booking, leads, or follow-up.", offerLead: true };
           }
           if (has(text, ["service", "what do you", "offer", "do you do", "help with"]))
-            return { text: "We build websites, custom apps, chatbots, lead capture systems, booking flows, dashboards, and automations. The goal is simple: make your business look better, answer faster, and turn more visitors into customers." };
+            return { text: "Our main focus is website design and redesign: cleaner pages, better mobile flow, stronger copy, and clearer calls to action. We can also add booking systems, lead capture, custom apps, dashboards, and AI chatbots when the site needs more." };
           if (has(text, ["phone", "number", "call", "email", "contact", "human", "founder"]))
             return { text: contactLine() + " You can also leave your name and what you need here, and we will route it.", offerLead: true };
           if (has(text, ["time", "timeline", "how long", "launch", "build time"]))
-            return { text: "Simple landing pages can move fast. Bigger websites, apps, dashboards, or automation depend on scope. Send the link or idea and we will give you a realistic next step after the free scan.", offerLead: true };
+            return { text: "Simple landing pages and focused redesigns can move fast. Bigger websites, apps, dashboards, or automation depend on scope. Send the link and we will give you a realistic next step after the free scan.", offerLead: true };
           if (has(text, ["example", "portfolio", "proof", "demo", "work"]))
-            return { text: "The live demo shows the kind of customer flow we can build: a clean site, a useful assistant, and leads routed somewhere the business can act on. If you want, send your site and we will show what we would improve first.", offerLead: true };
+            return { text: "The live demo shows how a clean site can guide visitors, answer common questions, and route leads somewhere useful. If you want, send your site and we will show what we would improve first.", offerLead: true };
           if (has(text, ["thank", "thanks", "cheers", "appreciate"]))
             return { text: "You got it. Send a link or idea whenever you are ready and we can take a look." };
           if (text === "hi" || text === "hello" || has(text, ["hello", "hey"]))
             return { text: "Hey. What are you trying to build, fix, or improve?" };
-          return { text: "I can help with websites, apps, chatbots, pricing, timelines, examples, or a free scan. Tell me what you are trying to build or fix." };
+          return { text: "I can help with website redesigns, pricing, timelines, examples, apps, chatbots, or a free scan. Send your site or tell me what feels broken." };
         }
 
         function systemPrompt() {
@@ -818,7 +818,7 @@
           if (cfg.secondaryPhone) parts.push("Second founder phone: " + cfg.secondaryPhone + ".");
           if (cfg.email) parts.push("Email: " + cfg.email + ".");
           if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
-          parts.push("Use clear, human language. Position the company as founder-led, available for 24/7 intake, and serving clients across the US. Encourage a free scan or founder follow-up when useful.");
+          parts.push("Use clear, human language. Position website design and redesign as the main offer. Mention apps, chatbots, dashboards, and automation as optional add-ons when useful. The company is founder-led, available for 24/7 intake, and serves clients across the US. Encourage a free scan or founder follow-up when useful.");
           return parts.join(" ");
         }
         async function aiReply() {
@@ -836,7 +836,7 @@
         function startLead() {
           lead = { step: "name", name: "", contact: "", detail: "" };
           setChips([]);
-          addMessage("bot", "Absolutely. First, what is your name? Then I will grab the best contact and what you want built or fixed.");
+          addMessage("bot", "Absolutely. First, what is your name? Then I will grab the best contact and what you want redesigned or built.");
         }
         function advanceLead(text) {
           if (lead.step === "name") {
@@ -850,7 +850,7 @@
             }
             lead.contact = text;
             lead.step = "detail";
-            addMessage("bot", "Got it. Send your website, Instagram, business page, or a short description of what you want built or fixed.");
+            addMessage("bot", "Got it. Send your website, Instagram, business page, or a short description of what you want redesigned or built.");
           } else if (lead.step === "detail") {
             lead.detail = text;
             lead.step = null;
