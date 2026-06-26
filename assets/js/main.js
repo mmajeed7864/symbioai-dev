@@ -333,29 +333,41 @@
   ];
   const LEAD_EMAIL = "symbioaiiii@gmail.com";
   const LEAD_EMAIL_CC = "";
+  const PERMANENT_SCAN_ENDPOINT = "https://api.symbioai.dev/api/free-scan";
+  const EMERGENCY_SCAN_ENDPOINT =
+    "https://reserved-participating-hospital-solution.trycloudflare.com/api/free-scan";
 
-  function scanEndpoint() {
+  function scanEndpoints() {
+    const configured =
+      window.SymbioConfig?.freeScanEndpoint ||
+      document.querySelector('meta[name="symbio-free-scan-endpoint"]')?.getAttribute("content") ||
+      "";
     const host = window.location.hostname;
     const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
-    return isLocal
-      ? "http://127.0.0.1:8878/api/free-scan"
-      : "https://instances-sie-book-appointments.trycloudflare.com/api/free-scan";
+    const endpoints = [];
+    if (configured) endpoints.push(configured);
+    if (isLocal) endpoints.push("http://127.0.0.1:8878/api/free-scan");
+    else endpoints.push(PERMANENT_SCAN_ENDPOINT, EMERGENCY_SCAN_ENDPOINT);
+    return endpoints.filter((endpoint, index) => endpoint && endpoints.indexOf(endpoint) === index);
   }
 
   // POST a scan payload; resolves true only on HTTP 200 with {"ok": true}.
   async function submitScan(payload) {
-    const res = await fetch(scanEndpoint(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) return false;
-    try {
-      const data = await res.json();
-      return Boolean(data && data.ok === true);
-    } catch (e) {
-      return false;
+    for (const endpoint of scanEndpoints()) {
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (data && data.ok === true) return true;
+      } catch (e) {
+        // Try the next intake endpoint before using the mail fallback.
+      }
     }
+    return false;
   }
 
   function initScanForm() {

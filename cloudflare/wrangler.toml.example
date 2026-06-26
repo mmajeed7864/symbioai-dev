@@ -1,0 +1,29 @@
+name = "symbio-free-scan-intake"
+main = "cloudflare/free-scan-worker.js"
+compatibility_date = "2026-06-01"
+
+# Recommended production route after the domain is connected to Cloudflare:
+# routes = [
+#   { pattern = "api.symbioai.dev/*", custom_domain = true }
+# ]
+
+kv_namespaces = [
+  # Create this with:
+  #   npx wrangler kv namespace create FREE_SCAN_KV
+  # Then paste the returned id below.
+  { binding = "FREE_SCAN_KV", id = "PASTE_KV_NAMESPACE_ID_HERE" }
+]
+
+[vars]
+ALLOWED_ORIGINS = "https://symbioai.dev,https://www.symbioai.dev"
+ALERT_EMAIL_TO = "symbioaiiii@gmail.com"
+# Use a verified sender/domain in Resend. Temporary fallback can be onboarding@resend.dev during testing.
+ALERT_EMAIL_FROM = "Symbio AI <alerts@symbioai.dev>"
+SMS_TO = "+15105857136,+19255978128"
+
+# Set these as secrets, never commit them:
+#   npx wrangler secret put SYNC_SECRET
+#   npx wrangler secret put RESEND_API_KEY
+#   npx wrangler secret put TWILIO_ACCOUNT_SID
+#   npx wrangler secret put TWILIO_AUTH_TOKEN
+#   npx wrangler secret put TWILIO_FROM_NUMBER
