@@ -1,14 +1,34 @@
-# Permanent Free Scan Intake
+# Free Scan Intake
 
-The live site must not depend on a temporary `trycloudflare.com` tunnel. Use a permanent Cloudflare Worker as the public intake bridge.
+The live site must not depend on a temporary `trycloudflare.com` tunnel. Production now posts to the Vercel same-domain endpoint first, with the temporary Olympus bridge as a backup while the permanent remote store is finished.
 
 ## Flow
 
-1. `symbioai.dev/scan.html` posts to `https://api.symbioai.dev/api/free-scan`.
-2. Cloudflare Worker saves the lead in KV first, so the lead is captured even if Mohammed's laptop is offline.
-3. Worker sends an email alert to `symbioaiiii@gmail.com`.
-4. Worker sends SMS alerts to Mohammed and Ravi through Twilio.
-5. Olympus dashboard syncs from the Worker using `OLYMPUS_REMOTE_FREE_SCAN_API` and `OLYMPUS_REMOTE_FREE_SCAN_TOKEN`, then mirrors leads into Atlas as `P0 - inbound free scan (reply first)`.
+1. `symbioai.dev/scan.html` posts to `/api/free-scan` on Vercel.
+2. The Vercel function forwards the lead into Olympus and returns success when the lead is captured.
+3. Once credentials are added, the Vercel function also sends an email alert to `symbioaiiii@gmail.com`.
+4. Once credentials are added, the Vercel function also sends SMS alerts to Mohammed and Ravi through Twilio.
+5. The Cloudflare Worker/KV option below can be deployed when you want a remote lead store that survives even if Mohammed's laptop/Olympus tunnel is offline.
+
+## Vercel Env
+
+Set these on the `symbioai-dev` Vercel project:
+
+```env
+FREE_SCAN_OLYMPUS_ENDPOINT=https://reserved-participating-hospital-solution.trycloudflare.com/api/free-scan
+ALERT_EMAIL_TO=symbioaiiii@gmail.com
+ALERT_EMAIL_FROM=Symbio AI <alerts@symbioai.dev>
+SMS_TO=+15105857136,+19255978128
+```
+
+Set these as Vercel secrets/environment variables when ready:
+
+```env
+RESEND_API_KEY=replace_with_resend_key
+TWILIO_ACCOUNT_SID=replace_with_twilio_sid
+TWILIO_AUTH_TOKEN=replace_with_twilio_auth_token
+TWILIO_FROM_NUMBER=replace_with_twilio_number
+```
 
 ## Deploy Worker
 

@@ -910,10 +910,27 @@ ol {
   margin-top: 2rem;
 }
 
+.hero__trust {
+  margin-top: 1.05rem;
+  font-size: var(--fs-300);
+  font-weight: 600;
+  color: var(--c-text);
+}
+
 .hero__note {
-  margin-top: 1.1rem;
+  margin-top: 0.65rem;
   font-size: var(--fs-300);
   color: var(--c-text-faint);
+}
+
+.hero__note a {
+  color: var(--c-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hero__note a:hover {
+  text-decoration: underline;
 }
 
 /* Lead inbox -------------------------------------------------------------- */

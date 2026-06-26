@@ -333,7 +333,7 @@
   ];
   const LEAD_EMAIL = "symbioaiiii@gmail.com";
   const LEAD_EMAIL_CC = "";
-  const PERMANENT_SCAN_ENDPOINT = "https://api.symbioai.dev/api/free-scan";
+  const PERMANENT_SCAN_ENDPOINT = "/api/free-scan";
   const EMERGENCY_SCAN_ENDPOINT =
     "https://reserved-participating-hospital-solution.trycloudflare.com/api/free-scan";
 
@@ -441,7 +441,7 @@
         if (await submitScan(payload)) {
           setStatus(
             "success",
-            "Request saved. This is now priority #1 in Olympus, and Mohammed & Ravi will reply fast."
+            "Thanks! Your scan request is in - we'll reply within one business day."
           );
           form.reset();
           if (sourceUrlInput) sourceUrlInput.value = window.location.href;
