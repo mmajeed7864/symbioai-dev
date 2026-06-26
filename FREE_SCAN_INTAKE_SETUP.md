@@ -1,93 +1,60 @@
-# Free Scan Intake
+# Permanent Free Scan Intake
 
-The live site must not depend on a temporary `trycloudflare.com` tunnel. Production now posts to the Vercel same-domain endpoint first, with the temporary Olympus bridge as a backup while the permanent remote store is finished.
+Cloudflare is no longer part of the production design.
 
-## Flow
+## Permanent Flow
 
-1. `symbioai.dev/scan.html` posts to `/api/free-scan` on Vercel.
-2. The Vercel function forwards the lead into Olympus and returns success when the lead is captured.
-3. Once credentials are added, the Vercel function also sends an email alert to `symbioaiiii@gmail.com`.
-4. Once credentials are added, the Vercel function also sends SMS alerts to Mohammed and Ravi through Twilio.
-5. The Cloudflare Worker/KV option below can be deployed when you want a remote lead store that survives even if Mohammed's laptop/Olympus tunnel is offline.
+1. `symbioai.dev/scan.html` posts to the same-domain Vercel function: `/api/free-scan`.
+2. Vercel stores the request in Supabase first.
+3. Vercel sends an email alert through Resend.
+4. Vercel sends SMS alerts through Twilio.
+5. Olympus pulls saved leads from `/api/free-scans` with a private bearer token and mirrors them into Atlas as `P0 - inbound free scan (reply first)`.
 
-## Vercel Env
+This means the lead is captured even if Mohammed's laptop, Olympus server, or any tunnel is offline.
 
-Set these on the `symbioai-dev` Vercel project:
+## Supabase Setup
+
+Run `supabase/free_scan_requests.sql` in the Supabase SQL editor.
+
+Required Vercel environment variables:
 
 ```env
-FREE_SCAN_OLYMPUS_ENDPOINT=https://reserved-participating-hospital-solution.trycloudflare.com/api/free-scan
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_FREE_SCAN_TABLE=free_scan_requests
+OLYMPUS_REMOTE_FREE_SCAN_TOKEN=make_a_long_random_private_token
+```
+
+## Email Alerts
+
+Recommended sender:
+
+```env
+ALERT_EMAIL_FROM=Symbio AI <freescan@symbioai.dev>
 ALERT_EMAIL_TO=symbioaiiii@gmail.com
-ALERT_EMAIL_FROM=Symbio AI <alerts@symbioai.dev>
+RESEND_API_KEY=your_resend_api_key
+```
+
+The sender domain must be verified in Resend.
+
+## SMS Alerts
+
+```env
 SMS_TO=+15105857136,+19255978128
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_FROM_NUMBER=+1_your_twilio_number
 ```
 
-Set these as Vercel secrets/environment variables when ready:
+If Twilio is in trial mode, Mohammed and Ravi's numbers must be verified recipients.
+
+## Olympus Sync
+
+Set these in the Olympus environment:
 
 ```env
-RESEND_API_KEY=replace_with_resend_key
-TWILIO_ACCOUNT_SID=replace_with_twilio_sid
-TWILIO_AUTH_TOKEN=replace_with_twilio_auth_token
-TWILIO_FROM_NUMBER=replace_with_twilio_number
+OLYMPUS_REMOTE_FREE_SCAN_API=https://www.symbioai.dev/api/free-scans
+OLYMPUS_REMOTE_FREE_SCAN_TOKEN=the_same_private_token_from_vercel
 ```
 
-## Deploy Worker
-
-```powershell
-cd tmp/symbioai-dev-live
-copy cloudflare\wrangler.toml.example wrangler.toml
-npm install -D wrangler
-npx wrangler login
-npx wrangler kv namespace create FREE_SCAN_KV
-```
-
-Paste the returned KV namespace id into `wrangler.toml`.
-
-Set secrets:
-
-```powershell
-npx wrangler secret put SYNC_SECRET
-npx wrangler secret put RESEND_API_KEY
-npx wrangler secret put TWILIO_ACCOUNT_SID
-npx wrangler secret put TWILIO_AUTH_TOKEN
-npx wrangler secret put TWILIO_FROM_NUMBER
-```
-
-Deploy:
-
-```powershell
-npx wrangler deploy
-```
-
-## Olympus Sync Env
-
-Add these to Mohammed's Olympus env file:
-
-```env
-OLYMPUS_REMOTE_FREE_SCAN_API=https://api.symbioai.dev/api/free-scans
-OLYMPUS_REMOTE_FREE_SCAN_TOKEN=the_same_SYNC_SECRET_used_in_worker
-```
-
-When Olympus refreshes `/api/free-scans`, it will pull remote leads and upsert them into Atlas.
-
-## SMS Setup Requirements
-
-Use Twilio:
-
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
-- `TWILIO_FROM_NUMBER` in E.164 format, for example `+15551234567`
-- Recipient numbers:
-  - Mohammed: `+15105857136`
-  - Ravi: `+19255978128`
-
-If the Twilio account is still in trial mode, both recipient numbers must be verified in Twilio before SMS will send.
-
-## Email Setup Requirements
-
-Use Resend:
-
-- `RESEND_API_KEY`
-- `ALERT_EMAIL_TO=symbioaiiii@gmail.com`
-- `ALERT_EMAIL_FROM=Symbio AI <alerts@symbioai.dev>`
-
-`alerts@symbioai.dev` must be a verified sender/domain in Resend. During early testing, Resend's temporary sender can be used if the account allows it.
+When Olympus loads `/api/free-scans`, it will pull permanent Supabase leads and upsert them into Atlas.

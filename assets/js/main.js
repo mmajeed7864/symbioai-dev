@@ -334,8 +334,6 @@
   const LEAD_EMAIL = "symbioaiiii@gmail.com";
   const LEAD_EMAIL_CC = "";
   const PERMANENT_SCAN_ENDPOINT = "/api/free-scan";
-  const EMERGENCY_SCAN_ENDPOINT =
-    "https://reserved-participating-hospital-solution.trycloudflare.com/api/free-scan";
 
   function scanEndpoints() {
     const configured =
@@ -347,7 +345,7 @@
     const endpoints = [];
     if (configured) endpoints.push(configured);
     if (isLocal) endpoints.push("http://127.0.0.1:8878/api/free-scan");
-    else endpoints.push(PERMANENT_SCAN_ENDPOINT, EMERGENCY_SCAN_ENDPOINT);
+    else endpoints.push(PERMANENT_SCAN_ENDPOINT);
     return endpoints.filter((endpoint, index) => endpoint && endpoints.indexOf(endpoint) === index);
   }
 
