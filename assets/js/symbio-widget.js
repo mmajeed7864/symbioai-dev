@@ -74,6 +74,8 @@
       hours: attr("hours") || user.hours || "Mon-Fri, 9am-5pm",
       location: attr("location") || user.location || "",
       phone: attr("phone") || user.phone || "",
+      secondaryPhone: attr("secondary-phone") || user.secondaryPhone || "",
+      email: attr("email") || user.email || "",
       price: attr("price") || user.price || "",
       position:
         (attr("position") || user.position || "right").toLowerCase() === "left" ? "left" : "right",
@@ -109,6 +111,22 @@
     return String(name).trim().split(/\s+/)[0] || "there";
   }
 
+  function contactLine() {
+    const phones = [];
+    if (cfg.phone) phones.push(cfg.secondaryPhone || cfg.email ? "Mohammed at " + cfg.phone : cfg.phone);
+    if (cfg.secondaryPhone) phones.push("Ravi at " + cfg.secondaryPhone);
+    const phoneLine = phones.length ? "Call or text " + phones.join(" or ") + "." : "";
+    const emailLine = cfg.email ? "Email " + cfg.email + "." : "";
+    return [phoneLine, emailLine].filter(Boolean).join(" ") || "Leave your details here and we will follow up.";
+  }
+
+  function serviceAreaLine() {
+    return (
+      cfg.location ||
+      "Founder-led from California and North Carolina, serving businesses across the entire US."
+    );
+  }
+
   function looksLikeContact(text) {
     const t = String(text);
     const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t.trim());
@@ -119,9 +137,9 @@
   function defaultGreeting() {
     return (
       cfg.greeting ||
-      "Hi! 👋 I'm the assistant for " +
+      "Hey, this is " +
         cfg.businessName +
-        ". Ask about our services, hours, or say 'book' to get started."
+        ". Tell us what you want built or fixed, and I will point you toward the right next step."
     );
   }
 
@@ -388,9 +406,9 @@
   }
 
   function defaultChips() {
-    const chips = ["Services", "Hours"];
+    const chips = ["Services", "Pricing", "Free scan", "Hours"];
     if (cfg.location) chips.push("Location");
-    chips.push("Book now");
+    chips.push("Talk to founder");
     return chips;
   }
 
@@ -411,6 +429,7 @@
       "contact",
       "call me",
       "reach me",
+      "talk to founder",
       "leave my details",
       "leave details",
       "interested",
@@ -421,43 +440,75 @@
     const text = raw.toLowerCase();
 
     if (has(text, ["hour", "open", "close", "when are you"])) {
-      return { text: cfg.businessName + " is open " + cfg.hours + "." };
+      const allDay = /24\/7|open 24/i.test(cfg.hours);
+      return {
+        text:
+          "Availability: " +
+          cfg.hours +
+          ". " +
+          (allDay
+            ? "If we are with a client or building, leave the details here and one of the founders will follow up. "
+            : "If you message outside those hours, leave your details and the team will follow up. ") +
+          contactLine(),
+      };
     }
     if (has(text, ["where", "location", "address", "find you"])) {
       return {
-        text: cfg.location
-          ? "We're located in " + cfg.location + "."
-          : "We mostly work online - tell me where you are and we'll sort it out.",
+        text:
+          serviceAreaLine() +
+          " Most work is remote, so we can help whether you are local or out of state. " +
+          contactLine(),
       };
     }
     if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
-      const base = cfg.price
-        ? "Pricing starts " + cfg.price + ". "
-        : "Pricing depends on what you need. ";
-      return { text: base + "Want me to have someone follow up with a quote?", offerLead: true };
+      return {
+        text:
+          "Pricing depends on what you need built, but we start with a free scan so you know what is actually worth fixing before spending money. Send your site or idea and we will point you to the cleanest next step.",
+        offerLead: true,
+      };
+    }
+    if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
+      return {
+        text:
+          "The free scan is simple: send your website, Instagram, business page, or app idea. We look for the first fixes that can improve trust, speed, booking, leads, or follow-up.",
+        offerLead: true,
+      };
     }
     if (has(text, ["service", "what do you", "offer", "do you do", "help with"])) {
-      return { text: "We help with: " + cfg.services.join(", ") + ". Which one fits?" };
-    }
-    if (has(text, ["phone", "number", "call"])) {
       return {
-        text: cfg.phone
-          ? "You can reach us at " + cfg.phone + ", or leave your details and we'll call you."
-          : "Leave your details and we'll call you back.",
+        text:
+          "We build websites, custom apps, chatbots, lead capture systems, booking flows, dashboards, and automations. The goal is simple: make your business look better, answer faster, and turn more visitors into customers.",
+      };
+    }
+    if (has(text, ["phone", "number", "call", "email", "contact", "human", "founder"])) {
+      return {
+        text: contactLine() + " You can also leave your name and what you need here, and we will route it.",
+        offerLead: true,
+      };
+    }
+    if (has(text, ["time", "timeline", "how long", "launch", "build time"])) {
+      return {
+        text:
+          "Simple landing pages can move fast. Bigger websites, apps, dashboards, or automation depend on scope. Send the link or idea and we will give you a realistic next step after the free scan.",
+        offerLead: true,
+      };
+    }
+    if (has(text, ["example", "portfolio", "proof", "demo", "work"])) {
+      return {
+        text:
+          "The live demo shows the kind of customer flow we can build: a clean site, a useful assistant, and leads routed somewhere the business can act on. If you want, send your site and we will show what we would improve first.",
         offerLead: true,
       };
     }
     if (has(text, ["thank", "thanks", "cheers", "appreciate"])) {
-      return { text: "You're welcome! Anything else I can help with?" };
+      return { text: "You got it. Send a link or idea whenever you are ready and we can take a look." };
     }
     if (has(text, ["hi", "hello", "hey", "yo "]) || text === "hi" || text === "hello") {
-      return { text: "Hey! How can I help you today?" };
+      return { text: "Hey. What are you trying to build, fix, or improve?" };
     }
     return {
       text:
-        "I can help with our services, hours" +
-        (cfg.location ? ", location" : "") +
-        ", or getting you booked. What do you need?",
+        "I can help with websites, apps, chatbots, pricing, timelines, examples, or a free scan. Tell me what you are trying to build or fix.",
     };
   }
 
@@ -470,9 +521,11 @@
     ];
     if (cfg.location) parts.push("Location: " + cfg.location + ".");
     if (cfg.phone) parts.push("Phone: " + cfg.phone + ".");
+    if (cfg.secondaryPhone) parts.push("Second founder phone: " + cfg.secondaryPhone + ".");
+    if (cfg.email) parts.push("Email: " + cfg.email + ".");
     if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
     parts.push(
-      "Be concise and helpful. Encourage the visitor to leave their name and contact so the team can follow up."
+      "Use clear, human language. Position the company as founder-led, available for 24/7 intake, and serving clients across the US. Encourage a free scan or founder follow-up when useful."
     );
     return parts.join(" ");
   }
@@ -493,7 +546,10 @@
   function startLead() {
     lead = { step: "name", name: "", contact: "", detail: "" };
     setChips([]);
-    addMessage("bot", "Happy to help with that. First - what's your name?");
+    addMessage(
+      "bot",
+      "Absolutely. First, what is your name? Then I will grab the best contact and what you want built or fixed."
+    );
   }
 
   function advanceLead(text) {
@@ -511,7 +567,10 @@
       }
       lead.contact = text;
       lead.step = "detail";
-      addMessage("bot", "Got it. Briefly, what do you need help with?");
+      addMessage(
+        "bot",
+        "Got it. Send your website, Instagram, business page, or a short description of what you want built or fixed."
+      );
     } else if (lead.step === "detail") {
       lead.detail = text;
       lead.step = null;
@@ -528,13 +587,15 @@
       page: window.location.href,
       at: new Date().toISOString(),
     };
+    const followUpOwner = cfg.secondaryPhone || cfg.email ? "A Symbio founder" : "The team";
     addMessage(
       "bot",
-      "Perfect - thanks, " +
+      "Perfect, " +
         firstName(record.name) +
-        ". " +
-        cfg.businessName +
-        " will follow up shortly. done"
+        ". We saved your request. " +
+        followUpOwner +
+        " will review it and follow up. " +
+        contactLine()
     );
     deliverLead(record);
     setChips(defaultChips());
@@ -643,6 +704,8 @@
     "hours",
     "location",
     "phone",
+    "secondaryPhone",
+    "email",
     "price",
     "greeting",
   ];
