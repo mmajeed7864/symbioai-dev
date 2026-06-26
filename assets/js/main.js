@@ -429,7 +429,7 @@
         if (await submitScan(payload)) {
           setStatus(
             "success",
-            "Thanks! Your scan request is in - we'll reply within one business day."
+            "Request saved. This is now priority #1 in Olympus, and Mohammed & Ravi will reply fast."
           );
           form.reset();
           if (sourceUrlInput) sourceUrlInput.value = window.location.href;
