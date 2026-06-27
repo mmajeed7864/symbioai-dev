@@ -270,8 +270,8 @@
     // Reduced motion / no JS keep the static populated markup already in the page.
     if (prefersReducedMotion()) return;
 
-    const MAX_VISIBLE = 4;
-    const PERIOD = 3200;
+    const MAX_VISIBLE = 2;
+    const PERIOD = 3400;
     const RESOLVE_DELAY = 1400;
     let index = 0;
     let count = parseInt(countEl ? countEl.textContent : "", 10);
@@ -287,13 +287,13 @@
 
     // Seed a few already-resolved leads so the panel isn't empty.
     list.textContent = "";
-    for (let s = 0; s < 3; s += 1) {
+    for (let s = 0; s < 2; s += 1) {
       const data = SAMPLE_LEADS[s];
       const li = buildLeadEl(data);
       resolveLead(li, data);
       list.appendChild(li);
     }
-    index = 3;
+    index = 2;
 
     function addLead() {
       const data = SAMPLE_LEADS[index % SAMPLE_LEADS.length];

@@ -790,7 +790,7 @@
           if (has(text, ["where", "location", "address", "find you"]))
             return { text: serviceAreaLine() + " Most work is remote, so we can help whether you are local or out of state. " + contactLine() };
           if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
-            return { text: "Pricing depends on the site and scope, but we start with a free scan or planning call so you know what is actually worth building before spending money. If you need an app, chatbot, or automation after that, we can price it separately.", offerLead: true };
+            return { text: "Website and redesign work starts at $1,000. Chatbot and lead-intake work starts around $750. Dashboards and automation usually start around $1,500, and custom apps start around $2,000. The free scan helps us tell you which lane actually makes sense before you spend anything. " + contactLine(), offerLead: true };
           }
           if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
             return { text: "The free scan is simple: send your website, Instagram, or business page. We look for the first fixes that can improve trust, mobile flow, speed, booking, leads, or follow-up.", offerLead: true };
