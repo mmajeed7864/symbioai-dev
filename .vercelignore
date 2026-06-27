@@ -1,0 +1,9 @@
+.git
+.vercel
+.env
+.env.*
+.env*
+node_modules
+cloudflare
+supabase
+FREE_SCAN_INTAKE_SETUP.md
