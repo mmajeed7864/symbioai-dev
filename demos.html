@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>Product Demos | Symbio AI</title>
+    <meta name="description" content="Explore interactive Symbio AI demos for premium websites, custom apps, dashboards, chatbots, and AI workflow agents." />
+
+    <link rel="icon" href="assets/img/logo-symbio.svg" type="image/svg+xml" />
+
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Symbio AI" />
+    <meta property="og:title" content="Product Demos | Symbio AI" />
+    <meta property="og:description" content="Explore interactive Symbio AI demos for premium websites, custom apps, dashboards, chatbots, and AI workflow agents." />
+    <meta property="og:image" content="assets/img/logo-symbio-color.svg" />
+    <meta name="twitter:card" content="summary" />
+
+
+    <script>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("symbio-theme");
+          if (t === "light" || t === "dark") {
+            d.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* localStorage may be unavailable; fall back to CSS media query. */
+        }
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!window.__symbioReady) d.classList.remove("js");
+          }, 1500);
+        });
+      })();
+    </script>
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/main.js" defer></script>
+  </head>
+  <body class="page page--demos">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+
+<header class="site-header" data-header>
+  <div class="container site-header__inner">
+
+<a class="brand " href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list" id="primary-menu" data-nav-menu>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="index.html"
+
+              >Home</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="about.html"
+
+              >About</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="services.html"
+
+              >Services</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="demos.html"
+              aria-current="page"
+              >Demos</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="pricing.html"
+
+              >Pricing</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="portfolio.html"
+
+              >Portfolio</a
+            >
+          </li>
+
+          <li class="site-nav__item">
+            <a
+              class="site-nav__link"
+              href="reviews.html"
+
+              >Reviews</a
+            >
+          </li>
+
+        <li class="site-nav__item site-nav__item--cta">
+          <a
+            class="btn btn--primary btn--sm"
+            href="scan.html"
+
+            >Get a free project scan</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        class="theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Switch to dark theme"
+        title="Toggle light / dark theme"
+      >
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+          <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2.5" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="21.5" />
+            <line x1="2.5" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="21.5" y2="12" />
+            <line x1="5.1" y1="5.1" x2="6.9" y2="6.9" />
+            <line x1="17.1" y1="17.1" x2="18.9" y2="18.9" />
+            <line x1="5.1" y1="18.9" x2="6.9" y2="17.1" />
+            <line x1="17.1" y1="6.9" x2="18.9" y2="5.1" />
+          </g>
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M20 14.2A8 8 0 1 1 9.8 4 6.4 6.4 0 0 0 20 14.2Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        data-nav-toggle
+        aria-expanded="false"
+        aria-controls="primary-menu"
+        aria-label="Open menu"
+      >
+        <span class="nav-toggle__bars" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+    <main id="main" class="site-main">
+
+
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Product demos</span>
+    <h1 class="section__title">See how your idea turns into something people can use</h1>
+    <p class="section__lead">
+      Pick the lane that matches the problem: a premium website, a custom app, a dashboard, a
+      chatbot, or an AI workflow agent. The demos are here so you can judge the work before a call.
+    </p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="#redesign-lab">Start with the demos</a>
+      <a class="btn btn--secondary btn--lg" href="scan.html">Get a free project scan</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="demo-switchboard" data-reveal>
+      <a href="#redesign-lab">Premium websites</a>
+      <a href="#app-canvas">Custom apps</a>
+      <a href="#pulse-dashboard">Dashboards</a>
+      <a href="#concierge-studio">Chatbots</a>
+      <a href="#workflow-theater">AI agents</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="redesign-lab">
+  <div class="container">
+    <div class="demo-product demo-product--wide" data-reveal>
+      <div class="demo-product__copy">
+        <span class="eyebrow">Demo 01 - Premium websites</span>
+        <h2 class="section__title">The Redesign Lab</h2>
+        <p class="section__lead">
+          Slide from "the site technically exists" to "this looks like a business I can trust."
+          This is the first impression work people feel before they read every detail.
+        </p>
+        <ul class="demo-points">
+          <li>Product sold: new websites and redesigns</li>
+          <li>Aha moment: "My business could look this premium."</li>
+          <li>Best for: local businesses, nonprofits, creators, consultants, service brands</li>
+        </ul>
+        <div class="btn-row mt-6">
+          <a class="btn btn--primary" href="scan.html">Plan my website</a>
+          <a class="btn btn--ghost" href="pricing.html">See website pricing</a>
+        </div>
+      </div>
+
+      <div class="redesign-demo" data-redesign-demo aria-label="Interactive website redesign preview">
+        <div class="redesign-demo__frame">
+          <div class="redesign-demo__browser">
+            <span></span><span></span><span></span>
+            <strong>sample clinic homepage</strong>
+          </div>
+          <div class="redesign-demo__stage">
+            <div class="redesign-site redesign-site--before" aria-hidden="true">
+              <div class="cheap-nav">
+                <strong>Best Local Services</strong>
+                <span>Home</span><span>About</span><span>Contact</span>
+              </div>
+              <div class="cheap-hero">
+                <span>Welcome to our website</span>
+                <strong>Quality service at affordable prices</strong>
+                <em>We are a professional company. Please call us today for more information.</em>
+                <b>Click Here</b>
+              </div>
+              <div class="cheap-blocks">
+                <i>Our Services</i><i>Photo Gallery</i><i>Contact Info</i>
+              </div>
+              <div class="cheap-footer">Copyright 2014 | last updated 2019 | no mobile booking</div>
+            </div>
+            <div class="redesign-site redesign-site--after" aria-hidden="true">
+              <div class="premium-nav">
+                <strong>Glow Studio</strong>
+                <span>Services</span><span>Results</span><b>Book now</b>
+              </div>
+              <div class="premium-hero">
+                <span>24/7 AI intake + booking</span>
+                <strong>Premium site. Instant bookings.</strong>
+                <em>Sharp visuals, clear service paths, and a 24/7 assistant that captures real leads.</em>
+                <b>Book consultation</b>
+              </div>
+              <div class="premium-proof">
+                <i><strong>4.9</strong><span>client rating</span></i>
+                <i><strong>38%</strong><span>more booked calls</span></i>
+                <i><strong>24/7</strong><span>lead capture</span></i>
+              </div>
+              <div class="premium-chat">
+                <div><span></span><strong>AI Concierge</strong></div>
+                <p>Hi, I can help choose a service, answer pricing questions, or book a time.</p>
+                <em>Lead captured: name, phone, service, best time</em>
+              </div>
+            </div>
+          </div>
+        </div>
+        <label class="redesign-demo__control">
+          <span>Before</span>
+          <input data-redesign-range type="range" min="0" max="100" value="76" aria-label="Reveal redesigned website" />
+          <span>After</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section section--tint" id="product-demos">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Standalone products</span>
+      <h2 class="section__title">Choose the build your business actually needs</h2>
+      <p class="section__lead">
+        Each lane can be bought by itself. If your business needs a full system later, we connect
+        the pieces cleanly.
+      </p>
+    </div>
+
+    <div class="demo-grid">
+      <article class="demo-product" id="app-canvas" data-reveal>
+        <div class="demo-product__copy">
+          <span class="eyebrow">Demo 02 - Custom apps</span>
+          <h3 class="card__title">App Canvas</h3>
+          <p class="card__text">
+            Click through a portal, booking tool, and internal board so the app feels real before
+            you fund the full build.
+          </p>
+        </div>
+        <div class="app-demo" data-app-demo>
+          <div class="app-demo__tabs" role="tablist" aria-label="App demo flows">
+            <button class="is-active" type="button" data-app-view="portal">Client portal</button>
+            <button type="button" data-app-view="booking">Booking app</button>
+            <button type="button" data-app-view="ops">Ops board</button>
+          </div>
+          <div class="app-demo__screen">
+            <div class="app-demo__top"><span data-app-title>Client Portal</span><b>Live preview</b></div>
+            <div class="app-demo__body" data-app-body>
+              <div class="app-demo__stat-row">
+                <span><strong>3</strong> requests</span>
+                <span><strong>12m</strong> avg reply</span>
+              </div>
+              <p>Clients can log in, upload files, check status, and message your team.</p>
+              <div class="app-demo__timeline"><i></i><i></i><i></i></div>
+              <i>Secure intake</i><i>Status tracking</i><i>File notes</i>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="demo-product" id="pulse-dashboard" data-reveal data-reveal-delay="1">
+        <div class="demo-product__copy">
+          <span class="eyebrow">Demo 03 - Dashboards</span>
+          <h3 class="card__title">Pulse Dashboard</h3>
+          <p class="card__text">
+            Watch leads, bookings, and the next best fix update in one place instead of living
+            across messages and spreadsheets.
+          </p>
+        </div>
+        <div class="dash-demo" data-dashboard-demo>
+          <div class="dash-demo__filters">
+            <button class="is-active" type="button" data-dashboard-range="week">Week</button>
+            <button type="button" data-dashboard-range="month">Month</button>
+            <button type="button" data-dashboard-range="quarter">Quarter</button>
+          </div>
+          <div class="dash-demo__metrics">
+            <span><strong data-dashboard-leads>142</strong> leads</span>
+            <span><strong data-dashboard-booked>38</strong> booked</span>
+          </div>
+          <div class="dash-demo__command">
+            <span>AI insight</span>
+            <strong data-dashboard-command>Call back mobile leads within 10 minutes.</strong>
+          </div>
+          <div class="dash-demo__bars" aria-hidden="true">
+            <i style="--h:52%"></i><i style="--h:76%"></i><i style="--h:61%"></i><i style="--h:88%"></i><i style="--h:69%"></i>
+          </div>
+          <p class="dash-demo__insight" data-dashboard-insight>
+            Best channel: mobile visitors. Biggest fix: shorten the contact form.
+          </p>
+        </div>
+      </article>
+
+      <article class="demo-product" id="concierge-studio" data-reveal>
+        <div class="demo-product__copy">
+          <span class="eyebrow">Demo 04 - Chatbots</span>
+          <h3 class="card__title">Concierge Studio</h3>
+          <p class="card__text">
+            See how a customer question can turn into a clean answer, a captured lead, and a real
+            founder follow-up.
+          </p>
+        </div>
+        <div class="concierge-demo" data-concierge-demo>
+          <div class="concierge-demo__chat">
+            <p class="bot">Hi, I can help with pricing, booking, or project planning.</p>
+            <p class="user" data-concierge-user>Can you help redesign my salon site?</p>
+            <p class="bot" data-concierge-answer>Yes. Send the link and we will review mobile flow, trust, booking, and follow-up.</p>
+          </div>
+          <div class="concierge-demo__handoff">
+            <span>Lead card</span>
+            <strong>Needs redesign + booking path</strong>
+            <em>Routed to founder with website link and notes</em>
+          </div>
+          <div class="concierge-demo__chips">
+            <button type="button" data-concierge-prompt="website">Website</button>
+            <button type="button" data-concierge-prompt="app">App</button>
+            <button type="button" data-concierge-prompt="agent">Agent</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="demo-product" id="workflow-theater" data-reveal data-reveal-delay="1">
+        <div class="demo-product__copy">
+          <span class="eyebrow">Demo 05 - AI agents</span>
+          <h3 class="card__title">Workflow Theater</h3>
+          <p class="card__text">
+            Run a simple agent story: the lead comes in, the next step gets drafted, the queue gets
+            updated, and a human stays in control.
+          </p>
+        </div>
+        <div class="workflow-demo" data-workflow-demo>
+          <button class="btn btn--primary btn--sm" type="button" data-workflow-run>Run sample workflow</button>
+          <div class="workflow-demo__map" aria-hidden="true">
+            <span class="workflow-demo__node is-active">Lead</span>
+            <span class="workflow-demo__node">Draft</span>
+            <span class="workflow-demo__node">Queue</span>
+            <span class="workflow-demo__node">Approve</span>
+          </div>
+          <ol class="workflow-demo__steps">
+            <li class="is-active">Lead received</li>
+            <li>Message drafted</li>
+            <li>CRM updated</li>
+            <li>Founder approves</li>
+          </ol>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Want one of these built for your business?</h2>
+      <p class="cta-band__text">
+        Send the idea, site, workflow, or app you want built. We will tell you what we would build
+        first and what can wait.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="scan.html">Get a free project scan</a>
+        <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+    </main>
+
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__col site-footer__col--brand">
+
+
+<a class="brand brand--footer" href="index.html" aria-label="Symbio AI - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+
+
+      <p class="site-footer__blurb">Websites that look better and convert faster.</p>
+      <p class="site-footer__small">Powered by international AI engineers and devs.</p>
+      <a class="btn btn--primary" href="scan.html">Get a free project scan</a>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Footer explore">
+      <h2 class="site-footer__heading">Explore</h2>
+      <ul class="site-footer__list">
+
+          <li><a href="index.html">Home</a></li>
+
+          <li><a href="about.html">About</a></li>
+
+          <li><a href="services.html">Services</a></li>
+
+          <li><a href="demos.html">Demos</a></li>
+
+          <li><a href="pricing.html">Pricing</a></li>
+
+          <li><a href="portfolio.html">Portfolio</a></li>
+
+          <li><a href="reviews.html">Reviews</a></li>
+
+        <li><a href="scan.html">Get a free project scan</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Footer work">
+      <h2 class="site-footer__heading">Work</h2>
+      <ul class="site-footer__list">
+        <li><a href="demos.html">Product demos</a></li>
+        <li><a href="chatbot-demo.html">Live chatbot demo</a></li>
+        <li><a href="portfolio.html">Example portfolio build</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__heading">Talk to us</h2>
+      <ul class="site-footer__list site-footer__list--contacts">
+        <li>
+          <span class="site-footer__person">Symbio AI</span>
+          <span class="site-footer__role">Business inbox</span>
+          <a href="mailto:symbioaiiii@gmail.com">symbioaiiii@gmail.com</a>
+        </li>
+
+          <li>
+            <span class="site-footer__person">Mohammed H. Majeed</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+
+              <a href="tel:5105857136">510-585-7136</a>
+
+          </li>
+
+          <li>
+            <span class="site-footer__person">Ravi Kumar</span>
+            <span class="site-footer__role">Founder and lead builder</span>
+
+              <a href="tel:9255978128">925-597-8128</a>
+
+          </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <p class="site-footer__credit">
+      &copy; 2026 Symbio AI. Built by Mohammed and Ravi.
+    </p>
+    <p class="site-footer__small">Honest builds. Real numbers. A free project scan before anything else.</p>
+  </div>
+</footer>
+
+
+
+    <script>
+      window.SymbioConfig = {
+        businessName: "Symbio AI",
+        accent: "#2f6bff",
+        services: [
+          "Premium websites and redesigns",
+          "Custom apps and portals",
+          "Business dashboards",
+          "Chatbots and AI workflow agents",
+        ],
+        hours: "24/7 intake and project support",
+        location: "Founder-led from California and North Carolina, serving businesses across the entire US.",
+        phone: "510-585-7136",
+        secondaryPhone: "925-597-8128",
+        email: "symbioaiiii@gmail.com",
+        freeScanEndpoint: "/api/free-scan",
+        price: "with a free scan first",
+        position: "right",
+        theme: "auto",
+        greeting:
+          "Hey, this is Symbio AI. Send your website, app idea, dashboard need, or workflow problem, and we will point you toward the right next step.",
+      };
+    </script>
+    <script src="assets/js/symbio-widget.js" defer></script>
+  </body>
+</html>

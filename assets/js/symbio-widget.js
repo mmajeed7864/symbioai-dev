@@ -525,7 +525,7 @@
     if (cfg.email) parts.push("Email: " + cfg.email + ".");
     if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
     parts.push(
-      "Use clear, human language. Position website design and redesign as the main offer. Mention apps, chatbots, dashboards, and automation as optional add-ons when useful. The company is founder-led, available for 24/7 intake, and serves clients across the US. Encourage a free scan or founder follow-up when useful."
+        "Use clear, human language. Position website design and redesign as a core offer, while treating apps, chatbots, dashboards, and AI agents as standalone products when the customer asks for them. The company is founder-led, available for 24/7 intake, and serves clients across the US. Encourage a free project scan or founder follow-up when useful."
     );
     return parts.join(" ");
   }
