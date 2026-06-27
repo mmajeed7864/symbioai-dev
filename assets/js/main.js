@@ -514,17 +514,65 @@
     portal: {
       title: "Client Portal",
       body:
-        '<div class="app-demo__stat-row"><span><strong>3</strong> requests</span><span><strong>12m</strong> avg reply</span></div><p>Clients can log in, upload files, check status, and message your team.</p><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Secure intake</i><i>Status tracking</i><i>File notes</i>',
+        '<div class="app-demo__stat-row"><span><strong>3</strong> requests</span><span><strong>12m</strong> avg reply</span></div><p>Clients can log in, upload files, check status, and message your team.</p><div class="app-demo__activity"><span>New file uploaded</span><b>Founder notified</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Secure intake</i><i>Status tracking</i><i>File notes</i>',
     },
     booking: {
       title: "Booking App",
       body:
-        '<div class="app-demo__stat-row"><span><strong>18</strong> open slots</span><span><strong>4</strong> no-shows saved</span></div><p>Visitors choose a service, pick a time, and get routed into a clean follow-up flow.</p><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Calendar logic</i><i>Reminders</i><i>No-show control</i>',
+        '<div class="app-demo__stat-row"><span><strong>18</strong> open slots</span><span><strong>4</strong> no-shows saved</span></div><p>Visitors choose a service, pick a time, and get routed into a clean follow-up flow.</p><div class="app-demo__activity"><span>Booking confirmed</span><b>SMS reminder queued</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Calendar logic</i><i>Reminders</i><i>No-show control</i>',
     },
     ops: {
       title: "Ops Board",
       body:
-        '<div class="app-demo__stat-row"><span><strong>7</strong> tasks due</span><span><strong>2</strong> blocked</span></div><p>Staff can see what is waiting, what is blocked, and what needs a founder decision.</p><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Team queue</i><i>Owner notes</i><i>Daily closeout</i>',
+        '<div class="app-demo__stat-row"><span><strong>7</strong> tasks due</span><span><strong>2</strong> blocked</span></div><p>Staff can see what is waiting, what is blocked, and what needs a founder decision.</p><div class="app-demo__activity"><span>Task moved to done</span><b>Daily report updated</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Team queue</i><i>Owner notes</i><i>Daily closeout</i>',
+    },
+  };
+
+  const PREMIUM_ROUTES = {
+    services: {
+      kicker: "24/7 AI intake + booking",
+      title: "Premium site. Instant bookings.",
+      copy: "Sharp visuals, clear service paths, and a 24/7 assistant that captures real leads.",
+      cta: "Book consultation",
+      statOne: "4.9",
+      labelOne: "client rating",
+      statTwo: "38%",
+      labelTwo: "more booked calls",
+      statThree: "24/7",
+      labelThree: "lead capture",
+      chat: "Hi, I can help choose a service, answer pricing questions, or book a time.",
+      lead: "Lead captured: name, phone, service, best time",
+      feed: "Consultation request routed",
+    },
+    results: {
+      kicker: "Proof above the fold",
+      title: "Trust before they scroll.",
+      copy: "Reviews, before-and-after proof, and clear next steps make the business feel established fast.",
+      cta: "View transformations",
+      statOne: "112",
+      labelOne: "reviews surfaced",
+      statTwo: "2.8x",
+      labelTwo: "more CTA taps",
+      statThree: "9s",
+      labelThree: "first decision",
+      chat: "Want proof? I can show recent results, service photos, and the fastest way to book.",
+      lead: "Visitor viewed: reviews, gallery, pricing, booking",
+      feed: "Review gallery opened",
+    },
+    book: {
+      kicker: "Frictionless booking path",
+      title: "No phone tag. Just booked.",
+      copy: "The visitor picks a service, chooses a time, and gets confirmation before they lose interest.",
+      cta: "Reserve a time",
+      statOne: "3",
+      labelOne: "steps to book",
+      statTwo: "0",
+      labelTwo: "dead-end forms",
+      statThree: "1m",
+      labelThree: "confirmation",
+      chat: "I can book the next open appointment or route the request to the right team member.",
+      lead: "Booking ready: service, time, contact, notes",
+      feed: "SMS confirmation queued",
     },
   };
 
@@ -575,15 +623,61 @@
     if (!demo) return;
     const range = demo.querySelector("[data-redesign-range]");
     if (!range) return;
+    const routeButtons = demo.querySelectorAll("[data-premium-route]");
+    const premiumFields = {
+      kicker: demo.querySelector("[data-premium-kicker]"),
+      title: demo.querySelector("[data-premium-title]"),
+      copy: demo.querySelector("[data-premium-copy]"),
+      cta: demo.querySelector("[data-premium-cta]"),
+      statOne: demo.querySelector("[data-premium-stat-one]"),
+      labelOne: demo.querySelector("[data-premium-label-one]"),
+      statTwo: demo.querySelector("[data-premium-stat-two]"),
+      labelTwo: demo.querySelector("[data-premium-label-two]"),
+      statThree: demo.querySelector("[data-premium-stat-three]"),
+      labelThree: demo.querySelector("[data-premium-label-three]"),
+      chat: demo.querySelector("[data-premium-chat]"),
+      lead: demo.querySelector("[data-premium-lead]"),
+      feed: demo.querySelector("[data-premium-feed]"),
+    };
 
     function update() {
       const value = Number(range.value);
       demo.style.setProperty("--reveal", 100 - value + "%");
     }
 
+    function setPremiumRoute(route) {
+      const data = PREMIUM_ROUTES[route];
+      if (!data) return;
+
+      routeButtons.forEach((button) => {
+        const active = button.getAttribute("data-premium-route") === route;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-current", active ? "true" : "false");
+      });
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (premiumFields[key]) premiumFields[key].textContent = value;
+      });
+
+      demo.classList.remove("is-premium-changing");
+      window.requestAnimationFrame(() => {
+        demo.classList.add("is-premium-changing");
+      });
+
+      if (Number(range.value) < 88) {
+        range.value = "88";
+        update();
+      }
+    }
+
     const mobileDefault = window.matchMedia("(max-width: 720px)").matches;
     range.value = mobileDefault ? "100" : range.getAttribute("value") || "64";
     range.addEventListener("input", update);
+    routeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setPremiumRoute(button.getAttribute("data-premium-route"));
+      });
+    });
     update();
   }
 

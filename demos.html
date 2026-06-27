@@ -256,33 +256,41 @@
               </div>
               <div class="cheap-footer">Copyright 2014 | last updated 2019 | no mobile booking</div>
             </div>
-            <div class="redesign-site redesign-site--after" aria-hidden="true">
+            <div class="redesign-site redesign-site--after" aria-label="Premium redesigned website preview">
+              <div class="premium-loader" aria-hidden="true"></div>
+              <div class="premium-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
               <div class="premium-nav">
                 <strong>Glow Studio</strong>
-                <span>Services</span><span>Results</span><b>Book now</b>
+                <button class="is-active" type="button" data-premium-route="services">Services</button>
+                <button type="button" data-premium-route="results">Results</button>
+                <button type="button" data-premium-route="book">Book now</button>
               </div>
               <div class="premium-hero">
-                <span>24/7 AI intake + booking</span>
-                <strong>Premium site. Instant bookings.</strong>
-                <em>Sharp visuals, clear service paths, and a 24/7 assistant that captures real leads.</em>
-                <b>Book consultation</b>
+                <span data-premium-kicker>24/7 AI intake + booking</span>
+                <strong data-premium-title>Premium site. Instant bookings.</strong>
+                <em data-premium-copy>Sharp visuals, clear service paths, and a 24/7 assistant that captures real leads.</em>
+                <b data-premium-cta>Book consultation</b>
               </div>
               <div class="premium-proof">
-                <i><strong>4.9</strong><span>client rating</span></i>
-                <i><strong>38%</strong><span>more booked calls</span></i>
-                <i><strong>24/7</strong><span>lead capture</span></i>
+                <i><strong data-premium-stat-one>4.9</strong><span data-premium-label-one>client rating</span></i>
+                <i><strong data-premium-stat-two>38%</strong><span data-premium-label-two>more booked calls</span></i>
+                <i><strong data-premium-stat-three>24/7</strong><span data-premium-label-three>lead capture</span></i>
               </div>
               <div class="premium-chat">
                 <div><span></span><strong>AI Concierge</strong></div>
-                <p>Hi, I can help choose a service, answer pricing questions, or book a time.</p>
-                <em>Lead captured: name, phone, service, best time</em>
+                <p data-premium-chat>Hi, I can help choose a service, answer pricing questions, or book a time.</p>
+                <em data-premium-lead>Lead captured: name, phone, service, best time</em>
+              </div>
+              <div class="premium-feed" aria-hidden="true">
+                <span>New lead</span>
+                <strong data-premium-feed>Consultation request routed</strong>
               </div>
             </div>
           </div>
         </div>
         <label class="redesign-demo__control">
           <span>Before</span>
-          <input data-redesign-range type="range" min="0" max="100" value="76" aria-label="Reveal redesigned website" />
+          <input data-redesign-range type="range" min="0" max="100" value="88" aria-label="Reveal redesigned website" />
           <span>After</span>
         </label>
       </div>
@@ -359,6 +367,10 @@
           <div class="dash-demo__bars" aria-hidden="true">
             <i style="--h:52%"></i><i style="--h:76%"></i><i style="--h:61%"></i><i style="--h:88%"></i><i style="--h:69%"></i>
           </div>
+          <div class="dash-demo__ticker" aria-hidden="true">
+            <span>Live</span>
+            <strong>Mobile lead booked after 3-minute follow-up</strong>
+          </div>
           <p class="dash-demo__insight" data-dashboard-insight>
             Best channel: mobile visitors. Biggest fix: shorten the contact form.
           </p>
@@ -409,6 +421,7 @@
             <span class="workflow-demo__node">Draft</span>
             <span class="workflow-demo__node">Queue</span>
             <span class="workflow-demo__node">Approve</span>
+            <b class="workflow-demo__packet">Agent packet</b>
           </div>
           <ol class="workflow-demo__steps">
             <li class="is-active">Lead received</li>
