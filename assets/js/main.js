@@ -20,6 +20,25 @@
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
+  function onFirstView(el, cb) {
+    if (!("IntersectionObserver" in window)) {
+      cb();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            obs.disconnect();
+            cb();
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+  }
+
   function initials(name) {
     return name
       .split(/\s+/)
@@ -622,7 +641,9 @@
     const demo = document.querySelector("[data-redesign-demo]");
     if (!demo) return;
     const range = demo.querySelector("[data-redesign-range]");
-    if (!range) return;
+    const stage = demo.querySelector("[data-redesign-stage]");
+    if (!range || !stage) return;
+
     const routeButtons = demo.querySelectorAll("[data-premium-route]");
     const premiumFields = {
       kicker: demo.querySelector("[data-premium-kicker]"),
@@ -640,10 +661,54 @@
       feed: demo.querySelector("[data-premium-feed]"),
     };
 
-    function update() {
-      const value = Number(range.value);
-      demo.style.setProperty("--reveal", 100 - value + "%");
+    function clamp(n, lo, hi) {
+      return Math.max(lo, Math.min(hi, n));
     }
+
+    function applyReveal(pct) {
+      demo.style.setProperty("--reveal", clamp(pct, 3, 97) + "%");
+    }
+
+    function setFromRange() {
+      applyReveal(100 - Number(range.value));
+    }
+
+    function setFromPct(pct) {
+      pct = clamp(pct, 3, 97);
+      range.value = String(Math.round(100 - pct));
+      applyReveal(pct);
+    }
+
+    function pointerPct(event) {
+      const rect = stage.getBoundingClientRect();
+      return ((event.clientX - rect.left) / rect.width) * 100;
+    }
+
+    let dragging = false;
+    stage.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button, a, input, textarea, select")) return;
+      dragging = true;
+      demo.classList.add("is-dragged");
+      try {
+        stage.setPointerCapture(event.pointerId);
+      } catch (e) {
+        /* Pointer capture is not available in every browser. */
+      }
+      setFromPct(pointerPct(event));
+    });
+    stage.addEventListener("pointermove", (event) => {
+      if (dragging) setFromPct(pointerPct(event));
+    });
+    function endDrag() {
+      dragging = false;
+    }
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+
+    range.addEventListener("input", () => {
+      demo.classList.add("is-dragged");
+      setFromRange();
+    });
 
     function setPremiumRoute(route) {
       const data = PREMIUM_ROUTES[route];
@@ -664,21 +729,34 @@
         demo.classList.add("is-premium-changing");
       });
 
-      if (Number(range.value) < 88) {
-        range.value = "88";
-        update();
-      }
+      if (Number(range.value) < 70) setFromPct(18);
     }
 
-    const mobileDefault = window.matchMedia("(max-width: 720px)").matches;
-    range.value = mobileDefault ? "100" : range.getAttribute("value") || "64";
-    range.addEventListener("input", update);
     routeButtons.forEach((button) => {
       button.addEventListener("click", () => {
         setPremiumRoute(button.getAttribute("data-premium-route"));
       });
     });
-    update();
+
+    setFromPct(window.matchMedia("(max-width: 720px)").matches ? 18 : 34);
+
+    if (!prefersReducedMotion() && window.matchMedia("(hover: hover)").matches) {
+      onFirstView(demo, () => {
+        const base = 34;
+        const peak = 56;
+        const start = performance.now();
+        function frame(now) {
+          if (demo.classList.contains("is-dragged")) return;
+          const p = Math.min(1, (now - start) / 1100);
+          const wave = Math.sin(p * Math.PI);
+          const value = base + (peak - base) * wave;
+          applyReveal(value);
+          range.value = String(Math.round(100 - value));
+          if (p < 1) window.requestAnimationFrame(frame);
+        }
+        window.requestAnimationFrame(frame);
+      });
+    }
   }
 
   function initAppDemo() {
@@ -782,12 +860,39 @@
     });
   }
 
+  function initDemoNav() {
+    const nav = document.querySelector("[data-demo-nav]");
+    if (!nav) return;
+    const links = Array.from(nav.querySelectorAll("[data-demo-link]"));
+    const map = new Map();
+    links.forEach((link) => {
+      const id = (link.getAttribute("href") || "").slice(1);
+      const section = id && document.getElementById(id);
+      if (section) map.set(section, link);
+    });
+    if (!map.size || !("IntersectionObserver" in window)) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          links.forEach((link) => link.classList.remove("is-current"));
+          const link = map.get(entry.target);
+          if (link) link.classList.add("is-current");
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+    );
+    map.forEach((link, section) => io.observe(section));
+  }
+
   function initProductDemos() {
     initRedesignDemo();
     initAppDemo();
     initDashboardDemo();
     initConciergeDemo();
     initWorkflowDemo();
+    initDemoNav();
   }
 
   /* ---- Init ------------------------------------------------------------ */

@@ -10,7 +10,7 @@
 
     <link rel="icon" href="assets/img/logo-symbio.svg" type="image/svg+xml" />
 
-
+    
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Symbio AI" />
     <meta property="og:title" content="Product Demos | Symbio AI" />
@@ -18,7 +18,7 @@
     <meta property="og:image" content="assets/img/logo-symbio-color.svg" />
     <meta name="twitter:card" content="summary" />
 
-
+    
     <script>
       (function () {
         var d = document.documentElement;
@@ -45,10 +45,10 @@
   <body class="page page--demos">
     <a class="skip-link" href="#main">Skip to content</a>
 
-
+    
 <header class="site-header" data-header>
   <div class="container site-header__inner">
-
+    
 <a class="brand " href="index.html" aria-label="Symbio AI - home">
   <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
   <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
@@ -59,34 +59,34 @@
 
     <nav class="site-nav" aria-label="Primary">
       <ul class="site-nav__list" id="primary-menu" data-nav-menu>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="index.html"
-
+              
               >Home</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="about.html"
-
+              
               >About</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="services.html"
-
+              
               >Services</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
@@ -95,39 +95,39 @@
               >Demos</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="pricing.html"
-
+              
               >Pricing</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="portfolio.html"
-
+              
               >Portfolio</a
             >
           </li>
-
+        
           <li class="site-nav__item">
             <a
               class="site-nav__link"
               href="reviews.html"
-
+              
               >Reviews</a
             >
           </li>
-
+        
         <li class="site-nav__item site-nav__item--cta">
           <a
             class="btn btn--primary btn--sm"
             href="scan.html"
-
+            
             >Get a free project scan</a
           >
         </li>
@@ -180,7 +180,7 @@
 
 
     <main id="main" class="site-main">
-
+      
 
 <section class="section section--tight has-aurora">
   <div class="aurora" aria-hidden="true"></div>
@@ -199,20 +199,20 @@
 </section>
 
 
-<section class="section section--tight">
+<div class="demo-nav" data-demo-nav>
   <div class="container">
-    <div class="demo-switchboard" data-reveal>
-      <a href="#redesign-lab">Premium websites</a>
-      <a href="#app-canvas">Custom apps</a>
-      <a href="#pulse-dashboard">Dashboards</a>
-      <a href="#concierge-studio">Chatbots</a>
-      <a href="#workflow-theater">AI agents</a>
+    <div class="demo-nav__track">
+      <a href="#redesign-lab" data-demo-link><span>01</span> Premium websites</a>
+      <a href="#app-canvas" data-demo-link><span>02</span> Custom apps</a>
+      <a href="#pulse-dashboard" data-demo-link><span>03</span> Dashboards</a>
+      <a href="#concierge-studio" data-demo-link><span>04</span> Chatbots</a>
+      <a href="#workflow-theater" data-demo-link><span>05</span> AI agents</a>
     </div>
   </div>
-</section>
+</div>
 
 
-<section class="section" id="redesign-lab">
+<section class="section demo-lane" id="redesign-lab">
   <div class="container">
     <div class="demo-product demo-product--wide" data-reveal>
       <div class="demo-product__copy">
@@ -239,7 +239,9 @@
             <span></span><span></span><span></span>
             <strong>sample clinic homepage</strong>
           </div>
-          <div class="redesign-demo__stage">
+          <div class="redesign-demo__stage" data-redesign-stage role="group" aria-label="Drag to compare the old site and the redesign">
+            <span class="redesign-demo__tag redesign-demo__tag--before" aria-hidden="true">Before</span>
+            <span class="redesign-demo__tag redesign-demo__tag--after" aria-hidden="true">After</span>
             <div class="redesign-site redesign-site--before" aria-hidden="true">
               <div class="cheap-nav">
                 <strong>Best Local Services</strong>
@@ -286,12 +288,19 @@
                 <strong data-premium-feed>Consultation request routed</strong>
               </div>
             </div>
+            <div class="redesign-demo__divider" data-redesign-handle aria-hidden="true">
+              <span class="redesign-demo__grip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 6 4 12l5 6M15 6l5 6-5 6" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
         <label class="redesign-demo__control">
-          <span>Before</span>
-          <input data-redesign-range type="range" min="0" max="100" value="88" aria-label="Reveal redesigned website" />
-          <span>After</span>
+          <span>Old site</span>
+          <input data-redesign-range type="range" min="0" max="100" value="50" aria-label="Reveal redesigned website" />
+          <span>Redesign</span>
         </label>
       </div>
     </div>
@@ -454,12 +463,12 @@
 
     </main>
 
-
+    
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <div class="site-footer__col site-footer__col--brand">
-
-
+      
+      
 <a class="brand brand--footer" href="index.html" aria-label="Symbio AI - home">
   <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
   <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
@@ -475,21 +484,21 @@
     <nav class="site-footer__col" aria-label="Footer explore">
       <h2 class="site-footer__heading">Explore</h2>
       <ul class="site-footer__list">
-
+        
           <li><a href="index.html">Home</a></li>
-
+        
           <li><a href="about.html">About</a></li>
-
+        
           <li><a href="services.html">Services</a></li>
-
+        
           <li><a href="demos.html">Demos</a></li>
-
+        
           <li><a href="pricing.html">Pricing</a></li>
-
+        
           <li><a href="portfolio.html">Portfolio</a></li>
-
+        
           <li><a href="reviews.html">Reviews</a></li>
-
+        
         <li><a href="scan.html">Get a free project scan</a></li>
       </ul>
     </nav>
@@ -511,23 +520,23 @@
           <span class="site-footer__role">Business inbox</span>
           <a href="mailto:symbioaiiii@gmail.com">symbioaiiii@gmail.com</a>
         </li>
-
+        
           <li>
             <span class="site-footer__person">Mohammed H. Majeed</span>
             <span class="site-footer__role">Founder and lead builder</span>
-
+            
               <a href="tel:5105857136">510-585-7136</a>
-
+            
           </li>
-
+        
           <li>
             <span class="site-footer__person">Ravi Kumar</span>
             <span class="site-footer__role">Founder and lead builder</span>
-
+            
               <a href="tel:9255978128">925-597-8128</a>
-
+            
           </li>
-
+        
       </ul>
     </div>
   </div>
@@ -541,7 +550,7 @@
 </footer>
 
 
-
+    
     <script>
       window.SymbioConfig = {
         businessName: "Symbio AI",
