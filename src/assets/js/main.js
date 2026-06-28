@@ -677,6 +677,7 @@
       user: "Can you help redesign my salon site?",
       answer:
         "Yes. Send the link and we will review mobile flow, trust, booking, and follow-up.",
+      cardTitle: "Needs redesign + booking path",
       handoff: "Routed to founder with website link and notes",
       intent: "Website redesign",
       next: "Send site link",
@@ -686,6 +687,7 @@
       user: "I need clients to log in and upload files.",
       answer:
         "That sounds like a custom portal. We can map the login, upload, notes, and status flow first.",
+      cardTitle: "Custom portal + secure file flow",
       handoff: "Routed as custom app scope with portal requirements",
       intent: "Custom portal",
       next: "Map login flow",
@@ -695,6 +697,7 @@
       user: "Can an agent follow up with leads?",
       answer:
         "Yes, with human approval gates. It can draft the reply, update the queue, and wait before sending.",
+      cardTitle: "Follow-up agent + approval gate",
       handoff: "Routed as automation request with approval gates",
       intent: "AI follow-up agent",
       next: "Define safe actions",
@@ -707,6 +710,7 @@
     if (!demo) return;
     const range = demo.querySelector("[data-redesign-range]");
     const stage = demo.querySelector("[data-redesign-stage]");
+    const handle = demo.querySelector("[data-redesign-handle]");
     if (!range || !stage) return;
 
     const routeButtons = demo.querySelectorAll("[data-premium-route]");
@@ -751,10 +755,28 @@
     }
 
     let dragging = false;
+    let userControlled = false;
+
+    function markUserControlled() {
+      userControlled = true;
+      demo.classList.add("is-dragged", "is-user-controlled");
+    }
+
+    function pctFromClientX(clientX) {
+      const rect = stage.getBoundingClientRect();
+      return ((clientX - rect.left) / rect.width) * 100;
+    }
+
+    function startDrag(clientX) {
+      dragging = true;
+      markUserControlled();
+      setFromPct(pctFromClientX(clientX));
+    }
+
     stage.addEventListener("pointerdown", (event) => {
       if (event.target.closest("button, a, input, textarea, select")) return;
-      dragging = true;
-      demo.classList.add("is-dragged");
+      event.preventDefault();
+      startDrag(event.clientX);
       try {
         stage.setPointerCapture(event.pointerId);
       } catch (e) {
@@ -771,8 +793,42 @@
     stage.addEventListener("pointerup", endDrag);
     stage.addEventListener("pointercancel", endDrag);
 
+    if (handle) {
+      handle.addEventListener("mousedown", (event) => {
+        event.preventDefault();
+        startDrag(event.clientX);
+      });
+    }
+
+    document.addEventListener("mousemove", (event) => {
+      if (dragging) setFromPct(pctFromClientX(event.clientX));
+    });
+    document.addEventListener("mouseup", endDrag);
+
+    stage.addEventListener(
+      "touchstart",
+      (event) => {
+        if (event.target.closest("button, a, input, textarea, select")) return;
+        if (!event.touches.length) return;
+        event.preventDefault();
+        startDrag(event.touches[0].clientX);
+      },
+      { passive: false }
+    );
+    stage.addEventListener(
+      "touchmove",
+      (event) => {
+        if (!dragging || !event.touches.length) return;
+        event.preventDefault();
+        setFromPct(pctFromClientX(event.touches[0].clientX));
+      },
+      { passive: false }
+    );
+    stage.addEventListener("touchend", endDrag);
+
+    range.addEventListener("pointerdown", markUserControlled);
     range.addEventListener("input", () => {
-      demo.classList.add("is-dragged");
+      markUserControlled();
       setFromRange();
     });
 
@@ -795,11 +851,12 @@
         demo.classList.add("is-premium-changing");
       });
 
-      if (Number(range.value) < 70) setFromPct(18);
+      if (!userControlled && Number(range.value) < 70) setFromPct(18);
     }
 
     routeButtons.forEach((button) => {
       button.addEventListener("click", () => {
+        markUserControlled();
         setPremiumRoute(button.getAttribute("data-premium-route"));
       });
     });
@@ -812,7 +869,7 @@
         const peak = 56;
         const start = performance.now();
         function frame(now) {
-          if (demo.classList.contains("is-dragged")) return;
+          if (demo.classList.contains("is-dragged") || demo.classList.contains("is-user-controlled")) return;
           const p = Math.min(1, (now - start) / 1100);
           const wave = Math.sin(p * Math.PI);
           const value = base + (peak - base) * wave;
@@ -835,14 +892,21 @@
     const buttons = demo.querySelectorAll("[data-app-view]");
     if (!title || !body || !buttons.length) return;
 
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
+    let userInteracted = false;
+
+    function setAppView(button, userInitiated) {
+      if (userInitiated) userInteracted = true;
         const data = APP_DEMOS[button.getAttribute("data-app-view")];
         if (!data) return;
         buttons.forEach((btn) => btn.classList.toggle("is-active", btn === button));
         title.textContent = data.title;
         if (status) status.textContent = data.status;
         body.innerHTML = data.body;
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAppView(button, true);
       });
     });
 
@@ -851,6 +915,7 @@
       if (!action) return;
       const data = OPS_ACTIONS[action.getAttribute("data-ops-action")];
       if (!data) return;
+      userInteracted = true;
 
       body.querySelectorAll("[data-ops-action]").forEach((button) => {
         button.classList.toggle("is-active", button === action);
@@ -875,9 +940,9 @@
       const views = Array.from(buttons);
       onFirstView(demo, () => {
         window.setInterval(() => {
-          if (document.hidden || demo.matches(":hover")) return;
+          if (document.hidden || demo.matches(":hover") || userInteracted) return;
           index = (index + 1) % views.length;
-          views[index].click();
+          setAppView(views[index], false);
         }, 4800);
       });
     }
@@ -897,8 +962,10 @@
     const buttons = demo.querySelectorAll("[data-dashboard-range]");
     if (!leads || !booked || !insight || !command || !bars.length || !buttons.length) return;
 
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
+    let userInteracted = false;
+
+    function setDashboardRange(button, userInitiated) {
+      if (userInitiated) userInteracted = true;
         const data = DASH_DEMOS[button.getAttribute("data-dashboard-range")];
         if (!data) return;
         buttons.forEach((btn) => btn.classList.toggle("is-active", btn === button));
@@ -913,6 +980,11 @@
         funnel.forEach((bar, index) => {
           bar.style.setProperty("--w", data.funnel[index] || data.funnel[data.funnel.length - 1]);
         });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setDashboardRange(button, true);
       });
     });
 
@@ -921,9 +993,9 @@
       const ranges = Array.from(buttons);
       onFirstView(demo, () => {
         window.setInterval(() => {
-          if (document.hidden || demo.matches(":hover")) return;
+          if (document.hidden || demo.matches(":hover") || userInteracted) return;
           index = (index + 1) % ranges.length;
-          ranges[index].click();
+          setDashboardRange(ranges[index], false);
         }, 5200);
       });
     }
@@ -935,6 +1007,7 @@
 
     const user = demo.querySelector("[data-concierge-user]");
     const answer = demo.querySelector("[data-concierge-answer]");
+    const cardTitle = demo.querySelector("[data-concierge-card-title]");
     const handoff = demo.querySelector("[data-concierge-handoff]");
     const intent = demo.querySelector("[data-concierge-intent]");
     const next = demo.querySelector("[data-concierge-next]");
@@ -943,6 +1016,7 @@
     if (!user || !answer || !buttons.length) return;
 
     let typingTimers = [];
+    let userInteracted = false;
 
     function clearTypingTimers() {
       typingTimers.forEach((timer) => window.clearTimeout(timer));
@@ -972,6 +1046,7 @@
       typeText(user, data.user, 0, () => {
         typeText(answer, data.answer, 220);
       });
+      if (cardTitle) cardTitle.textContent = data.cardTitle;
       if (handoff) handoff.textContent = data.handoff;
       if (intent) intent.textContent = data.intent;
       if (next) next.textContent = data.next;
@@ -980,12 +1055,17 @@
       window.requestAnimationFrame(() => demo.classList.add("is-chat-typing"));
     }
 
-    buttons.forEach((button) => {
-      button.addEventListener("click", () => {
+    function selectConversation(button, userInitiated) {
+      if (userInitiated) userInteracted = true;
         const data = CONCIERGE_DEMOS[button.getAttribute("data-concierge-prompt")];
         if (!data) return;
         buttons.forEach((btn) => btn.classList.toggle("is-active", btn === button));
         showConversation(data);
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectConversation(button, true);
       });
     });
 
@@ -994,9 +1074,9 @@
       const prompts = Array.from(buttons);
       onFirstView(demo, () => {
         window.setInterval(() => {
-          if (document.hidden || demo.matches(":hover")) return;
+          if (document.hidden || demo.matches(":hover") || userInteracted) return;
           index = (index + 1) % prompts.length;
-          prompts[index].click();
+          selectConversation(prompts[index], false);
         }, 5600);
       });
     }
@@ -1054,6 +1134,15 @@
         timers.push(timer);
       });
     });
+  }
+
+  function initProductDemos() {
+    initRedesignDemo();
+    initAppDemo();
+    initDashboardDemo();
+    initConciergeDemo();
+    initWorkflowDemo();
+    initDemoNav();
   }
 
   function initDemoNav() {

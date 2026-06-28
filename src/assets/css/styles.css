@@ -2413,7 +2413,8 @@ a.card:focus-visible,
   position: relative;
   min-height: clamp(21rem, 44vw, 30rem);
   cursor: ew-resize;
-  touch-action: pan-y;
+  touch-action: none;
+  user-select: none;
 }
 
 .redesign-site {
@@ -2880,6 +2881,50 @@ a.card:focus-visible,
 
 .redesign-demo__control input {
   accent-color: var(--c-accent);
+}
+
+.redesign-demo__routes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.55rem;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-pill);
+}
+
+.redesign-demo__routes span {
+  padding-inline: 0.45rem;
+  color: var(--c-text-muted);
+  font-size: var(--fs-200);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.redesign-demo__routes button {
+  cursor: pointer;
+  min-height: 2.1rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--c-accent);
+  background: var(--c-surface);
+  border: 1px solid color-mix(in srgb, var(--c-accent) 22%, var(--c-border));
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-size: var(--fs-200);
+  font-weight: 850;
+}
+
+.redesign-demo__routes button:hover,
+.redesign-demo__routes button:focus-visible,
+.redesign-demo__routes button.is-active {
+  color: #fff;
+  background-image: var(--grad-accent);
+  border-color: transparent;
+  outline: 0;
+  box-shadow: var(--shadow-accent);
 }
 
 .app-demo,
@@ -5067,7 +5112,7 @@ a.card:focus-visible,
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.08),
     0 0 22px rgba(47, 107, 255, 0.55);
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .redesign-demo__grip {
@@ -5083,6 +5128,8 @@ a.card:focus-visible,
   border: 2px solid #fff;
   border-radius: 50%;
   box-shadow: var(--shadow-lg);
+  cursor: ew-resize;
+  touch-action: none;
   transform: translate(-50%, -50%);
 }
 
