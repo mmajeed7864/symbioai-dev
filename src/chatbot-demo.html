@@ -790,7 +790,7 @@
           if (has(text, ["where", "location", "address", "find you"]))
             return { text: serviceAreaLine() + " Most work is remote, so we can help whether you are local or out of state. " + contactLine() };
           if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
-            return { text: "Website work starts at $1,500 (small agencies charge $5,000-$9,000 for similar). Chatbots and lead intake start at $750, dashboards and automation around $1,500, and custom apps at $4,500 — all well below typical agency rates. Prefer a fully managed AI assistant? It's a $690 one-time setup plus plans from $39/mo (most pick $89/mo). The free scan tells you which lane actually makes sense before you spend anything." + contactLine(), offerLead: true };
+            return { text: "Website work starts at $1,490 (small agencies charge $5,000-$9,000 for similar). Chatbots and lead intake start at $750, dashboards and automation around $1,500, and custom apps at $4,500 — all well below typical agency rates. Prefer a fully managed AI assistant? It's a $690 one-time setup plus plans from $39/mo (most pick $89/mo). The free scan tells you which lane actually makes sense before you spend anything." + contactLine(), offerLead: true };
           }
           if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
             return { text: "The free scan is simple: send your website, Instagram, or business page. We look for the first fixes that can improve trust, mobile flow, speed, booking, leads, or follow-up.", offerLead: true };

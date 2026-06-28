@@ -84,7 +84,7 @@ export default {
       eyebrow: "Websites and redesigns",
       title: "Premium website or redesign",
       shortTitle: "Website / redesign",
-      startsAt: "$1,500",
+      startsAt: "$1,490",
       typical: "$2,500-$5,500",
       compareAt: "$5,000-$9,000 at agencies",
       summary:
