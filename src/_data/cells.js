@@ -616,5 +616,209 @@ export default {
         "a": "It's built for that. We set it up, connect your calendar and CRM, and hand you something a non-technical coordinator can run. No new servers, no IT hire — and we keep it simple enough that a volunteer could cover the desk."
       }
     ]
+  },
+  "web-design/home-services": {
+    "lead": "A home-services site has one job: make a stranger with a leak, a dead AC, or a flickering panel call you instead of the next result. Most trade sites are slow, hard to read on a phone, and bury the phone number — so the job goes to whoever is easiest to reach. We build a fast, mobile-first site that shows your services, your service area, and your license up front, with a tap-to-call button on every screen.",
+    "pains": [
+      "Your phone number is buried — someone with an emergency shouldn't have to hunt for how to reach you.",
+      "The site is slow and hard to read on a phone, which is exactly where these searches happen.",
+      "Nothing shows your service area, license, or insurance, so people aren't sure you cover them or can be trusted.",
+      "No photos of real jobs or your crew, so you look the same as every other name in the results."
+    ],
+    "build": [
+      "A mobile-first site with a tap-to-call button on every screen and your service area front and center.",
+      "Clear service pages (emergency, repair, install, maintenance) so the right job lands on the right page.",
+      "Trust signals up top: license number, insurance, reviews, and real photos of your work and team.",
+      "Local SEO and Google Business Profile alignment so 'near me' and emergency searches actually find you."
+    ],
+    "outcomes": [
+      "Someone with an urgent problem can call you in one tap instead of scrolling past you.",
+      "You show up looking licensed, insured, and local — not interchangeable with everyone else.",
+      "More of the searches you already get turn into booked calls."
+    ],
+    "faqs": [
+      {
+        "q": "Can people reach me fast for emergencies?",
+        "a": "Yes — a tap-to-call button sits on every screen, and we can add an after-hours path so urgent jobs reach you even when the office is closed."
+      },
+      {
+        "q": "Will it show the towns I cover?",
+        "a": "We put your service area front and center, so a caller knows right away whether you cover them — fewer wasted calls, more real ones."
+      },
+      {
+        "q": "I don't have good photos. Is that a problem?",
+        "a": "We'll tell you the handful of shots worth taking. A few real job and crew photos beat stock images and make you look like the established local choice."
+      }
+    ]
+  },
+  "ai-automation/home-services": {
+    "lead": "For a trade, the lead you miss is the lead your competitor books. You're under a sink or on a roof when the phone rings, and by the time you call back they've already hired someone else. An AI assistant answers instantly, around the clock — it captures the name, address, and problem, books the visit, and routes anything urgent to you, so a missed call stops meaning a missed job.",
+    "pains": [
+      "Calls come in while you're on a job, and a voicemail rarely turns into a booking.",
+      "After-hours emergencies go unanswered, so the work goes to whoever picks up first.",
+      "The same questions — do you cover my area, what does a visit cost, can you come today — eat your time.",
+      "Leads from your site, Google, and ads land in different places, and some never get followed up."
+    ],
+    "build": [
+      "An AI assistant that answers 24/7, captures name, address, and the problem, and books the visit.",
+      "Instant routing: an urgent job texts you right away; everything else drops into one organized list.",
+      "Answers to your common questions — service area, rough pricing, availability — from rules you approve.",
+      "Automatic follow-up so a lead that didn't book the first time gets a nudge instead of silence."
+    ],
+    "outcomes": [
+      "Missed calls stop turning into missed jobs.",
+      "After-hours and overflow leads get captured instead of lost to the next guy.",
+      "You spend less time answering the same questions and more time on the tools."
+    ],
+    "faqs": [
+      {
+        "q": "Will it actually book jobs or just take messages?",
+        "a": "It captures the details and books into your calendar or hands off to you for the time — and you set exactly what it's allowed to schedule versus pass to a person."
+      },
+      {
+        "q": "Can it handle emergencies?",
+        "a": "Yes — you decide what counts as urgent, and those get texted to you immediately instead of sitting in an inbox."
+      },
+      {
+        "q": "Will it make up answers about pricing?",
+        "a": "No. It answers only from what you give us — service area, rough ranges, availability — and routes anything it isn't sure about to you rather than guessing."
+      }
+    ]
+  },
+  "booking-systems/home-services": {
+    "lead": "A trade runs on a full, sane schedule — the right jobs, in the right order, without windshield time eating the day. We wire up online booking and a lead-capture flow that lets customers request a visit in a few taps, drops it straight onto your calendar, and sends reminders that cut no-shows, so your days fill themselves and you stop playing phone tag.",
+    "pains": [
+      "Booking a visit is a back-and-forth of calls and texts that wastes everyone's time.",
+      "No-shows and last-minute cancels blow holes in the day you can't fill.",
+      "Jobs get scheduled with no regard for location, so you burn hours driving across town.",
+      "Leads pile up in texts, voicemails, and emails with no single place to work them."
+    ],
+    "build": [
+      "Online booking customers can use in a few taps, wired straight to your calendar.",
+      "A lead-capture flow that collects the address and problem up front, so you arrive ready.",
+      "Automatic text and email reminders that cut no-shows, with easy reschedule links.",
+      "One organized inbox for every lead, so nothing slips through the cracks."
+    ],
+    "outcomes": [
+      "Fewer no-shows and fewer holes in the schedule.",
+      "Less phone tag — customers book themselves into the slots you actually have open.",
+      "Every lead lands in one place and gets followed up."
+    ],
+    "faqs": [
+      {
+        "q": "Will it fit how I actually schedule?",
+        "a": "We set it up around your real availability, job types, and buffer time, so customers can only book slots that work for you."
+      },
+      {
+        "q": "Can it cut down on no-shows?",
+        "a": "Yes — automatic reminders the day before and the morning of, with a one-tap reschedule, so people show up or move the slot instead of vanishing."
+      },
+      {
+        "q": "Does it work with the calendar I use?",
+        "a": "We wire it to the calendar you already run, so you're not juggling two systems — bookings just appear where you already look."
+      }
+    ]
+  },
+  "web-design/faith-communities": {
+    "lead": "A temple or mosque website is where your community — and newcomers — check service and prayer times, find the next festival, give, and get directions. Most faith sites are out of date, hard to read on a phone, and hide the two things people came for: when to come and how to give. We build a clean, fast, mobile-first site that keeps times and events current, makes giving simple, and welcomes longtime members and first-time visitors alike.",
+    "pains": [
+      "Service, prayer, and aarti times are buried or out of date, so people call to ask or simply don't come.",
+      "The donation link is hard to find or clunky, so giving drops off.",
+      "Festival and event info (Eid, Diwali, weddings, programs) is scattered across flyers and group chats.",
+      "The site is hard to read on a phone and only in one language, leaving part of the community out."
+    ],
+    "build": [
+      "A clear homepage with current service/prayer times, directions, and an obvious way to give.",
+      "An events and festival calendar the whole community can check at a glance.",
+      "A simple, trusted donation flow (one-time and recurring) for offerings, seva, zakat, or sadaqah.",
+      "Mobile-first, easy for your team to update, and ready for more than one language."
+    ],
+    "outcomes": [
+      "Members and visitors find times, events, and giving without calling the office.",
+      "Giving is easier, so more people give and give again.",
+      "Newcomers feel welcome and know exactly how to take part."
+    ],
+    "faqs": [
+      {
+        "q": "Can it show our prayer or service times and keep them current?",
+        "a": "Yes — times and the events calendar are easy for your team to update, so the site stays right without a developer."
+      },
+      {
+        "q": "Can people donate online?",
+        "a": "We set up a simple, trusted donation flow for one-time and recurring gifts — offerings, seva, zakat, sadaqah, or a building fund — whatever fits your community."
+      },
+      {
+        "q": "Can the site be in more than one language?",
+        "a": "Yes — we can build it to welcome your community in the languages they actually speak, not only English."
+      }
+    ]
+  },
+  "ai-automation/faith-communities": {
+    "lead": "Your office gets the same questions all day — what time is the service, when is the festival, how do I donate, can I book the hall, where do I park. An AI assistant answers all of it 24/7, in the languages your community speaks, and hands anything personal to a real person. It frees your staff and volunteers and makes sure no one who reaches out at 11pm goes unanswered.",
+    "pains": [
+      "Staff and volunteers answer the same questions — times, events, giving, directions — over and over.",
+      "Messages come in after hours and on weekends, when no one is at the office.",
+      "Newcomers don't know how things work and may not feel comfortable calling to ask.",
+      "Members speak more than one language, but answers usually only come in English."
+    ],
+    "build": [
+      "An assistant that answers service/prayer times, events, giving, and directions 24/7.",
+      "Multilingual replies so everyone gets answers in a language they're comfortable with.",
+      "Handoff to a real person for anything personal or sensitive — it never guesses.",
+      "Capture of new-visitor and volunteer interest so your team can follow up warmly."
+    ],
+    "outcomes": [
+      "Staff and volunteers get hours back from repetitive questions.",
+      "No one who reaches out after hours is left without an answer.",
+      "Newcomers get a friendly, low-pressure way to learn how to take part."
+    ],
+    "faqs": [
+      {
+        "q": "Will it answer in our community's languages?",
+        "a": "Yes — it can respond in the languages your community speaks, so people get help without a language barrier."
+      },
+      {
+        "q": "What about sensitive or personal questions?",
+        "a": "It only answers general questions from what you give us — times, events, giving, logistics — and routes anything personal to a real person on your team."
+      },
+      {
+        "q": "Can it help with donations?",
+        "a": "It can point people to the right way to give and answer common questions about it, while the actual giving stays in your own trusted donation flow."
+      }
+    ]
+  },
+  "booking-systems/faith-communities": {
+    "lead": "Between weddings, festivals, classes, and community events, a temple or mosque is really running a busy venue and a busy calendar. We set up booking and registration so people can reserve the hall, sign up for events and programs, register for classes, or volunteer — in a few taps, on a calendar your team controls — so the office stops fielding every request by phone.",
+    "pains": [
+      "Booking the hall for a wedding or event is a slow chain of calls, texts, and paper forms.",
+      "Event and class signups happen through group chats and clipboards, so numbers are a guess.",
+      "Volunteer coordination for festivals and programs lives in one person's head.",
+      "Double-bookings and mix-ups happen because there's no shared calendar."
+    ],
+    "build": [
+      "Online hall and facility booking with the dates, deposit, and rules your team sets.",
+      "Event and program registration so you know who's coming ahead of time.",
+      "Volunteer and seva signups for festivals, services, and programs in one place.",
+      "Automatic confirmations and reminders so people show up and slots aren't wasted."
+    ],
+    "outcomes": [
+      "The office stops fielding every booking and signup by phone.",
+      "You know your numbers for events, classes, and volunteers in advance.",
+      "Fewer double-bookings and no-shows, and less stress on your team and volunteers."
+    ],
+    "faqs": [
+      {
+        "q": "Can people book the hall for weddings and events online?",
+        "a": "Yes — with the available dates, deposit, and rules your team sets, so you stay fully in control of who books what and when."
+      },
+      {
+        "q": "Can we take event and class registrations?",
+        "a": "We set up simple registration so you know who's coming, can cap spots, and can send reminders — no more clipboards and guesswork."
+      },
+      {
+        "q": "Can it handle volunteer or seva signups?",
+        "a": "Yes — volunteers can sign up for festivals, services, and programs in one place, so coordination stops living in one person's notes."
+      }
+    ]
   }
 };

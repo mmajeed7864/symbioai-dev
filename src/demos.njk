@@ -14,7 +14,8 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
     <h1 class="section__title">See how your idea turns into something people can use</h1>
     <p class="section__lead">
       Pick the lane that matches the problem: a premium website, a custom app, a dashboard, a
-      chatbot, or an AI workflow agent. The demos are here so you can judge the work before a call.
+      chatbot, or an AI workflow agent. Judge the work before a call — then see why our prices
+      land well under typical agency quotes.
     </p>
     <div class="btn-row btn-row--center mt-6">
       <a class="btn btn--primary btn--lg" href="#redesign-lab">Start with the demos</a>
@@ -52,6 +53,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           <li>Aha moment: "My business could look this premium."</li>
           <li>Best for: local businesses, nonprofits, creators, consultants, service brands</li>
         </ul>
+        <p class="demo-price">From <strong>{{ site.productLanes[0].startsAt }}</strong> <s>{{ site.productLanes[0].compareAt }}</s></p>
         <div class="btn-row mt-6">
           <a class="btn btn--primary" href="{{ site.cta.url }}">Plan my website</a>
           <a class="btn btn--ghost" href="pricing.html">See website pricing</a>
@@ -153,6 +155,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Click through a portal, booking tool, and internal board so the app feels real before
             you fund the full build.
           </p>
+          <p class="demo-price">From <strong>{{ site.productLanes[1].startsAt }}</strong> <s>{{ site.productLanes[1].compareAt }}</s></p>
         </div>
         <div class="app-demo" data-app-demo>
           <div class="app-demo__tabs" role="tablist" aria-label="App demo flows">
@@ -183,6 +186,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Watch leads, bookings, and the next best fix update in one place instead of living
             across messages and spreadsheets.
           </p>
+          <p class="demo-price">From <strong>{{ site.productLanes[2].startsAt }}</strong> <s>{{ site.productLanes[2].compareAt }}</s></p>
         </div>
         <div class="dash-demo" data-dashboard-demo>
           <div class="dash-demo__filters">
@@ -219,6 +223,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             See how a customer question can turn into a clean answer, a captured lead, and a real
             founder follow-up.
           </p>
+          <p class="demo-price">From <strong>{{ site.productLanes[3].startsAt }}</strong> <s>{{ site.productLanes[3].compareAt }}</s></p>
         </div>
         <div class="concierge-demo" data-concierge-demo>
           <div class="concierge-demo__chat">
@@ -247,6 +252,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Run a simple agent story: the lead comes in, the next step gets drafted, the queue gets
             updated, and a human stays in control.
           </p>
+          <p class="demo-price">From <strong>{{ site.productLanes[4].startsAt }}</strong> <s>{{ site.productLanes[4].compareAt }}</s></p>
         </div>
         <div class="workflow-demo" data-workflow-demo>
           <button class="btn btn--primary btn--sm" type="button" data-workflow-run>Run sample workflow</button>
@@ -265,6 +271,37 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           </ol>
         </div>
       </article>
+    </div>
+  </div>
+</section>
+
+{# ===== Premium experience: Symbio Partner ============================ #}
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">The premium experience</span>
+      <h2 class="section__title">Or have us run all of it for you</h2>
+      <p class="section__lead">
+        Love more than one of these? Our flagship retainer puts both founders on call as your
+        growth team — every lane above, built and improved every month.
+      </p>
+    </div>
+
+    <div class="partner-band" data-reveal>
+      <div class="partner-band__intro">
+        <span class="price__flag price__flag--static">Flagship · S-tier</span>
+        <h3 class="partner-band__title">{{ site.partnerPlan.name }}</h3>
+        <p class="partner-band__amount">{{ site.partnerPlan.price }}<small>{{ site.partnerPlan.cadence }}</small></p>
+        <p class="partner-band__compare">{{ site.partnerPlan.compareAt }}</p>
+        <p class="partner-band__blurb">{{ site.partnerPlan.blurb }}</p>
+        <div class="btn-row mt-6">
+          <a class="btn btn--light btn--lg" href="pricing.html">See the Partner tier</a>
+          <a class="btn btn--secondary btn--lg" href="{{ site.cta.url }}">Start with a free scan</a>
+        </div>
+      </div>
+      <ul class="partner-band__features">
+        {% for feature in site.partnerPlan.features %}<li>{{ feature }}</li>{% endfor %}
+      </ul>
     </div>
   </div>
 </section>

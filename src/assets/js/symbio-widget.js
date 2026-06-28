@@ -463,7 +463,7 @@
     if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
       return {
         text:
-          "Website and redesign work starts at $1,000. Chatbot and lead-intake work starts around $750. Dashboards and automation usually start around $1,500, and custom apps start around $2,000. The free scan helps us tell you which lane actually makes sense before you spend anything. " +
+          "Website work starts at $1,500 (small agencies charge $5,000-$9,000 for similar). Chatbots and lead intake start at $750, dashboards and automation around $1,500, and custom apps at $4,500 — all well below typical agency rates. Prefer a fully managed AI assistant? It's a $690 one-time setup plus plans from $39/mo (most pick $89/mo). The free scan tells you which lane actually makes sense before you spend anything. " +
           contactLine(),
         offerLead: true,
       };

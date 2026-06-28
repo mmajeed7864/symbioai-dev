@@ -12,5 +12,7 @@ compatibility_date = "2024-09-23"
 # PHYSICAL_ADDRESS = "Symbio AI, 1234 Telegraph Ave Ste 100, Oakland, CA 94612"
 #
 # Secrets (never commit):
-#   npx wrangler secret put RESEND_API_KEY
-#   npx wrangler secret put LEAD_BCC      # optional founder copy
+#   npx wrangler secret put RESEND_API_KEY      # optional speed-to-lead auto-reply
+#   npx wrangler secret put LEAD_BCC             # optional founder copy
+#   npx wrangler secret put TELEGRAM_BOT_TOKEN   # instant Telegram lead pings
+#   npx wrangler secret put TELEGRAM_CHAT_ID     # the chat/group to notify

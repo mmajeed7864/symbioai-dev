@@ -61,41 +61,71 @@ async function handleScan(req, env) {
   );
 }
 
+// Instant team notification to Telegram (free). Set TELEGRAM_BOT_TOKEN +
+// TELEGRAM_CHAT_ID to enable. Fires on every scan / chat lead / teardown.
+async function sendTelegram(env, lead) {
+  const c = (s) => (s == null ? "" : String(s).trim());
+  const link = c(lead.link) || c(lead.website) || c(lead.url);
+  const lines = [
+    `🔔 ${c(lead.type) || "New lead"} — ${c(lead.business) || c(lead.name) || "someone"}`,
+    c(lead.name) && `👤 ${c(lead.name)}`,
+    c(lead.business) && `🏢 ${c(lead.business)}`,
+    c(lead.email) && `✉️ ${c(lead.email)}`,
+    c(lead.phone) && `📞 ${c(lead.phone)}`,
+    c(lead.need) && `🧩 ${c(lead.need)}`,
+    link && `🔗 ${link}`,
+    (c(lead.problem) || c(lead.detail)) && `📝 ${c(lead.problem) || c(lead.detail)}`,
+    c(lead.sourceUrl) && `📍 ${c(lead.sourceUrl)}`,
+  ].filter(Boolean);
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: lines.join("\n"), disable_web_page_preview: true }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 async function handleLead(req, env) {
   const lead = await readJson(req);
   const email = (lead.email || "").trim();
   const first = (lead.name || "there").trim().split(/\s+/)[0] || "there";
   const biz = (lead.business || "your business").trim();
 
-  // Without a mail provider configured, acknowledge without sending (the site's
-  // existing lead pipeline still captures it). With RESEND_API_KEY, send the
-  // instant auto-reply — the speed-to-lead win.
-  if (!env.RESEND_API_KEY || !env.LEAD_FROM || !email) {
-    return json({ ok: true, sent: false }, 200, env);
+  // 1) Instant Telegram ping to the team (independent of email/auto-reply).
+  let telegram = false;
+  if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) telegram = await sendTelegram(env, lead);
+
+  // 2) Speed-to-lead auto-reply to the lead, if a mail provider is configured.
+  let sent = false;
+  if (env.RESEND_API_KEY && env.LEAD_FROM && email) {
+    const address = env.PHYSICAL_ADDRESS || "";
+    const body =
+      `Hi ${first},\n\nThanks for reaching out about ${biz} — got it. A real person will reply ` +
+      `within one business day. In the meantime, reply here with anything you want us to look at first.\n\n` +
+      `— Symbio AI\nhttps://symbioai.dev` + (address ? `\n\n${address}` : "");
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: env.LEAD_FROM,
+          to: email,
+          ...(env.LEAD_BCC ? { bcc: env.LEAD_BCC } : {}),
+          subject: `Thanks ${first} — we got it`,
+          text: body,
+        }),
+      });
+      sent = res.ok;
+    } catch {
+      sent = false;
+    }
   }
 
-  const address = env.PHYSICAL_ADDRESS || "";
-  const body =
-    `Hi ${first},\n\nThanks for reaching out about ${biz} — got it. A real person will reply ` +
-    `within one business day. In the meantime, reply here with anything you want us to look at first.\n\n` +
-    `— Symbio AI\nhttps://symbioai.dev` + (address ? `\n\n${address}` : "");
-
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: env.LEAD_FROM,
-        to: email,
-        ...(env.LEAD_BCC ? { bcc: env.LEAD_BCC } : {}),
-        subject: `Thanks ${first} — we got it`,
-        text: body,
-      }),
-    });
-    return json({ ok: true, sent: res.ok }, 200, env);
-  } catch {
-    return json({ ok: true, sent: false }, 200, env);
-  }
+  return json({ ok: true, telegram, sent }, 200, env);
 }
 
 export default {

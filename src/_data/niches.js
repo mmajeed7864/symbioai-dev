@@ -9,5 +9,7 @@ export default {
   "law-firms": { label: "Law Firms", schemaCategory: "Legal services" },
   "real-estate": { label: "Real Estate Agents & Brokers", schemaCategory: "Real estate services" },
   "fitness-studios": { label: "Fitness & Yoga Studios", schemaCategory: "Fitness studios" },
+  "home-services": { label: "Home Services & Trades", schemaCategory: "Home services" },
+  "faith-communities": { label: "Temples, Mosques & Faith Communities", schemaCategory: "Religious organization" },
   nonprofits: { label: "Nonprofits", schemaCategory: "Nonprofit organizations" },
 };

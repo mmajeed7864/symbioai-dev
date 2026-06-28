@@ -1,0 +1,184 @@
+/* Symbio AI — pricing, market-comparison, flagship, and demo styles.
+   Split out from styles.css to keep the diff easy to review. */
+
+/* Market-comparison anchors (the visible "undercut") --------------------- */
+.price-anchor__compare {
+  font-size: var(--fs-200);
+  color: var(--c-text-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--c-border-strong);
+}
+
+.price__compare {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: var(--fs-200);
+  color: var(--c-text-faint);
+}
+
+.price__compare s {
+  text-decoration-color: var(--c-border-strong);
+}
+
+.lane-price__compare {
+  color: var(--c-text-faint);
+  font-weight: 500;
+}
+
+/* Trust / scarcity strip ------------------------------------------------- */
+.assurances {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: clamp(1rem, 2.2vw, 1.4rem);
+  margin-top: var(--space-6);
+}
+
+.assurance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.2rem 1.4rem;
+  background: var(--c-success-soft);
+  border: 1px solid rgba(20, 160, 107, 0.25);
+  border-radius: var(--radius);
+}
+
+.assurance strong {
+  font-size: var(--fs-400);
+  color: var(--c-text);
+}
+
+.assurance span {
+  font-size: var(--fs-200);
+  color: var(--c-text-muted);
+}
+
+/* Flagship "Symbio Partner" band ---------------------------------------- */
+.partner-band {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(1.8rem, 4vw, 3rem);
+  color: #fff;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(122, 77, 255, 0.5), transparent 60%),
+    linear-gradient(135deg, #0b1220, #182a5c);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.partner-band__title {
+  margin-top: 0.6rem;
+  font-size: var(--fs-800);
+}
+
+.partner-band__amount {
+  margin-top: 0.4rem;
+  font-size: var(--fs-800);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.partner-band__amount small {
+  font-size: var(--fs-400);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.partner-band__compare {
+  font-size: var(--fs-300);
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: line-through;
+}
+
+.partner-band__blurb {
+  max-width: 36rem;
+  margin-top: 0.9rem;
+  font-size: var(--fs-400);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.partner-band__min {
+  margin-top: 0.6rem;
+  font-size: var(--fs-200);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.partner-band__features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: var(--fs-300);
+}
+
+.partner-band__features li {
+  position: relative;
+  padding-left: 1.8rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.partner-band__features li::before {
+  content: "★";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ffd479;
+}
+
+.partner-band .btn--secondary {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+}
+
+.partner-band .btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.partner-band .btn--light {
+  background: #fff;
+  color: #1340a8;
+}
+
+.price__flag--static {
+  position: static;
+  display: inline-block;
+  transform: none;
+}
+
+/* Price tag shown under each product demo -------------------------------- */
+.demo-price {
+  margin-top: 1rem;
+  font-size: var(--fs-300);
+  color: var(--c-text-muted);
+}
+
+.demo-price strong {
+  color: var(--c-text);
+}
+
+.demo-price s {
+  color: var(--c-text-faint);
+  text-decoration-color: var(--c-border-strong);
+}
+
+.product-card__compare {
+  font-size: var(--fs-200);
+  color: var(--c-text-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--c-border-strong);
+}
+
+@media (max-width: 720px) {
+  .partner-band {
+    grid-template-columns: 1fr;
+  }
+}
+

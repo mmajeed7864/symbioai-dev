@@ -1,0 +1,103 @@
+{
+  "_comment": "Content-angle library for Hermes social + GBP generation. Each angle is A/B-learned: `hermes social/gbp` increment `sends`, `hermes log --angle <id> --engaged` increments `engaged`, and the bandit favours angles with the best engagement rate. Placeholders: {brand} {niche} {service} {city} {offer} {url}. Edit/add angles freely.",
+  "epsilon": 0.25,
+  "hashtags": [
+    "#smallbusiness",
+    "#localbusiness",
+    "#smallbiz",
+    "#bayarea",
+    "#websitedesign",
+    "#AI",
+    "#smallbusinessowner"
+  ],
+  "angles": [
+    {
+      "id": "pain",
+      "label": "Pain point",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "Most {niche} lose customers in the gap between a Google search and a booked job — a slow site, a missed call, no after-hours answer. {service} closes that gap. {url}",
+        "If your site is slow on a phone, you're handing customers to the next result. We fix that for {niche}. {url}",
+        "The leak isn't your prices — it's a website that's hard to use on a phone and a phone that goes to voicemail. {service} for {niche}, done right. {url}"
+      ]
+    },
+    {
+      "id": "tip",
+      "label": "Quick tip",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "Tip for {niche}: put your 'book' or 'call' button on every screen, not just the homepage. Small change, more booked jobs. {url}",
+        "Tip: if a visitor can't tell what you do and how to reach you in 5 seconds, they bounce. Clarity beats clever. {url}",
+        "Tip for {niche}: an AI assistant that answers after hours captures the leads your competitors sleep through. {url}"
+      ]
+    },
+    {
+      "id": "outcome",
+      "label": "What changes",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "What changes when {niche} get {service}: fewer missed calls, a site that loads fast on a phone, and a clear path from 'interested' to 'booked'. {url}",
+        "Picture this for your business: every lead answered, every booking on the calendar, every no-show reminded. That's {service}. {url}",
+        "{service} for {niche} = less busywork, more booked work. Start with a free scan. {url}"
+      ]
+    },
+    {
+      "id": "offer",
+      "label": "Offer",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "{offer} — fixed price, no sales call, no surprises. See what we build: {url}",
+        "Need it done, not quoted? {offer}. Buy it, tell us about your project, we start within a day. {url}",
+        "Free scan of your current site: we send the top 3 fixes costing you leads. No catch. {url}"
+      ]
+    },
+    {
+      "id": "community",
+      "label": "Community / culture",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "We're two founders from this community, and we build websites, booking, and AI for the temples, mosques, and local businesses that raised us. {service}, done by people who get it. {url}",
+        "Festival season is busy — your community shouldn't lose bookings to a clunky site or an unanswered phone. We build {service} that handles the rush, with the cultural context most agencies miss. {url}",
+        "Donations, prayer and service times, hall booking, multilingual — faith communities have real needs most web agencies overlook. We don't. {url}"
+      ]
+    },
+    {
+      "id": "behind",
+      "label": "Behind the scenes",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "Two founders, no bloated agency overhead — which is why {service} from us costs less and ships in days, not months. {url}",
+        "We build the same system we use ourselves: a site that captures leads, an AI that answers, and follow-ups that don't drop the ball. Now for your business. {url}",
+        "Behind every project: a real person you can reach, start to finish. That's the whole pitch. {url}"
+      ]
+    },
+    {
+      "id": "myth",
+      "label": "Myth-bust",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "Myth: a good website costs five figures and takes months. Reality for most {niche}: {offer}. {url}",
+        "Myth: AI chat is impersonal. Done right, it answers instantly and hands every real lead to a person on your team. {url}",
+        "Myth: you need more traffic. Usually you need to convert the traffic you already have. That's the cheaper fix. {url}"
+      ]
+    },
+    {
+      "id": "local",
+      "label": "Local spotlight",
+      "sends": 0,
+      "engaged": 0,
+      "templates": [
+        "Proud to build for {niche} across {city} and the Bay Area. Local, reachable, and fast. {url}",
+        "{city} {niche}: a fast site + 24/7 AI + easy booking is the unfair advantage over the shop down the street. {url}",
+        "Serving {city} and nearby — websites, booking, and AI for local businesses and faith communities. {url}"
+      ]
+    }
+  ]
+}
