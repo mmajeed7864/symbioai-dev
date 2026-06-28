@@ -36,6 +36,10 @@ const CITY_CELLS = [
   ["web-design", "real-estate", "palo-alto"],
   ["ai-automation", "law-firms", "oakland"],
   ["booking-systems", "nonprofits", "berkeley"],
+  ["ai-automation", "home-services", "hayward"],
+  ["booking-systems", "home-services", "fremont"],
+  ["web-design", "faith-communities", "fremont"],
+  ["booking-systems", "faith-communities", "san-jose"],
 ];
 
 // Tier-B (city) pages reuse their Tier-A parent's copy plus a local overlay, so

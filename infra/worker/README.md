@@ -43,3 +43,24 @@ npx wrangler secret put LEAD_BCC          # optional — copies you on each repl
 `LEAD_FROM` must be an address on a domain you've verified in Resend (use your **sending
 domain**, e.g. `ravi@trysymbioai.com` — not `symbioai.dev`). With no key set, the endpoint just
 acknowledges and your existing lead pipeline still captures the lead.
+
+## Instant Telegram lead alerts (free — recommended)
+
+Get a phone buzz the moment someone does a free scan, chats with the widget, or runs an instant
+teardown. The site fires every lead event at `/api/lead`, which messages your Telegram.
+
+1. In Telegram, message **@BotFather** → `/newbot` → follow the prompts → copy the **bot token**.
+2. Create a group (or use a DM), add your bot to it, send any message, then get the **chat id**:
+   open `https://api.telegram.org/bot<TOKEN>/getUpdates` and copy `chat.id` (groups are negative,
+   e.g. `-1001234567890`).
+3. Set the secrets and redeploy:
+   ```bash
+   cd infra/worker
+   npx wrangler secret put TELEGRAM_BOT_TOKEN
+   npx wrangler secret put TELEGRAM_CHAT_ID
+   npx wrangler deploy
+   ```
+
+That's it. Every scan/chat/teardown now pings your Telegram with the name, business, contact, and
+what they need. (Requires `scanApi` set in `src/_data/site.js` so the site knows where to send —
+the same Worker URL you already use for the teardown.)

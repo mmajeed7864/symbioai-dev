@@ -19,6 +19,15 @@ export default {
   // escape hatch for any other analytics <script> URL. Both empty -> no tracking.
   analyticsDomain: "",
   analyticsScript: "",
+  // Retargeting pixels (off until set) — build audiences for cheap paid ads
+  // later. base.njk loads them and main.js forwards conversion events to them.
+  // IDs from Meta Events Manager (e.g. "1234567890") and Google Ads/Analytics
+  // (e.g. "AW-123" / "G-123"). Both empty -> no pixels load.
+  metaPixelId: "",
+  googleAdsId: "",
+  // Direct "leave a review" link for your Google Business Profile — used by
+  // `hermes review`. In GBP: "Get more reviews" -> copy link.
+  googleReviewUrl: "",
   positioning:
     "We build premium websites, apps, dashboards, chatbots, and AI agents that help businesses look credible and turn attention into action.",
   description:

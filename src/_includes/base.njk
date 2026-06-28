@@ -36,6 +36,43 @@
       <script type="application/ld+json">{{ jsonLd | safe }}</script>
     {% endif %}
 
+    {# Sitewide Organization schema — on every page that doesn't ship its own
+       JSON-LD graph (the grow pages do). `| dump` keeps values JSON-safe. #}
+    {% if site.url and not jsonLd %}
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "ProfessionalService",
+          "@id": "{{ site.url }}/#org",
+          "name": {{ site.name | dump | safe }},
+          "url": {{ site.url | dump | safe }},
+          "logo": {{ (site.url + "/assets/img/logo-symbio-color.svg") | dump | safe }},
+          "image": {{ (site.url + "/assets/img/logo-symbio-color.svg") | dump | safe }},
+          "description": {{ (site.description or site.tagline) | dump | safe }},
+          "email": {{ (site.businessEmail or site.leadEmail or site.founders[0].email) | dump | safe }},
+          "telephone": {{ ("+1-" + site.founders[0].phone) | dump | safe }},
+          "areaServed": { "@type": "State", "name": "California" },
+          "priceRange": "$$"
+        }
+      </script>
+    {% endif %}
+
+    {# Marketing pixels — off until the IDs are set in site.js. They power
+       retargeting audiences; main.js forwards conversion events to them. #}
+    {% if site.metaPixelId %}
+      <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
+        fbq("init", "{{ site.metaPixelId }}"); fbq("track", "PageView");
+      </script>
+    {% endif %}
+    {% if site.googleAdsId %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.googleAdsId }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || []; function gtag(){ dataLayer.push(arguments); }
+        gtag("js", new Date()); gtag("config", "{{ site.googleAdsId }}");
+      </script>
+    {% endif %}
+
     {# Runs before first paint. Sets the theme (localStorage wins, else the OS
        preference governs via CSS) and flags `.js` so reveal-on-scroll content
        starts hidden without a flash. A safety net unhides it if main.js never
@@ -71,6 +108,9 @@
       </script>
     {% endif %}
     {% if site.analyticsScript %}<script defer src="{{ site.analyticsScript }}"></script>{% endif %}
+
+    {# Worker base URL for fire-and-forget lead notifications (Telegram). #}
+    <script>window.__symbioScanApi = {{ site.scanApi | dump | safe }};</script>
 
     <link rel="stylesheet" href="assets/css/styles.css" />
     <script src="assets/js/main.js" defer></script>

@@ -33,6 +33,7 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VARIANTS_PATH = path.join(HERE, "variants.json");
 const SEQUENCES_PATH = path.join(HERE, "sequences.json");
+const MARKETING_PATH = path.join(HERE, "marketing.json");
 const LEDGER_PATH = path.join(HERE, "ledger.json");
 const REPORT_PATH = path.join(HERE, "REPORT.md");
 const OUT_DIR = path.join(HERE, "out");
@@ -230,8 +231,23 @@ async function cmdOutreach(flags) {
 }
 
 async function cmdLog(flags) {
+  // Marketing engagement: hermes log --angle <id> --engaged   (or --clicks N)
+  if (flags.angle && flags.angle !== true) {
+    const mk = await loadMarketing();
+    const a = mk.angles.find((x) => x.id === flags.angle);
+    if (!a) {
+      console.error(`Hermes log: unknown angle "${flags.angle}" (see tools/hermes/marketing.json)`);
+      exit(1);
+    }
+    if (flags.sent) a.sends = (a.sends || 0) + (parseInt(flags.sent, 10) || 1);
+    if (flags.engaged) a.engaged = (a.engaged || 0) + 1;
+    if (flags.clicks) a.engaged = (a.engaged || 0) + (parseInt(flags.clicks, 10) || 0);
+    await writeJson(MARKETING_PATH, mk);
+    console.log(`Logged angle ${a.id}: sends=${a.sends || 0} engaged=${a.engaged || 0}`);
+    return;
+  }
   if (!flags.email || flags.email === true) {
-    console.error("Hermes log: --email <address> is required (plus --replied / --booked / --unsub)");
+    console.error("Hermes log: --email <address> (--replied/--booked/--unsub) OR --angle <id> (--engaged/--clicks N)");
     exit(1);
   }
   const ledger = await readJson(LEDGER_PATH, []);
@@ -277,6 +293,18 @@ async function cmdLearn() {
   const total = board.reduce((a, b) => a + b.sends, 0);
   console.log(`\n${total} sends recorded. The next \`hermes outreach\` will favour the top variant (ε=${variantsCfg.epsilon} still explores).`);
   if (total < 30) console.log("Note: <30 sends — rankings are still noisy. Keep logging outcomes before trusting them.");
+
+  // Marketing angle leaderboard (social + GBP) — the same learning loop.
+  const mk = await loadMarketing();
+  const mboard = mk.angles
+    .map((a) => ({ id: a.id, sends: a.sends || 0, engaged: a.engaged || 0, rate: a.sends ? a.engaged / a.sends : 0, score: angleScore(a) }))
+    .sort((a, b) => b.score - a.score);
+  console.log("\nMarketing angle leaderboard (by engagement):");
+  console.log("  rank  angle        posts  engaged  rate");
+  mboard.forEach((s, i) =>
+    console.log(`  ${String(i + 1).padEnd(4)}  ${s.id.padEnd(11)}  ${String(s.sends).padEnd(5)}  ${String(s.engaged).padEnd(7)}  ${(s.rate * 100).toFixed(0).padStart(4)}%`)
+  );
+  console.log(`The next \`hermes social\`/\`gbp\` will favour the top angles (ε=${mk.epsilon} still explores).`);
   return board;
 }
 
@@ -311,6 +339,11 @@ async function cmdReport() {
     if (r.booked) byNiche[k].booked += 1;
   }
 
+  const mk = await loadMarketing();
+  const mboard = mk.angles
+    .map((a) => ({ id: a.id, sends: a.sends || 0, engaged: a.engaged || 0, rate: a.sends ? a.engaged / a.sends : 0, score: angleScore(a) }))
+    .sort((a, b) => b.score - a.score);
+
   const addressSet = !addressIsPlaceholder(cfg);
   const md = [
     `# Hermes — Growth Report`, ``, `_Generated ${new Date().toISOString()}_`, ``,
@@ -324,6 +357,9 @@ async function cmdReport() {
     `## A/B variant leaderboard`,
     `| rank | variant | sends | replies | booked | reply-rate |`, `| --- | --- | --- | --- | --- | --- |`,
     ...board.map((s, i) => `| ${i + 1} | ${s.id} | ${s.sends} | ${s.replies} | ${s.booked} | ${(s.rate * 100).toFixed(0)}% |`), ``,
+    `## Marketing angle leaderboard (social + GBP)`,
+    `| rank | angle | posts | engaged | rate |`, `| --- | --- | --- | --- | --- |`,
+    ...mboard.map((s, i) => `| ${i + 1} | ${s.id} | ${s.sends} | ${s.engaged} | ${(s.rate * 100).toFixed(0)}% |`), ``,
     `## Reply rate by niche`,
     `| niche | queued | replied | booked |`, `| --- | --- | --- | --- |`,
     ...Object.entries(byNiche).map(([k, v]) => `| ${k} | ${v.queued} | ${v.replied} | ${v.booked} |`), ``,
@@ -404,11 +440,155 @@ async function cmdNurture(flags) {
     : "Load these as an automated sequence in Smartlead/Instantly (it sends on the step delays = speed-to-lead).");
 }
 
+/* ---- the marketing engine (ever-improving, like outreach) ------------ */
+const DEFAULT_MARKETING = { epsilon: 0.25, hashtags: ["#smallbusiness", "#localbusiness", "#bayarea"], angles: [{ id: "offer", label: "Offer", sends: 0, engaged: 0, templates: ["Free scan of your site — we send the top 3 fixes costing you leads. {url}"] }] };
+
+async function loadMarketing() {
+  const m = await readJson(MARKETING_PATH, null);
+  return m && Array.isArray(m.angles) && m.angles.length ? m : DEFAULT_MARKETING;
+}
+
+async function loadSiteData() {
+  const [site, niches, services, cities] = await Promise.all([
+    import("../../src/_data/site.js").then((m) => m.default),
+    import("../../src/_data/niches.js").then((m) => m.default).catch(() => ({})),
+    import("../../src/_data/growServices.js").then((m) => m.default).catch(() => []),
+    import("../../src/_data/cities.js").then((m) => m.default).catch(() => ({})),
+  ]);
+  return { site, niches, services, cities };
+}
+
+const angleScore = (a) => ((a.engaged || 0) + 1) / ((a.sends || 0) + 2);
+
+// Epsilon-greedy over engagement rate — same idea as the outreach bandit.
+function pickAngle(angles, epsilon) {
+  if (Math.random() < epsilon) return angles[Math.floor(Math.random() * angles.length)];
+  return [...angles].sort((a, b) => angleScore(b) - angleScore(a) || (a.sends || 0) - (b.sends || 0))[0];
+}
+
+function fillCtx(i, site, niches, services, cities) {
+  const nicheLabels = Object.values(niches).map((n) => n.label);
+  const serviceLabels = (services || []).map((s) => s.label);
+  const cityNames = Object.values(cities).map((c) => c.name);
+  const offers = (site.packages || []).map((p) => `${p.name} — ${p.price}`);
+  return {
+    brand: site.name,
+    url: site.url || "https://symbioai.dev",
+    niche: (nicheLabels[i % (nicheLabels.length || 1)] || "local businesses").toLowerCase(),
+    service: serviceLabels[i % (serviceLabels.length || 1)] || "a fast website",
+    city: cityNames[i % (cityNames.length || 1)] || "the Bay Area",
+    offer: offers.length ? offers[i % offers.length] : "a fixed-price package",
+  };
+}
+
+async function cmdSocial(flags) {
+  const weeks = Math.max(1, parseInt(flags.weeks || "4", 10));
+  const perWeek = Math.max(1, parseInt(flags["per-week"] || "3", 10));
+  const mk = await loadMarketing();
+  const eps = flags.epsilon != null ? parseFloat(flags.epsilon) : mk.epsilon;
+  const { site, niches, services, cities } = await loadSiteData();
+  const platforms = ["LinkedIn", "Instagram", "Facebook"];
+  const total = weeks * perWeek;
+  const start = new Date();
+  start.setDate(start.getDate() + 1);
+
+  const rows = [];
+  const byAngle = {};
+  for (let i = 0; i < total; i += 1) {
+    const angle = pickAngle(mk.angles, eps);
+    angle.sends = (angle.sends || 0) + 1;
+    byAngle[angle.id] = (byAngle[angle.id] || 0) + 1;
+    const ctx = fillCtx(i, site, niches, services, cities);
+    const tpl = angle.templates[i % angle.templates.length];
+    const d = new Date(start);
+    d.setDate(start.getDate() + i * 2);
+    rows.push({
+      date: d.toISOString().slice(0, 10),
+      platform: platforms[i % platforms.length],
+      angle: angle.id,
+      post: renderTemplate(tpl, ctx),
+      hashtags: (mk.hashtags || []).slice(0, 6).join(" "),
+    });
+  }
+
+  await mkdir(OUT_DIR, { recursive: true });
+  const outCsv = path.join(OUT_DIR, "social-calendar.csv");
+  await writeFile(outCsv, toCsv(rows, ["date", "platform", "angle", "post", "hashtags"]), "utf8");
+  const md = ["# Social calendar\n", ...rows.map((r) => `### ${r.date} · ${r.platform}  _(angle: ${r.angle})_\n${r.post}\n\n${r.hashtags}\n`)].join("\n");
+  await writeFile(path.join(OUT_DIR, "social-calendar.md"), md, "utf8");
+  await writeJson(MARKETING_PATH, mk);
+
+  console.log(`Hermes social — ${rows.length} posts across ${platforms.join("/")} → ${outCsv}`);
+  console.log("angles used:", Object.entries(byAngle).map(([k, n]) => `${k}=${n}`).join("  "));
+  console.log("Schedule them (Buffer free tier, etc.), then log what performs:");
+  console.log("  node tools/hermes/hermes.mjs log --angle <id> --engaged   (or --clicks N)");
+}
+
+async function cmdGbp(flags) {
+  const count = Math.max(1, parseInt(flags.count || "8", 10));
+  const mk = await loadMarketing();
+  const eps = flags.epsilon != null ? parseFloat(flags.epsilon) : mk.epsilon;
+  const { site, niches, services, cities } = await loadSiteData();
+  const ctas = ["Call now", "Book", "Learn more", "Get a free scan"];
+
+  const rows = [];
+  for (let i = 0; i < count; i += 1) {
+    const angle = pickAngle(mk.angles, eps);
+    angle.sends = (angle.sends || 0) + 1;
+    const ctx = fillCtx(i, site, niches, services, cities);
+    const tpl = angle.templates[i % angle.templates.length];
+    rows.push({ angle: angle.id, cta: ctas[i % ctas.length], post: renderTemplate(tpl, ctx) });
+  }
+  await mkdir(OUT_DIR, { recursive: true });
+  const outCsv = path.join(OUT_DIR, "gbp-posts.csv");
+  await writeFile(outCsv, toCsv(rows, ["angle", "cta", "post"]), "utf8");
+  await writeJson(MARKETING_PATH, mk);
+  console.log(`Hermes gbp — ${rows.length} Google Business Profile posts → ${outCsv}`);
+  console.log("Post 1-2/week in your GBP dashboard with the suggested CTA button. Log engagement with `log --angle`.");
+}
+
+async function cmdReview(flags) {
+  const { site } = await loadSiteData();
+  const reviewUrl = flags["review-url"] || site.googleReviewUrl || "";
+  const cfg = await loadConfig(CONFIG_PATH);
+  const blocked = addressIsPlaceholder(cfg);
+  if (blocked) console.warn("\n⚠️  Address not set — BLOCKED placeholders only (CAN-SPAM). Set it in " + CONFIG_PATH + ".\n");
+  if (!reviewUrl) console.warn("! No googleReviewUrl in site.js — add it for one-tap reviews (GBP → Get more reviews → copy link).");
+
+  const clients = await loadProspects(flags.in || "tools/prospects.sample.csv", flags.limit ? parseInt(flags.limit, 10) : Infinity);
+  const footer = `\n\n— ${cfg.fromName}, ${cfg.company}\n${cfg.websiteUrl}\n\n${cfg.physicalAddress}\n${cfg.unsubscribeLine}`;
+  const records = clients.map((c) => {
+    const first = firstNameOf(c) === "there" ? "there" : firstNameOf(c);
+    const biz = businessOf(c);
+    const body = blocked
+      ? "[BLOCKED] Set a real physical address in tools/outreach.config.json before sending (CAN-SPAM)."
+      : `Hi ${first},\n\nThank you for trusting us with ${biz}'s project — it was a pleasure to build.\n\n` +
+        (reviewUrl ? `If you have 30 seconds, a quick Google review would mean the world to two founders just getting started:\n${reviewUrl}\n\n` : `If you have 30 seconds, a quick Google review would mean the world to two founders just getting started.\n\n`) +
+        `And if you know another local business or organization that could use a better site, booking, or an AI assistant, we'd be grateful for the introduction — we'll take great care of them.${footer}`;
+    return {
+      email: c.email || "",
+      first_name: first === "there" ? "" : first,
+      company: biz,
+      subject: blocked ? "" : `Quick favor, ${first}?`,
+      email_body: body,
+      status: blocked ? "blocked-no-address" : c.email ? "ready" : "no-email",
+    };
+  });
+  await mkdir(OUT_DIR, { recursive: true });
+  const outCsv = path.join(OUT_DIR, "review-requests.csv");
+  await writeFile(outCsv, toCsv(records, ["email", "first_name", "company", "subject", "email_body", "status"]), "utf8");
+  console.log(`Hermes review — ${records.length} review + referral request(s) → ${outCsv}`);
+  console.log(blocked ? "⚠️  BLOCKED placeholders — set your address, then re-run." : "Send these after a project ships — reviews compound your local SEO and trust.");
+}
+
 async function main() {
   const { cmd, flags } = parseArgs(argv.slice(2));
   switch (cmd) {
     case "outreach": return cmdOutreach(flags);
     case "nurture": return cmdNurture(flags);
+    case "social": return cmdSocial(flags);
+    case "gbp": return cmdGbp(flags);
+    case "review": return cmdReview(flags);
     case "log": return cmdLog(flags);
     case "learn": await cmdLearn(); return;
     case "report": return cmdReport();
@@ -416,16 +596,25 @@ async function main() {
       await cmdOutreach(flags);
       return cmdReport();
     default:
-      console.log(`Hermes — Symbio AI growth engine
+      console.log(`Hermes — Symbio AI growth engine (every channel learns from what you log)
 
-  node tools/hermes/hermes.mjs outreach --in leads.csv   Scan + write A/B emails (bandit-assigned)
-  node tools/hermes/hermes.mjs nurture --in leads.csv    Render the speed-to-lead follow-up sequence
-  node tools/hermes/hermes.mjs log --email e@x.com --replied   Record an outcome
-  node tools/hermes/hermes.mjs learn                     Update variant win-rates
-  node tools/hermes/hermes.mjs report                    Write the funnel dashboard
-  node tools/hermes/hermes.mjs run --in leads.csv        outreach -> report
+  OUTBOUND
+  outreach --in leads.csv     Scan prospects + write A/B emails (bandit-assigned)
+  nurture  --in leads.csv     Speed-to-lead follow-up sequence for inbound leads
+  review   --in clients.csv   Review + referral requests (after a project ships)
 
-Outcomes you log make the next run smarter. See tools/hermes/README.md.`);
+  MARKETING (ever-improving — angles learn from engagement)
+  social   --weeks 4          Generate a LinkedIn/Instagram/Facebook content calendar
+  gbp      --count 8          Generate Google Business Profile posts
+
+  LEARN / REPORT
+  log --email e@x.com --replied        Record an outreach outcome
+  log --angle community --engaged      Record marketing engagement
+  learn                                Update variant + angle win-rates
+  report                               Write the funnel + channel dashboard
+  run --in leads.csv                   outreach -> report
+
+What you log makes the next run smarter. See tools/hermes/README.md.`);
   }
 }
 

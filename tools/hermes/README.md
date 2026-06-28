@@ -52,6 +52,27 @@ npm run hermes -- run --in leads.csv
 (`npm run hermes -- <cmd>` — the `--` passes args through npm. Or call
 `node tools/hermes/hermes.mjs <cmd>` directly.)
 
+## Marketing — the same ever-improving loop
+
+Hermes also runs your content marketing, and it learns which **angles** work the same way
+outreach learns subject lines (an epsilon-greedy bandit on engagement):
+
+```bash
+# A 4-week LinkedIn/Instagram/Facebook content calendar (angles bandit-picked)
+npm run hermes -- social --weeks 4 --per-week 3     # → tools/hermes/out/social-calendar.{csv,md}
+npm run hermes -- gbp --count 8                      # Google Business Profile posts
+npm run hermes -- review --in clients.csv            # review + referral requests (uses site.googleReviewUrl)
+
+# Schedule the posts, then log what performed — the next batch favours winning angles:
+npm run hermes -- log --angle community --engaged    # or --clicks N
+npm run hermes -- learn                              # shows the angle leaderboard too
+```
+
+The content angles (including a **community/culture** angle for the Hindu & Muslim communities,
+temples, mosques, and local businesses) live in `tools/hermes/marketing.json` — edit/add freely.
+Placeholders (`{niche} {service} {city} {offer} {url}`) fill from your site data, so adding a
+niche or package automatically enriches the posts. `report` includes the angle leaderboard.
+
 ## How the "ever-improving" part works
 
 `tools/hermes/variants.json` holds the A/B variants (subject-line template + CTA). When you run
