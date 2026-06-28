@@ -12,7 +12,7 @@ export default {
   // Deployed instant-teardown Worker base URL (infra/worker/). Empty -> the
   // teardown page falls back to the normal free-scan form. e.g.
   // "https://symbio-scan.<you>.workers.dev"
-  scanApi: "",
+  scanApi: "https://symbio-scan.symbioai.workers.dev",
   // Privacy-friendly analytics (cookieless). Set analyticsDomain to your domain
   // to enable Plausible (free trial / self-host) — conversion events (Lead,
   // Teardown, CheckoutClick, ...) fire automatically. analyticsScript is a generic
