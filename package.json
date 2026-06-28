@@ -1,0 +1,37 @@
+{
+  "name": "symbio-ai-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Symbio AI marketing site — clean, DRY static build with Eleventy + Nunjucks.",
+  "author": "Mohammed & Ravi",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "dev": "eleventy --serve --quiet",
+    "build": "eleventy",
+    "clean": "rimraf dist",
+    "outreach": "node tools/audit-outreach.mjs",
+    "hermes": "node tools/hermes/hermes.mjs",
+    "source": "node tools/prospect-source.mjs",
+    "new-client": "node tools/new-client.mjs",
+    "set-stripe": "node tools/set-stripe.mjs",
+    "minify:widget": "terser src/assets/js/symbio-widget.js -c -m -o src/assets/js/symbio-widget.min.js",
+    "lint": "npm run lint:css && npm run lint:js && npm run lint:html",
+    "lint:css": "stylelint \"src/assets/css/**/*.css\"",
+    "lint:js": "eslint \"src/assets/js/**/*.js\" \"*.js\"",
+    "lint:html": "htmlhint \"dist/**/*.html\"",
+    "format": "prettier --write \"src/**/*.{css,js}\" \"*.{js,json,md}\" \"README.md\"",
+    "format:check": "prettier --check \"src/**/*.{css,js}\" \"*.{js,json,md}\" \"README.md\""
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "htmlhint": "^1.1.4",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "stylelint": "^16.12.0",
+    "stylelint-config-standard": "^36.0.1",
+    "terser": "^5.37.0"
+  }
+}

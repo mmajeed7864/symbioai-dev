@@ -1,0 +1,118 @@
+---
+layout: base.njk
+pageKey: care
+title: "Website care plans"
+permalink: care.html
+description: Keep your site fast, secure, updated, and converting — managed website care plans from $99/mo. Hosting, monitoring, updates, and ongoing improvements, handled by the people who built it.
+---
+
+{# ===== Hero =========================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Care plans</span>
+    <h1 class="section__title">We keep it running — from $99/mo</h1>
+    <p class="section__lead">
+      A website isn’t “done” — it needs hosting, updates, monitoring, and the occasional change.
+      A care plan hands all of that to the people who built it, so it stays fast, secure, and
+      working while you run your business.
+    </p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="#plans">See plans</a>
+      <a class="btn btn--ghost btn--lg" href="{{ site.cta.url }}">Get a free scan</a>
+    </div>
+  </div>
+</section>
+
+{# ===== What's covered ================================================= #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What’s covered</span>
+      <h2 class="section__title">Off your plate, on ours</h2>
+    </div>
+    <div class="grid grid--auto">
+      <article class="card" data-reveal>
+        <h3 class="card__title">Fast &amp; online</h3>
+        <p class="card__text">Managed hosting, SSL, and uptime monitoring so your site stays quick and reachable.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="1">
+        <h3 class="card__title">Secure &amp; current</h3>
+        <p class="card__text">Updates and security monitoring so nothing goes stale or gets exploited.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="2">
+        <h3 class="card__title">Always editable</h3>
+        <p class="card__text">Send us the change — new hours, a new photo, a new page — and we handle it.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="3">
+        <h3 class="card__title">Always improving</h3>
+        <p class="card__text">On higher plans we keep tuning the site to win more leads, not just keep the lights on.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ===== Plans ========================================================== #}
+<section class="section section--tight" id="plans">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Plans</span>
+      <h2 class="section__title">Simple monthly care</h2>
+      <p class="section__lead">Month-to-month, cancel anytime. Already a client? We’ll roll your site straight in.</p>
+    </div>
+
+    <div class="grid grid--3">
+      {% for plan in site.carePlans %}
+        <article
+          id="{{ plan.key }}"
+          class="price{% if plan.featured %} price--popular{% endif %}"
+          data-reveal
+          data-reveal-delay="{{ loop.index0 }}"
+        >
+          {% if plan.featured %}<span class="price__flag">Most popular</span>{% endif %}
+          <h2 class="price__name">{{ plan.name }}</h2>
+          <p class="price__amount">{{ plan.price }} <small>{{ plan.cadence }}</small></p>
+          <p class="price__desc">{{ plan.blurb }}</p>
+          <ul class="price__features">
+            {% for feature in plan.features %}
+              <li>{{ feature }}</li>
+            {% endfor %}
+          </ul>
+          <div class="price__cta">
+            <a
+              class="btn {% if plan.featured %}btn--primary{% else %}btn--secondary{% endif %} btn--block"
+              href="{{ plan.checkoutUrl if plan.checkoutUrl else site.cta.url }}"
+              {% if plan.checkoutUrl %}rel="noopener"{% endif %}
+            >
+              {% if plan.checkoutUrl %}Start {{ plan.name }} — {{ plan.price }}{{ plan.cadence }}{% else %}Get started{% endif %}
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">Not a client yet?</span>
+      <p>
+        We can take over an existing site or build you a new one first. <a href="{{ site.cta.url }}">Start with a free scan</a> and we’ll tell you which plan fits — or whether you need one at all.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Stop worrying about your website</h2>
+      <p class="cta-band__text">
+        Hand it to the people who built it. We’ll keep it fast, secure, and converting — you get
+        back to running the business.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>

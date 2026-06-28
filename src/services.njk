@@ -1,0 +1,184 @@
+---
+layout: base.njk
+pageKey: services
+title: Services
+permalink: services.html
+description: Premium websites, redesigns, custom apps, dashboards, AI chatbots, and workflow agents built around how your business actually works.
+---
+
+{# ===== Page head ====================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Services</span>
+    <h1 class="section__title">Premium builds for websites, apps, dashboards, chatbots, and AI agents</h1>
+    <p class="section__lead">
+      {{ site.positioning }} Choose one lane by itself, or ask us to connect the pieces into one
+      business system.
+    </p>
+  </div>
+</section>
+
+{# ===== Website redesign lane (primary) ================================ #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container">
+    <div class="card card--feature" data-reveal>
+      <div class="grid grid--2 grid--top">
+        <div>
+          <span class="eyebrow">Websites and redesigns</span>
+          <h2 class="section__title">Make the first impression feel obvious, modern, and worth trusting</h2>
+          <p class="card__text">
+            If you do not have a site yet, we build the first version cleanly. If your current
+            site feels dated, we rebuild the pages people judge first: homepage, offer, mobile
+            experience, contact path, booking path, and follow-up. The goal is simple: make the
+            business look credible and make the next step easy.
+          </p>
+          <p class="lane-price">Website work starts at <strong>$1,000</strong>.</p>
+          <div class="btn-row mt-6">
+            <a class="btn btn--primary" href="{{ site.cta.url }}">Plan my website</a>
+            <a class="btn btn--ghost" href="pricing.html">See pricing</a>
+          </div>
+        </div>
+        <ul class="card__list card__list--two">
+          <li>New websites</li>
+          <li>Homepage redesigns</li>
+          <li>Landing pages</li>
+          <li>Mobile cleanup</li>
+          <li>Conversion copy</li>
+          <li>Contact forms</li>
+          <li>Booking paths</li>
+          <li>Portfolio/service pages</li>
+          <li>Trust and proof sections</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== What we can build (full menu) ================================ #}
+<section class="section has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What we can build</span>
+      <h2 class="section__title">Choose a premium website, redesign, application, dashboard, chatbot, or AI agent</h2>
+      <p class="section__lead">
+        Start with what your business needs most: a clean website, a stronger redesign, a custom
+        application, a useful dashboard, a customer-facing chatbot, or agents that save time.
+      </p>
+    </div>
+
+    <div class="product-menu product-menu--compact">
+      {% for lane in site.productLanes %}
+        <article class="product-card product-card--{{ lane.key }}{% if lane.key == 'website' %} product-card--primary{% endif %}" data-reveal data-reveal-delay="{{ loop.index0 % 3 }}">
+          <div class="product-card__topline">
+            <span class="eyebrow">{{ lane.eyebrow }}</span>
+            <span class="product-card__price">Starts at {{ lane.startsAt }}</span>
+          </div>
+          <h3 class="product-card__title">{{ lane.title }}</h3>
+          <p class="product-card__text">{{ lane.summary }}</p>
+          <p class="product-card__best"><strong>Best for:</strong> {{ lane.bestFor }}</p>
+          <a class="card__link" href="{{ lane.demoUrl }}">{{ lane.cta }}</a>
+        </article>
+      {% endfor %}
+    </div>
+    <div class="btn-row btn-row--center mt-6" data-reveal>
+      <a class="btn btn--primary" href="{{ site.links.demos }}">See product demos</a>
+    </div>
+  </div>
+</section>
+
+{# ===== Product chooser =============================================== #}
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What should we build?</span>
+      <h2 class="section__title">The right product depends on the problem</h2>
+      <p class="section__lead">
+        You do not have to buy a website first. If the real problem is an app, dashboard, chatbot,
+        or agent, we start there.
+      </p>
+    </div>
+
+    <div class="grid grid--4">
+      <article class="card" data-reveal>
+        <span class="eyebrow">Website</span>
+        <h3 class="card__title">For trust &amp; presence</h3>
+        <p class="card__text">
+          Need to look legit, get found, and turn visitors into enquiries? That's a website.
+        </p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="1">
+        <span class="eyebrow">App</span>
+        <h3 class="card__title">For logins &amp; workflows</h3>
+        <p class="card__text">
+          Need logins, dashboards, tracking, client portals, staff tools, or data? That's an
+          app.
+        </p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="3">
+        <span class="eyebrow">AI Agent</span>
+        <h3 class="card__title">For automation &amp; follow-up</h3>
+        <p class="card__text">
+          Need repeat tasks drafted, routed, tracked, or followed up without losing control? That's
+          an AI agent.
+        </p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="2">
+        <span class="eyebrow">Full system</span>
+        <h3 class="card__title">For the whole system</h3>
+        <p class="card__text">
+          Need public pages, logins, data, chat, and follow-up together? That's a connected system.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ===== AI assistant highlight ======================================== #}
+<section class="section">
+  <div class="container">
+    <div class="card" data-reveal>
+      <div class="grid grid--2 grid--top">
+        <div>
+          <span class="eyebrow">The AI assistant</span>
+          <h2 class="card__title">An always-on assistant that can stand alone or live on your site</h2>
+          <p class="card__text">
+            Our embeddable assistant answers questions, captures the visitor's name and contact,
+            and can help route bookings. It can support a site, a landing page, or a standalone
+            campaign when customer questions are costing you leads.
+          </p>
+          <div class="btn-row mt-6">
+            <a class="btn btn--primary" href="{{ site.links.demo }}">Try the live demo</a>
+            <a class="btn btn--ghost" href="widget.html">Plans from $49/mo</a>
+          </div>
+        </div>
+        <ul class="card__list">
+          <li>One &lt;script&gt; tag - works anywhere</li>
+          <li>Fully isolated styling (Shadow DOM)</li>
+          <li>Built-in lead capture from name to contact details</li>
+          <li>Every lead fires an event you can hook into</li>
+          <li>Optional live AI and lead delivery</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Not sure which you need?</h2>
+      <p class="cta-band__text">
+        That's what the free scan is for. Tell us what you're trying to do and we'll point you
+        to the smallest build that moves the needle.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>

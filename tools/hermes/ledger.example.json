@@ -1,0 +1,24 @@
+[
+  {
+    "email": "owner@example-dental.com",
+    "company": "Example Dental",
+    "niche": "dentist",
+    "city": "Fremont",
+    "variantId": "wins",
+    "queuedAt": "2026-06-01T17:00:00.000Z",
+    "replied": true,
+    "booked": false,
+    "unsub": false
+  },
+  {
+    "email": "info@example-bistro.com",
+    "company": "Example Bistro",
+    "niche": "restaurant",
+    "city": "San Jose",
+    "variantId": "noticed",
+    "queuedAt": "2026-06-01T17:00:00.000Z",
+    "replied": false,
+    "booked": false,
+    "unsub": false
+  }
+]

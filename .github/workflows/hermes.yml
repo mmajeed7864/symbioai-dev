@@ -1,0 +1,51 @@
+name: Hermes growth heartbeat
+
+# Full-automation safety net for the growth system:
+#  - health: rebuilds the site (incl. the programmatic-SEO matrix) + lints, so the
+#    30+ generated pages can never silently break a deploy.
+#  - heartbeat: refreshes the Hermes funnel report (REPORT.md) as an artifact.
+# Outreach generation is intentionally NOT run in CI — it produces per-prospect
+# PII and belongs on a maintainer's machine, sent from a warmed cold-email tool.
+
+on:
+  schedule:
+    - cron: "0 14 * * 1" # Mondays, 14:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build site (incl. programmatic SEO matrix)
+        run: npm run build
+      - name: Lint
+        run: npm run lint
+
+  heartbeat:
+    needs: health
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Hermes funnel report
+        run: node tools/hermes/hermes.mjs report || true
+      - name: Upload report artifact (no prospect data)
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-report-${{ github.run_id }}
+          path: tools/hermes/REPORT.md
+          if-no-files-found: ignore
+          retention-days: 7

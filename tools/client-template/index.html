@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>{{TITLE}}</title>
+    <meta name="description" content="{{DESCRIPTION}}" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <!-- Client accent override + small layout for the one-page header/footer. -->
+    <style>
+      :root { --brand-accent: {{ACCENT}}; }
+      .client-bar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
+      .client-bar__name { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.01em; }
+      .client-foot { text-align: center; padding: 2.5rem 0; color: var(--text-muted, #667); }
+      .client-contact { display: grid; gap: 0.4rem; }
+    </style>
+  </head>
+  <body class="page">
+    <header>
+      <div class="container client-bar">
+        <span class="client-bar__name">{{NAME}}</span>
+        <a class="btn btn--primary btn--sm" href="{{PRIMARYCTA_HREF}}">{{PRIMARYCTA_LABEL}}</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section section--tight has-aurora">
+        <div class="aurora" aria-hidden="true"></div>
+        <div class="container container--narrow center">
+          <span class="eyebrow eyebrow--center">{{TAGLINE}}</span>
+          <h1 class="section__title">{{HEADLINE}}</h1>
+          <p class="section__lead">{{HEROTEXT}}</p>
+          <div class="btn-row btn-row--center mt-6">
+            <a class="btn btn--primary btn--lg" href="{{PRIMARYCTA_HREF}}">{{PRIMARYCTA_LABEL}}</a>
+            <a class="btn btn--ghost btn--lg" href="#contact">Contact</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight" id="services">
+        <div class="container">
+          <div class="section__head section__head--center">
+            <span class="eyebrow eyebrow--center">What we do</span>
+            <h2 class="section__title">Services</h2>
+          </div>
+          <div class="grid grid--auto">
+            {{SERVICES}}
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tint" id="about">
+        <div class="container container--narrow center">
+          <span class="eyebrow eyebrow--center">About</span>
+          <h2 class="section__title">{{NAME}}</h2>
+          {{ABOUT}}
+        </div>
+      </section>
+
+      <section class="section" id="contact">
+        <div class="container">
+          <div class="cta-band">
+            <h2 class="cta-band__title">Get in touch</h2>
+            <div class="client-contact">{{CONTACT}}</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="client-foot">
+      <div class="container">
+        <p>© {{YEAR}} {{NAME}}. All rights reserved.</p>
+        <p><a href="https://symbioai.dev">Site by Symbio AI</a></p>
+      </div>
+    </footer>
+    {{WIDGET}}
+  </body>
+</html>

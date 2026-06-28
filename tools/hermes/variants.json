@@ -1,0 +1,37 @@
+{
+  "epsilon": 0.2,
+  "variants": [
+    {
+      "id": "wins",
+      "subjectTemplate": "{biz}: {n} quick wins on your site",
+      "cta": "Want the full one-page teardown (free, no obligation)? Just reply \"send it\".",
+      "sends": 0,
+      "replies": 0,
+      "booked": 0
+    },
+    {
+      "id": "noticed",
+      "subjectTemplate": "noticed something on {biz}'s site",
+      "cta": "Reply 'yes' and I'll send the 3 fixes — free, takes me five minutes.",
+      "sends": 0,
+      "replies": 0,
+      "booked": 0
+    },
+    {
+      "id": "question",
+      "subjectTemplate": "quick question about {biz}",
+      "cta": "Worth a 10-minute look? Reply and I'll send a short teardown.",
+      "sends": 0,
+      "replies": 0,
+      "booked": 0
+    },
+    {
+      "id": "niche",
+      "subjectTemplate": "{niche} sites that book more work",
+      "cta": "Want me to point out the top 3 fixes on your site? Just reply.",
+      "sends": 0,
+      "replies": 0,
+      "booked": 0
+    }
+  ]
+}

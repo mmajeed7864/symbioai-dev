@@ -1,0 +1,8 @@
+{# Brand lockup (mark + wordmark). Reused by nav and footer so it lives once.
+   Pass `brandClass` before including to add a modifier (e.g. "brand--footer"). #}
+<a class="brand {{ brandClass }}" href="{{ site.nav[0].url }}" aria-label="{{ site.name }} - home">
+  <img class="brand__mark brand__mark--light" src="assets/img/logo-symbio-color.svg" alt="" width="34" height="34" />
+  <img class="brand__mark brand__mark--dark" src="assets/img/logo-symbio-reversed.svg" alt="" width="34" height="34" />
+  <span class="brand__name">Symbio<span class="brand__accent">AI</span></span>
+</a>
+{% set brandClass = "" %}

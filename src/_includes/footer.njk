@@ -1,0 +1,58 @@
+{# Site footer, written once and included by base.njk on every page. #}
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__col site-footer__col--brand">
+      {% set brandClass = "brand--footer" %}
+      {% include "brand.njk" %}
+      <p class="site-footer__blurb">{{ site.tagline }}</p>
+      <p class="site-footer__small">{{ site.poweredBy }}</p>
+      <a class="btn btn--primary" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Footer explore">
+      <h2 class="site-footer__heading">Explore</h2>
+      <ul class="site-footer__list">
+        {% for item in site.nav %}
+          <li><a href="{{ item.url }}">{{ item.label }}</a></li>
+        {% endfor %}
+        <li><a href="{{ site.cta.url }}">{{ site.cta.label }}</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Footer work">
+      <h2 class="site-footer__heading">Work</h2>
+      <ul class="site-footer__list">
+        <li><a href="{{ site.links.demos }}">Product demos</a></li>
+        <li><a href="{{ site.links.demo }}">Live chatbot demo</a></li>
+        <li><a href="{{ site.links.portfolio }}">Example portfolio build</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h2 class="site-footer__heading">Talk to us</h2>
+      <ul class="site-footer__list site-footer__list--contacts">
+        <li>
+          <span class="site-footer__person">{{ site.name }}</span>
+          <span class="site-footer__role">Business inbox</span>
+          <a href="mailto:{{ site.businessEmail }}">{{ site.businessEmail }}</a>
+        </li>
+        {% for person in site.founders %}
+          <li>
+            <span class="site-footer__person">{{ person.name }}</span>
+            <span class="site-footer__role">{{ person.role }}</span>
+            {% if person.phone %}
+              <a href="tel:{{ person.phone | replace(r/[^0-9+]/g, '') }}">{{ person.phone }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <p class="site-footer__credit">
+      &copy; {{ buildYear }} {{ site.name }}. {{ site.footerCredit }}
+    </p>
+    <p class="site-footer__small">Honest builds. Real numbers. A free project scan before anything else.</p>
+  </div>
+</footer>

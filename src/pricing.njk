@@ -1,0 +1,132 @@
+---
+layout: base.njk
+pageKey: pricing
+title: Pricing
+permalink: pricing.html
+description: Honest pricing for website redesigns first, with custom apps, chatbots, and automation available when the business needs more. Free scan first, real number second.
+---
+
+{# ===== Page head ====================================================== #}
+<section class="section section--tight">
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Pricing</span>
+    <h1 class="section__title">Honest pricing. A free scan first, a real number second.</h1>
+    <p class="section__lead">
+      We do not quote blind. Website work starts at $1,000, and every other lane has a clear
+      starting point. The free scan tells us what is actually worth building first.
+    </p>
+  </div>
+</section>
+
+{# ===== Starting points (per-service anchors) ======================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Starting points</span>
+      <h2 class="section__title">Where each service usually lands</h2>
+      <p class="section__lead">
+        Rough numbers by service. Your exact price always comes from the free scan, never a blind
+        guess.
+      </p>
+    </div>
+
+    <div class="price-anchors price-anchors--wide" data-reveal>
+      {% for lane in site.productLanes %}
+        <a class="price-anchor{% if lane.key == 'website' %} price-anchor--feature{% endif %}" href="{{ lane.demoUrl }}">
+          <span class="price-anchor__label">{{ lane.shortTitle }}</span>
+          <span class="price-anchor__amount">{{ lane.startsAt }}</span>
+          <span class="price-anchor__note">{{ lane.bestFor }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Tiers ========================================================= #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Project tiers</span>
+      <h2 class="section__title">How projects usually come together</h2>
+      <p class="section__lead">Most work lands in one of these three shapes.</p>
+    </div>
+
+    <div class="grid grid--3">
+      <article class="price" data-reveal>
+        <h2 class="price__name">Website start</h2>
+        <p class="price__amount">$1k+ <small>site or redesign</small></p>
+        <p class="price__desc">A focused website or redesign scope that makes the business look credible and easier to contact.</p>
+        <ul class="price__features">
+          <li>New website, landing page, or homepage rebuild</li>
+          <li>Mobile cleanup and conversion copy</li>
+          <li>Contact, booking, or lead-capture path</li>
+          <li>A direct line to the builders</li>
+        </ul>
+        <div class="price__cta">
+          <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
+        </div>
+      </article>
+
+      <article class="price price--popular" data-reveal data-reveal-delay="1">
+        <span class="price__flag">Most common</span>
+        <h2 class="price__name">Growth website</h2>
+        <p class="price__amount">$2.5k-$6.5k</p>
+        <p class="price__desc">A polished multi-page website with booking, lead capture, proof, and basic follow-up connected.</p>
+        <ul class="price__features">
+          <li>Multi-page site or landing system</li>
+          <li>Booking and lead capture wired in</li>
+          <li>Optional chatbot or dashboard lane</li>
+          <li>Follow-ups and basic analytics</li>
+          <li>Two weeks of tuning after launch</li>
+        </ul>
+        <div class="price__cta">
+          <a class="btn btn--primary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
+        </div>
+      </article>
+
+      <article class="price" data-reveal data-reveal-delay="2">
+        <h2 class="price__name">Custom product</h2>
+        <p class="price__amount">$2k+ <small>quoted</small></p>
+        <p class="price__desc">Custom apps, dashboards, chatbots, AI agents, or a connected system built around your workflow.</p>
+        <ul class="price__features">
+          <li>Apps, portals, dashboards, or AI systems</li>
+          <li>Custom dashboards and internal tools</li>
+          <li>Multiple integrations</li>
+          <li>AI tools when they actually help the workflow</li>
+          <li>An ongoing build partnership</li>
+        </ul>
+        <div class="price__cta">
+          <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Book a scope call</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">How we quote</span>
+      <p>
+        Every number starts with a free scan. No pressure and no blind invoice. You will get a
+        plain-English breakdown of the first build we recommend, the starting lane it belongs to,
+        and what it costs before you decide anything. Already know what you need? You can
+        <a href="buy.html">buy a fixed-price package</a> — no call required. After launch, keep it
+        running with a <a href="care.html">care plan</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Get your real number</h2>
+      <p class="cta-band__text">
+        Send us your link. We will scan it free and come back with the first fix and what it would
+        cost.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+        <a class="btn btn--secondary btn--lg" href="services.html">See what we build</a>
+      </div>
+    </div>
+  </div>
+</section>

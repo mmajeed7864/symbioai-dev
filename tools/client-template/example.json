@@ -1,0 +1,27 @@
+{
+  "name": "Bright Smile Dental",
+  "slug": "bright-smile-dental",
+  "accent": "#1f9d8f",
+  "title": "Bright Smile Dental — Fremont Family Dentistry",
+  "description": "Gentle family and cosmetic dentistry in Fremont. New patients welcome — book online in seconds.",
+  "tagline": "Fremont family dentistry",
+  "headline": "A dentist your whole family will actually look forward to",
+  "heroText": "Gentle, modern care for kids and adults in Fremont. Same-week appointments, most insurance accepted, and an office that doesn't feel like one.",
+  "primaryCta": { "label": "Book an appointment", "href": "tel:+15105551234" },
+  "services": [
+    { "title": "General dentistry", "text": "Cleanings, fillings, and check-ups that keep small problems small." },
+    { "title": "Cosmetic", "text": "Whitening, veneers, and Invisalign for a smile you're glad to share." },
+    { "title": "New patients", "text": "Most insurance accepted, easy onboarding, and same-week openings." }
+  ],
+  "about": [
+    "We've cared for Fremont families for over a decade, with a calm, modern office and a team that remembers your name.",
+    "No upselling, no jargon — just honest care and a schedule that respects your time."
+  ],
+  "contact": {
+    "phone": "+1 (510) 555-1234",
+    "email": "hello@brightsmiledental.example",
+    "address": "123 Main St, Fremont, CA 94536",
+    "hours": "Mon–Fri 8am–5pm"
+  },
+  "widget": true
+}

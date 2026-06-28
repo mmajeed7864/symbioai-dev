@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>{% if title %}{{ title }} | {{ site.name }}{% else %}{{ site.name }} - {{ site.tagline }}{% endif %}</title>
+    <meta name="description" content="{{ description or site.description }}" />
+
+    <link rel="icon" href="assets/img/logo-symbio.svg" type="image/svg+xml" />
+
+    {# Open Graph / social #}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="{{ site.name }}" />
+    <meta property="og:title" content="{% if title %}{{ title }} | {{ site.name }}{% else %}{{ site.name }}{% endif %}" />
+    <meta property="og:description" content="{{ description or site.description }}" />
+    <meta property="og:image" content="{{ (site.url + '/assets/img/logo-symbio-color.svg') if site.url else 'assets/img/logo-symbio-color.svg' }}" />
+    <meta name="twitter:card" content="summary" />
+
+    {# Canonical + og:url — self-referencing absolute URL. A page may set its own
+       `canonical`; otherwise we derive it from site.url + this page's path, so
+       every page gets one. Guarded on site.url so an empty origin emits nothing. #}
+    {% if site.url %}
+      {% set pageCanonical = canonical or (site.url + page.url) %}
+      <link rel="canonical" href="{{ pageCanonical }}" />
+      <meta property="og:url" content="{{ pageCanonical }}" />
+    {% endif %}
+
+    {# Opt-in noindex for thin/gated pages (still follow links). #}
+    {% if noindex %}<meta name="robots" content="noindex, follow" />{% endif %}
+
+    {# JSON-LD structured data — only when a page provides `jsonLd` (the matrix
+       landing pages do). Existing pages set nothing, so this stays silent. #}
+    {% if jsonLd %}
+      <script type="application/ld+json">{{ jsonLd | safe }}</script>
+    {% endif %}
+
+    {# Runs before first paint. Sets the theme (localStorage wins, else the OS
+       preference governs via CSS) and flags `.js` so reveal-on-scroll content
+       starts hidden without a flash. A safety net unhides it if main.js never
+       loads, so the page is never left with invisible content. #}
+    <script>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        try {
+          var t = localStorage.getItem("symbio-theme");
+          if (t === "light" || t === "dark") {
+            d.setAttribute("data-theme", t);
+          }
+        } catch (e) {
+          /* localStorage may be unavailable; fall back to CSS media query. */
+        }
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!window.__symbioReady) d.classList.remove("js");
+          }, 1500);
+        });
+      })();
+    </script>
+
+    {# Privacy-friendly analytics — enabled by setting site.analyticsDomain
+       (Plausible, cookieless). main.js fires tagged conversion events. #}
+    {% if site.analyticsDomain %}
+      <script defer data-domain="{{ site.analyticsDomain }}" src="https://plausible.io/js/script.tagged-events.js"></script>
+      <script>
+        window.plausible = window.plausible || function () {
+          (window.plausible.q = window.plausible.q || []).push(arguments);
+        };
+      </script>
+    {% endif %}
+    {% if site.analyticsScript %}<script defer src="{{ site.analyticsScript }}"></script>{% endif %}
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/main.js" defer></script>
+  </head>
+  <body class="page page--{{ pageKey or 'default' }}">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {% include "nav.njk" %}
+
+    <main id="main" class="site-main">
+      {{ content | safe }}
+    </main>
+
+    {% include "footer.njk" %}
+
+    {# The embeddable assistant, loaded the way a customer would (one tag) and
+       configured for Symbio itself. It stays a standalone file (not bundled into
+       main.js); main.js bridges its leads to the scan endpoint and keeps its
+       theme in sync with the site toggle. #}
+    <script>
+      window.SymbioConfig = {
+        businessName: {{ site.name | dump | safe }},
+        accent: "#2f6bff",
+        services: [
+          "Premium websites and redesigns",
+          "Custom apps and portals",
+          "Business dashboards",
+          "Chatbots and AI workflow agents",
+        ],
+        hours: "24/7 intake and project support",
+        location: "Founder-led from California and North Carolina, serving businesses across the entire US.",
+        phone: {{ site.founders[0].phone | dump | safe }},
+        secondaryPhone: {{ site.founders[1].phone | dump | safe }},
+        email: {{ site.businessEmail | dump | safe }},
+        freeScanEndpoint: {{ site.freeScanEndpoint | dump | safe }},
+        price: "with a free scan first",
+        position: "right",
+        theme: "auto",
+        greeting:
+          "Hey, this is Symbio AI. Send your website, app idea, dashboard need, or workflow problem, and we will point you toward the right next step.",
+      };
+    </script>
+    <script src="assets/js/symbio-widget.js" defer></script>
+  </body>
+</html>

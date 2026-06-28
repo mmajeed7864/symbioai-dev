@@ -1,0 +1,62 @@
+---
+layout: base.njk
+pageKey: teardown
+title: "Free instant website teardown"
+permalink: teardown.html
+description: Paste your link and get an instant, free teardown of your website — the top 3 things costing you leads, and the fix for each. No waiting, no signup.
+---
+
+{# ===== Hero + scanner ================================================= #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Instant teardown</span>
+    <h1 class="section__title">See what your site is leaking — in seconds</h1>
+    <p class="section__lead">
+      Paste your link. We’ll scan it live and show you the top 3 things costing you leads, with
+      the fix for each. Free, instant, no signup.
+    </p>
+
+    {# data-scan-api is the deployed Worker URL (empty → graceful fallback to the scan form). #}
+    <form class="form mt-6" data-teardown-form data-scan-api="{{ site.scanApi }}" novalidate>
+      <div class="field field--full">
+        <label class="field__label" for="td-url">Your website</label>
+        <input class="input" id="td-url" name="url" type="url" inputmode="url" placeholder="https://yourbusiness.com" required />
+      </div>
+      <div class="btn-row btn-row--center mt-6">
+        <button class="btn btn--primary btn--lg" type="submit" data-teardown-submit>Scan my site</button>
+      </div>
+      <p class="form__status" data-teardown-status role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
+{# ===== Results (filled by main.js) =================================== #}
+<section class="section section--tight" hidden data-teardown-results>
+  <div class="container container--narrow">
+    <div class="section__head section__head--center">
+      <span class="eyebrow eyebrow--center">Your teardown</span>
+      <h2 class="section__title" data-teardown-title>Top fixes</h2>
+    </div>
+    <div class="grid grid--auto" data-teardown-list></div>
+
+    <div class="cta-band mt-7">
+      <h2 class="cta-band__title">Want these fixed?</h2>
+      <p class="cta-band__text">We can fix the leaks for you — usually faster and cheaper than you’d think. Get a real number with a free scan, or grab a fixed-price package.</p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="buy.html">See packages</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== Fallback / reassurance ======================================== #}
+<section class="section section--tight">
+  <div class="container container--narrow center">
+    <p class="section__lead">
+      Prefer a human to look? <a href="{{ site.cta.url }}">Request a free scan</a> and we’ll reply
+      within one business day with the leaks we spot and the first fix we’d make.
+    </p>
+  </div>
+</section>

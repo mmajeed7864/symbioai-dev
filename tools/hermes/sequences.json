@@ -1,0 +1,29 @@
+{
+  "_comment": "Lifecycle email sequence for INBOUND leads (scan form / widget). Hermes `nurture` renders these per lead with a CAN-SPAM footer appended. Load them into your email tool as an automated sequence (it sends on the delays below) — that's the speed-to-lead automation. Placeholders: {first} {biz} {need} {fromName} {company} {websiteUrl} {scanLink} {bookLink}.",
+  "steps": [
+    {
+      "id": "instant",
+      "delayDays": 0,
+      "subjectTemplate": "Thanks {first} — here's what happens next",
+      "bodyTemplate": "Hi {first},\n\nThanks for reaching out about {biz} — got it. A real person (me) will reply personally within one business day.\n\nWhile you wait: if you sent a link, I'm already looking for the quickest win. If you didn't, just reply with your website or social and I'll scan it free.\n\nWant to skip ahead and see options now? {bookLink}"
+    },
+    {
+      "id": "followup-1",
+      "delayDays": 2,
+      "subjectTemplate": "did you still want that scan, {first}?",
+      "bodyTemplate": "Hi {first},\n\nCircling back on {biz} — I pulled together a few quick wins I'd start with. Want the short teardown? Just reply 'yes' and I'll send it over, no obligation.\n\nOr grab a time here: {bookLink}"
+    },
+    {
+      "id": "followup-2",
+      "delayDays": 5,
+      "subjectTemplate": "one idea for {biz}",
+      "bodyTemplate": "Hi {first},\n\nOne concrete idea for {biz}: the fastest wins usually aren't a whole rebuild — it's a focused fix (speed, mobile, a clear booking path) that stops the leak first. That's exactly what the free scan pinpoints.\n\nIf you'd like me to send yours, just reply. Free scan: {scanLink}"
+    },
+    {
+      "id": "followup-3",
+      "delayDays": 9,
+      "subjectTemplate": "should I close this out, {first}?",
+      "bodyTemplate": "Hi {first},\n\nI don't want to clutter your inbox — if now isn't the right time for {biz}, no worries at all, just let me know and I'll stop here.\n\nIf you'd still like the free scan, reply anytime and I'll get right on it."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+---
+layout: base.njk
+pageKey: widget
+title: "AI assistant for your website"
+permalink: widget.html
+description: An always-on AI assistant for your website — answers questions, captures leads, and books, 24/7. One line of code, styled to your brand. Plans from $49/mo after a one-time setup. Try the live demo.
+---
+
+{# ===== Hero =========================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">AI assistant</span>
+    <h1 class="section__title">An always-on assistant on your site — from $49/mo</h1>
+    <p class="section__lead">
+      It answers questions, captures the visitor’s name and contact, and books — all in one
+      chat, 24/7. One line of code, styled to your brand, and every lead reaches a real person
+      on your team. {{ site.widgetSetup }}, then a simple monthly plan.
+    </p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="{{ site.links.demo }}">Try the live demo</a>
+      <a class="btn btn--ghost btn--lg" href="#plans">See plans</a>
+    </div>
+  </div>
+</section>
+
+{# ===== What it does =================================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What it does</span>
+      <h2 class="section__title">A teammate that never clocks out</h2>
+    </div>
+    <div class="grid grid--auto">
+      <article class="card" data-reveal>
+        <h3 class="card__title">Answers instantly</h3>
+        <p class="card__text">Hours, pricing, services, “do you take my insurance?” — answered from rules you approve, in seconds.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="1">
+        <h3 class="card__title">Captures every lead</h3>
+        <p class="card__text">Name → contact → detail, then it lands in your inbox. Nothing slips away after hours.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="2">
+        <h3 class="card__title">Books the next step</h3>
+        <p class="card__text">Hands off to your booking flow so an interested visitor becomes a held appointment.</p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="3">
+        <h3 class="card__title">Drops in anywhere</h3>
+        <p class="card__text">One &lt;script&gt; tag, isolated styling (Shadow DOM), works on any site. You stay in control.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ===== Plans ========================================================== #}
+<section class="section section--tight" id="plans">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Plans</span>
+      <h2 class="section__title">Simple monthly pricing</h2>
+      <p class="section__lead">{{ site.widgetSetup }} to build and style it, then pick a plan. Cancel anytime.</p>
+    </div>
+
+    <div class="grid grid--3">
+      {% for plan in site.widgetPlans %}
+        <article
+          id="{{ plan.key }}"
+          class="price{% if plan.featured %} price--popular{% endif %}"
+          data-reveal
+          data-reveal-delay="{{ loop.index0 }}"
+        >
+          {% if plan.featured %}<span class="price__flag">Most popular</span>{% endif %}
+          <h2 class="price__name">{{ plan.name }}</h2>
+          <p class="price__amount">{{ plan.price }} <small>{{ plan.cadence }}</small></p>
+          <p class="price__desc">{{ plan.blurb }}</p>
+          <ul class="price__features">
+            {% for feature in plan.features %}
+              <li>{{ feature }}</li>
+            {% endfor %}
+          </ul>
+          <div class="price__cta">
+            <a
+              class="btn {% if plan.featured %}btn--primary{% else %}btn--secondary{% endif %} btn--block"
+              href="{{ plan.checkoutUrl if plan.checkoutUrl else site.cta.url }}"
+              {% if plan.checkoutUrl %}rel="noopener"{% endif %}
+            >
+              {% if plan.checkoutUrl %}Start {{ plan.name }} — {{ plan.price }}{{ plan.cadence }}{% else %}Get started{% endif %}
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">What’s included</span>
+      <p>
+        Every plan includes hosting, the AI, lead delivery, and keeping it working. The one-time
+        setup covers building it, styling it to your brand, and wiring leads to your inbox. Not
+        sure which plan? <a href="{{ site.cta.url }}">Start with a free scan</a> and we’ll
+        recommend one.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ===== FAQ ============================================================ #}
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">FAQ</span>
+      <h2 class="section__title">Common questions</h2>
+    </div>
+    <article class="card mt-6" data-reveal>
+      <h3 class="card__title">Does it work on my existing website?</h3>
+      <p class="card__text">Yes — it’s one script tag and works on any site, with its own isolated styling so it never clashes with your design.</p>
+    </article>
+    <article class="card mt-6" data-reveal>
+      <h3 class="card__title">Will it make things up?</h3>
+      <p class="card__text">It answers from what you give us and is set to hand anything it’s unsure about to a real person rather than guess. You approve the boundaries before it goes live.</p>
+    </article>
+    <article class="card mt-6" data-reveal>
+      <h3 class="card__title">Where do the leads go?</h3>
+      <p class="card__text">Straight to your inbox the moment they’re captured, and on the Pro plan into your CRM. Every lead reaches a real person on your team.</p>
+    </article>
+    <article class="card mt-6" data-reveal>
+      <h3 class="card__title">Can I cancel?</h3>
+      <p class="card__text">Anytime. The monthly plan covers hosting, the AI, and upkeep; if you cancel we’ll help you wind it down cleanly.</p>
+    </article>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">See it on your own site</h2>
+      <p class="cta-band__text">
+        Try the live demo, then start with a free scan — we’ll set the assistant up, styled to
+        your brand, and wire every lead to your inbox.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.links.demo }}">Try the live demo</a>
+        <a class="btn btn--secondary btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# Structured data: prices are visibly published above, so an Offer is legit. #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "AI assistant for websites",
+  "serviceType": "AI chat assistant",
+  "provider": { "@type": "Organization", "name": "Symbio AI", "url": "{{ site.url }}" },
+  "areaServed": { "@type": "State", "name": "California" },
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "USD",
+    "lowPrice": "49",
+    "highPrice": "149",
+    "offerCount": "3",
+    "url": "{{ site.url }}/widget.html"
+  }
+}
+</script>

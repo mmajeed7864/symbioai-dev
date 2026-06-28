@@ -1,0 +1,16 @@
+# Cloudflare Worker config for the instant-teardown API.
+# Deploy: cd infra/worker && npx wrangler deploy
+name = "symbio-scan"
+main = "worker.mjs"
+compatibility_date = "2024-09-23"
+
+# The Worker bundles tools/lib/scan-core.mjs from the repo root at deploy time.
+# Optional vars (set non-secret ones here, secrets via `wrangler secret put`):
+# [vars]
+# ALLOWED_ORIGIN = "https://symbioai.dev"
+# LEAD_FROM = "Symbio AI <ravi@trysymbioai.com>"
+# PHYSICAL_ADDRESS = "Symbio AI, 1234 Telegraph Ave Ste 100, Oakland, CA 94612"
+#
+# Secrets (never commit):
+#   npx wrangler secret put RESEND_API_KEY
+#   npx wrangler secret put LEAD_BCC      # optional founder copy

@@ -1,0 +1,179 @@
+---
+pagination:
+  data: landingPages
+  size: 1
+  alias: combo
+  addAllPagesToCollections: true
+tags: landing
+layout: base.njk
+permalink: "{{ combo.permalink }}"
+eleventyComputed:
+  pageKey: "grow-{{ combo.serviceKey }}"
+  title: "{{ combo.title | safe }}"
+  description: "{{ combo.description | safe }}"
+  jsonLd: "{{ combo.jsonLd | safe }}"
+  noindex: "{% if combo.noindex %}true{% endif %}"
+---
+{% set c = combo %}
+
+{# ===== Breadcrumb (visible — mirrors the BreadcrumbList JSON-LD) ======= #}
+<section class="section section--tight">
+  <div class="container container--narrow">
+    <nav class="eyebrow" aria-label="Breadcrumb">
+      <a href="index.html">Home</a> ·
+      <a href="grow.html">Industries</a> ·
+      <a href="grow-{{ c.serviceKey }}.html">{{ c.serviceLabel }}</a>
+      {%- if c.city %} ·
+        <a href="grow-{{ c.serviceKey }}-{{ c.nicheKey }}.html">{{ c.nicheLabel }}</a> ·
+        <span>{{ c.city.name }}</span>
+      {%- else %} ·
+        <span>{{ c.nicheLabel }}</span>
+      {%- endif %}
+    </nav>
+  </div>
+</section>
+
+{# ===== Hero ============================================================ #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">{{ c.serviceLabel }}{% if c.city %} · {{ c.city.name }}{% endif %}</span>
+    <h1 class="section__title">{{ c.serviceLabel }} for {{ c.nicheLabel | lower }}{% if c.city %} in {{ c.city.name }}{% endif %}</h1>
+    <p class="section__lead">{{ c.cell.lead }}{% if c.city %} {{ c.city.localContext }}{% endif %}</p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+      <a class="btn btn--ghost btn--lg" href="{{ c.offer }}">See the package</a>
+    </div>
+  </div>
+</section>
+
+{# ===== Pain points ===================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">The problem</span>
+      <h2 class="section__title">Where {{ c.nicheLabel | lower }} leak leads</h2>
+    </div>
+    <div class="grid grid--auto">
+      {% for pain in c.cell.pains %}
+        <article class="card" data-reveal data-reveal-delay="{{ loop.index0 }}">
+          <p class="card__text">{{ pain }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== What we build =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What we build</span>
+      <h2 class="section__title">{{ c.serviceLabel }}, built for {{ c.nicheLabel | lower }}</h2>
+    </div>
+    <div class="grid grid--auto">
+      {% for item in c.cell.build %}
+        <article class="card" data-reveal data-reveal-delay="{{ loop.index0 }}">
+          <p class="card__text">{{ item }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Outcomes ======================================================== #}
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What changes</span>
+      <h2 class="section__title">What you can expect</h2>
+    </div>
+    <div class="grid grid--3">
+      {% for outcome in c.cell.outcomes %}
+        <article class="card" data-reveal data-reveal-delay="{{ loop.index0 }}">
+          <p class="card__text">{{ outcome }}</p>
+        </article>
+      {% endfor %}
+    </div>
+    {% if c.city %}
+      <p class="section__lead center mt-6">{{ c.city.areaNote }}</p>
+    {% endif %}
+  </div>
+</section>
+
+{# ===== FAQ (visibly rendered — backs the FAQPage schema) =============== #}
+<section class="section">
+  <div class="container container--narrow">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">FAQ</span>
+      <h2 class="section__title">Common questions</h2>
+    </div>
+    {% for faq in c.cell.faqs %}
+      <article class="card mt-6" data-reveal>
+        <h3 class="card__title">{{ faq.q }}</h3>
+        <p class="card__text">{{ faq.a }}</p>
+      </article>
+    {% endfor %}
+    {% if c.city %}
+      <article class="card mt-6" data-reveal>
+        <h3 class="card__title">{{ c.city.cityFaq.q }}</h3>
+        <p class="card__text">{{ c.city.cityFaq.a }}</p>
+      </article>
+    {% endif %}
+  </div>
+</section>
+
+{# ===== Related (anti-orphan internal links) =========================== #}
+{% if c.related.length %}
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section__head section__head--center" data-reveal>
+        <span class="eyebrow eyebrow--center">Keep exploring</span>
+        <h2 class="section__title">More {{ c.serviceLabel | lower }}</h2>
+      </div>
+      <div class="grid grid--auto">
+        {% for rel in c.related %}
+          <a class="card card__link" href="{{ rel.url }}" data-reveal data-reveal-delay="{{ loop.index0 }}">
+            <span class="card__title">{{ rel.title }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{# ===== Also serving (Tier-A → its city pages; anti-orphan) ============ #}
+{% if c.cityChildren and c.cityChildren.length %}
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section__head section__head--center" data-reveal>
+        <span class="eyebrow eyebrow--center">Local</span>
+        <h2 class="section__title">{{ c.serviceLabel }} for {{ c.nicheLabel | lower }} near you</h2>
+      </div>
+      <div class="grid grid--auto">
+        {% for child in c.cityChildren %}
+          <a class="card card__link" href="{{ child.url }}" data-reveal data-reveal-delay="{{ loop.index0 }}">
+            <span class="card__title">{{ child.title }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{# ===== Closing CTA ===================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">See what we'd build for you</h2>
+      <p class="cta-band__text">
+        Start with a free scan — we'll show you the smallest fix that moves the needle{% if c.city %} for {{ c.nicheLabel | lower }} in {{ c.city.name }}{% endif %}. Built by {{ site.founders[0].name | replace(r/ .*/, '') }} &amp; {{ site.founders[1].name | replace(r/ .*/, '') }}, the two people who'll do the work.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="{{ c.offer }}">See the package</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,131 @@
+---
+layout: base.njk
+pageKey: about
+title: About
+permalink: about.html
+description: Symbio AI is two builders redesigning websites first, then adding booking systems, custom apps, and AI tools when they help a business move revenue.
+---
+
+{# ===== Page head ====================================================== #}
+<section class="section section--tight">
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">About Symbio AI</span>
+    <h1 class="section__title">If you can explain it, we can build it.</h1>
+    <p class="section__lead">
+      Symbio AI redesigns websites first, then adds booking systems, custom apps, and AI tools
+      when they help the business get more calls, bookings, and trust.
+    </p>
+  </div>
+</section>
+
+{# ===== Vision ========================================================= #}
+<section class="section">
+  <div class="container">
+    <div class="grid grid--2 grid--top">
+      <div data-reveal>
+        <span class="eyebrow">Our vision</span>
+        <h2 class="section__title">Most businesses do not need a louder website. They need a clearer one.</h2>
+        <p class="text-lead mt-6">
+          Visitors show up, but the page does not always make them trust the business or take the
+          next step. Sometimes the offer is buried, the mobile page feels dated, or booking takes
+          too many steps. We clean that up first, then add smarter systems when they make sense.
+        </p>
+      </div>
+
+      <ul class="card__list" data-reveal data-reveal-delay="1">
+        <li>Plain English in, a better website out.</li>
+        <li>A free scan before anyone talks money.</li>
+        <li>Honest pricing and realistic timelines.</li>
+        <li>We build only what helps the business look better and convert better.</li>
+        <li>You always have a direct line to the builders.</li>
+        <li>{{ site.poweredBy }}</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{# ===== Founders ====================================================== #}
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">The team</span>
+      <h2 class="section__title">Two founders. Reachable directly.</h2>
+      <p class="section__lead">No account managers, no runaround. You work with the people building it.</p>
+    </div>
+
+    <div class="grid grid--2">
+      {% for person in site.founders %}
+        <article class="founder" data-reveal data-reveal-delay="{{ loop.index0 }}">
+          <span class="founder__avatar" aria-hidden="true">{{ person.name | first }}</span>
+          <h3 class="founder__name">{{ person.name }}</h3>
+          <p class="founder__role">{{ person.role }}</p>
+          <div class="founder__contact">
+            <a href="mailto:{{ site.businessEmail }}">Email: {{ site.businessEmail }}</a>
+            {% if person.phone %}
+              <a href="tel:{{ person.phone | replace(r/[^0-9+]/g, '') }}">Phone: {{ person.phone }}</a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Process ======================================================= #}
+<section class="section">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">The process</span>
+      <h2 class="section__title">Scan, map, build, polish</h2>
+      <p class="section__lead">A simple path from missed interest to better follow-up and booked customers.</p>
+    </div>
+
+    <ol class="grid grid--4">
+      <li class="step" data-reveal>
+        <span class="step__num">1</span>
+        <h3 class="step__title">Scan</h3>
+        <p class="step__text">
+          We review your site for free and show where trust, mobile flow, or the next step could be clearer.
+        </p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="1">
+        <span class="step__num">2</span>
+        <h3 class="step__title">Map</h3>
+        <p class="step__text">
+          We map the smallest set of changes that move revenue the most, then price it honestly.
+        </p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="2">
+        <span class="step__num">3</span>
+        <h3 class="step__title">Build</h3>
+        <p class="step__text">
+          We redesign the site quickly and clearly, then add booking, app, or AI tools only when needed.
+        </p>
+      </li>
+      <li class="step" data-reveal data-reveal-delay="3">
+        <span class="step__num">4</span>
+        <h3 class="step__title">Polish</h3>
+        <p class="step__text">
+          We tune copy, speed, mobile flow, and follow-up until it feels ready.
+        </p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Tell us what you want your site to do better</h2>
+      <p class="cta-band__text">
+        If you can explain what feels broken, slow, outdated, or confusing, we can show you the
+        first fix. Start with a free scan or email us directly.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+        <a class="btn btn--secondary btn--lg" href="mailto:{{ site.businessEmail }}">Email the team</a>
+      </div>
+    </div>
+  </div>
+</section>

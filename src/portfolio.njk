@@ -1,0 +1,152 @@
+---
+layout: base.njk
+pageKey: portfolio
+title: Portfolio
+permalink: portfolio.html
+description: Example website redesigns, live demos, custom apps, AI assistants, and pilot systems from Symbio AI.
+---
+
+{# ===== Page head ====================================================== #}
+<section class="section section--tight">
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Portfolio</span>
+    <h1 class="section__title">Examples of what we can build</h1>
+    <p class="section__lead">
+      We are a young studio, so this page mixes website examples, real internal tools, live demos, and concept builds.
+      The goal is simple: show the kind of finish and usefulness we bring to client work.
+    </p>
+  </div>
+</section>
+
+{# ===== Work ========================================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="grid grid--2">
+      <article class="card" data-reveal>
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 16v-3M12 16v-6M17 16v-4" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">Website redesign system</h2>
+        <p class="card__text">
+          A cleaner site structure built around trust, mobile clarity, clear offers, and stronger
+          calls to action.
+        </p>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="1">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M5 5h14v10H8l-3 3z" stroke-linejoin="round" />
+            <path d="M9 9h6M9 11.5h4" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">White-label AI assistant</h2>
+        <p class="card__text">
+          A customer-facing assistant we can sell by itself or connect to a site, booking flow,
+          landing page, or campaign.
+        </p>
+        <a class="card__link" href="{{ site.links.demo }}">Open the live demo</a>
+      </article>
+
+      <article class="card card--link" data-reveal data-reveal-delay="2">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="4" y="5" width="16" height="14" rx="2" />
+            <path d="M8 9h8M8 12h5M8 15h7" stroke-linecap="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">Example portfolio build</h2>
+        <p class="card__text">
+          A proof-driven portfolio layout for founders, contractors, job seekers, creators, and
+          service businesses that need to look credible fast.
+        </p>
+        <a class="card__link" href="{{ site.cta.url }}">Ask for this style</a>
+      </article>
+
+      <article class="card" data-reveal data-reveal-delay="3">
+        <span class="card__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <h2 class="card__title">Client pilot builds</h2>
+        <p class="card__text">
+          We are building early client pilots now. As they wrap, we will add named case studies
+          with screenshots, numbers, and the exact problem solved.
+        </p>
+      </article>
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">Built by people</span>
+      <p>
+        {{ site.poweredBy }} We use AI, but real builders still review the direction,
+        details, and final polish.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ===== Concepts we can build ========================================= #}
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Concepts we can build</span>
+      <h2 class="section__title">Examples of what can sit behind the website</h2>
+      <p class="section__lead">
+        These are concept examples to show what is possible. We shape the final version around
+        your business, your customers, and your workflow.
+      </p>
+    </div>
+
+    <div class="grid grid--auto">
+      <article class="card" data-reveal>
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">Free scan intake app</h3>
+        <p class="card__text">
+          A guided intake that turns website interest into a structured lead your team can act on.
+        </p>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="1">
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">Client booking dashboard</h3>
+        <p class="card__text">One screen for bookings, reminders, status, and no-show tracking.</p>
+      </article>
+      <article class="card card--link" data-reveal data-reveal-delay="2">
+        <span class="badge badge--booked">Live demo</span>
+        <h3 class="card__title">AI lead follow-up agent</h3>
+        <p class="card__text">
+          Replies in seconds, qualifies the lead, and hands off to a real person.
+        </p>
+        <a class="card__link" href="{{ site.links.demo }}">Try the live demo</a>
+      </article>
+      <article class="card" data-reveal data-reveal-delay="3">
+        <span class="badge badge--concept">Concept</span>
+        <h3 class="card__title">School or nonprofit request portal</h3>
+        <p class="card__text">
+          A simple portal for requests, approvals, and status updates. Less email, less confusion.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Want your business to be the next example?</h2>
+      <p class="cta-band__text">
+        Start with a free scan and we will show you what we would build first.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+        <a class="btn btn--secondary btn--lg" href="{{ site.links.demo }}">Try the live demo</a>
+      </div>
+    </div>
+  </div>
+</section>

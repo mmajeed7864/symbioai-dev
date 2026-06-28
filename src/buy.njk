@@ -1,0 +1,183 @@
+---
+layout: base.njk
+pageKey: packages
+title: Packages
+permalink: buy.html
+description: Buy a fixed-price package — no call required. Website in 7 days, booking & lead systems, AI assistant install, and a site speed fix. Pick one, pay, tell us about your project, and we start within a day.
+---
+
+{# ===== Page head ====================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Packages</span>
+    <h1 class="section__title">Buy a package — no call required.</h1>
+    <p class="section__lead">
+      Fixed scope, fixed price, no sales call. Pick the package that fits, pay securely, then
+      tell us about your project — we start within one business day. Prefer to talk first?
+      The <a href="{{ site.cta.url }}">free scan</a> is always open.
+    </p>
+  </div>
+</section>
+
+{# ===== Packages ====================================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="grid grid--auto">
+      {% for pkg in site.packages %}
+        <article
+          id="{{ pkg.key }}"
+          class="price{% if pkg.featured %} price--popular{% endif %}"
+          data-reveal
+          data-reveal-delay="{{ loop.index0 }}"
+        >
+          {% if pkg.featured %}<span class="price__flag">Most popular</span>{% endif %}
+          <h2 class="price__name">{{ pkg.name }}</h2>
+          <p class="price__amount">{{ pkg.price }} <small>{{ pkg.cadence }}</small></p>
+          <p class="price__desc">{{ pkg.blurb }}</p>
+          <ul class="price__features">
+            {% for feature in pkg.features %}
+              <li>{{ feature }}</li>
+            {% endfor %}
+          </ul>
+          <div class="price__cta">
+            <a
+              class="btn {% if pkg.featured %}btn--primary{% else %}btn--secondary{% endif %} btn--block"
+              href="{{ pkg.checkoutUrl if pkg.checkoutUrl else '#intake' }}"
+              {% if pkg.checkoutUrl %}rel="noopener"{% endif %}
+              data-buy-package="{{ pkg.name }}"
+            >
+              {% if pkg.checkoutUrl %}Buy — {{ pkg.price }}{% else %}Start this package{% endif %}
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="note-card mt-7" data-reveal>
+      <span class="note-card__tag">How it works</span>
+      <p>
+        <strong>1.</strong> Pick a package and pay securely (Stripe). &nbsp;<strong>2.</strong>
+        Tell us about your project in the form below. &nbsp;<strong>3.</strong> We confirm scope
+        and start within one business day. Not the right fit? Every package is backed by an
+        honest conversation — if a scan shows you need something different, we’ll say so.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# ===== Intake form (reuses the site-wide lead handler) =============== #}
+<section class="section section--tight" id="intake">
+  <div class="container">
+    <div class="grid grid--2 grid--top">
+      {# Same [data-scan-form] contract as the scan page: POST JSON, mailto fallback. #}
+      <div class="card" data-reveal>
+        <h2 class="card__title">Tell us about your project</h2>
+        <p class="card__text">
+          Already paid, or want us to confirm a price first? Either way, send this and we’ll
+          reply within one business day. Fields marked <span aria-hidden="true">*</span> are
+          required.
+        </p>
+
+        <form class="form mt-6" data-scan-form novalidate>
+          <div class="form-grid form-grid--2">
+            <div class="field">
+              <label class="field__label" for="buy-name">Your name *</label>
+              <input class="input" id="buy-name" name="name" type="text" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="buy-business">Business name</label>
+              <input class="input" id="buy-business" name="business" type="text" autocomplete="organization" />
+            </div>
+            <div class="field">
+              <label class="field__label" for="buy-email">Email *</label>
+              <input class="input" id="buy-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="field">
+              <label class="field__label" for="buy-phone">Phone</label>
+              <input class="input" id="buy-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="buy-need">Which package?</label>
+              <select class="select" id="buy-need" name="need" data-intake-package>
+                <option value="">Choose one…</option>
+                {% for pkg in site.packages %}
+                  <option>{{ pkg.name }}</option>
+                {% endfor %}
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="buy-link">
+                Your current website or social link
+                <span class="field__hint">— optional</span>
+              </label>
+              <input class="input" id="buy-link" name="link" type="url" inputmode="url" placeholder="https://" />
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="buy-goal">What’s the goal?</label>
+              <input class="input" id="buy-goal" name="goal" type="text" placeholder="e.g. more booked calls, fewer no-shows" />
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="buy-problem">Anything we should know?</label>
+              <textarea class="textarea" id="buy-problem" name="problem" placeholder="Brand, content, deadlines, examples you like…"></textarea>
+            </div>
+          </div>
+
+          {# Filled with the current page URL by main.js before submit. #}
+          <input type="hidden" name="sourceUrl" data-source-url value="" />
+
+          <div class="btn-row">
+            <button class="btn btn--primary btn--lg" type="submit" data-scan-submit>
+              Send project details
+            </button>
+          </div>
+
+          <p class="form__status" data-scan-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      {# --- Reassurance + direct contact --- #}
+      <aside class="founder" data-reveal data-reveal-delay="1">
+        <h2 class="founder__name">Buying with confidence</h2>
+        <ul class="card__list">
+          <li>Fixed price — you know the number before you pay</li>
+          <li>Secure checkout via Stripe</li>
+          <li>A direct line to the builders, start to finish</li>
+          <li>Honest scope — if a package isn’t right, we’ll tell you</li>
+        </ul>
+
+        <hr class="founder__rule" />
+
+        <h3 class="proof__title">Prefer to talk first?</h3>
+        <p class="card__text">Reach the builders directly — a real person replies.</p>
+        <div class="founder__contact mt-6">
+          {% for person in site.founders %}
+            <p class="site-footer__person">{{ person.name }} <span class="founder__role">· {{ person.role }}</span></p>
+            <a href="mailto:{{ person.email }}">✉ {{ person.email }}</a>
+            {% if person.phone %}
+              <a href="tel:{{ person.phone | replace(r/[^0-9+]/g, '') }}">☎ {{ person.phone }}</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Not sure which package?</h2>
+      <p class="cta-band__text">
+        Send your link for a free scan and we’ll point you to the smallest thing that moves the
+        needle — then you can buy the package that fits.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="pricing.html">See full pricing</a>
+      </div>
+    </div>
+  </div>
+</section>

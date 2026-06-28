@@ -1,2 +1,40 @@
-.vercel
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local deploy/secrets
 .env*
+.vercel/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Eleventy
+.eleventy.cache/
+
+# Generated outreach runs (tools/audit-outreach.mjs)
+tools/out/
+
+# Hermes: generated batches + real outcome ledger (contains prospect PII) + report
+tools/hermes/out/
+tools/hermes/ledger.json
+tools/hermes/REPORT.md
+
+# Cloudflare Worker local state
+infra/worker/.wrangler/
+
+# Generated client sites (tools/new-client.mjs)
+clients-out/
+
+# Sourced prospect lists (contain PII)
+/leads.csv
+*.leads.csv

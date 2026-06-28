@@ -1,0 +1,92 @@
+---
+pagination:
+  data: growServices
+  size: 1
+  alias: service
+  addAllPagesToCollections: true
+layout: base.njk
+permalink: "grow-{{ service.key }}.html"
+eleventyComputed:
+  pageKey: "grow"
+  title: "{{ service.label }} by industry"
+  description: "{{ service.label | safe }} built for dentists, restaurants, law firms, real estate, fitness studios, and nonprofits across the Bay Area. Pick your industry or start with a free scan."
+---
+{% set svc = service %}
+
+{# ===== Hero =========================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <nav class="eyebrow" aria-label="Breadcrumb">
+      <a href="index.html">Home</a> · <a href="grow.html">Industries</a> · <span>{{ svc.label }}</span>
+    </nav>
+    <h1 class="section__title">{{ svc.label }} for local businesses</h1>
+    <p class="section__lead">
+      We tailor {{ svc.label | lower }} to how your industry actually runs. Pick yours below to
+      see exactly what we’d build — or get a free scan of your current setup.
+    </p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+      <a class="btn btn--ghost btn--lg" href="{{ svc.offer }}">See the package</a>
+    </div>
+  </div>
+</section>
+
+{# ===== By industry (Tier A) ========================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">By industry</span>
+      <h2 class="section__title">{{ svc.label }}, built for your business</h2>
+    </div>
+    <div class="grid grid--auto">
+      {% for lp in landingPages %}
+        {% if lp.serviceKey == svc.key and lp.tier == "A" %}
+          <a class="card card__link" href="{{ lp.permalink }}" data-reveal>
+            <span class="card__title">{{ lp.nicheLabel }}</span>
+            <span class="card__text">{{ lp.serviceLabel }} for {{ lp.nicheLabel | lower }}.</span>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== By city (Tier B), if any ====================================== #}
+{% set hasCity = false %}
+{% for lp in landingPages %}{% if lp.serviceKey == svc.key and lp.tier == "B" %}{% set hasCity = true %}{% endif %}{% endfor %}
+{% if hasCity %}
+  <section class="section section--tight section--tint">
+    <div class="container">
+      <div class="section__head section__head--center" data-reveal>
+        <span class="eyebrow eyebrow--center">By city</span>
+        <h2 class="section__title">{{ svc.label }} near you</h2>
+      </div>
+      <div class="grid grid--auto">
+        {% for lp in landingPages %}
+          {% if lp.serviceKey == svc.key and lp.tier == "B" %}
+            <a class="card card__link" href="{{ lp.permalink }}" data-reveal>
+              <span class="card__title">{{ lp.nicheLabel }} · {{ lp.city.name }}</span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Ready to {{ svc.label | lower }}?</h2>
+      <p class="cta-band__text">
+        Start with a free scan — we’ll show you the first fix and what it would cost. No pressure.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="grow.html">All industries</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,81 @@
+---
+layout: base.njk
+pageKey: grow
+title: "Industries — what we build, by business type"
+permalink: grow.html
+description: Web design, AI assistants, and booking systems built for your industry — dentists, restaurants, law firms, real estate, fitness studios, and nonprofits across the Bay Area. Start with a free scan.
+---
+
+{# ===== Hero =========================================================== #}
+<section class="section section--tight has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Industries</span>
+    <h1 class="section__title">What we build, by business type</h1>
+    <p class="section__lead">
+      The work looks different for a dental practice than a restaurant. Pick your service and
+      your industry — we’ll show you exactly what we’d build, and what it changes. Or skip
+      ahead and get a free scan of your current site.
+    </p>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+      <a class="btn btn--ghost btn--lg" href="buy.html">See packages</a>
+    </div>
+  </div>
+</section>
+
+{# ===== Service hubs =================================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">By service</span>
+      <h2 class="section__title">Start with what you need</h2>
+    </div>
+    <div class="grid grid--3">
+      {% for svc in growServices %}
+        <a class="card card__link" href="grow-{{ svc.key }}.html" data-reveal data-reveal-delay="{{ loop.index0 }}">
+          <span class="card__title">{{ svc.label }}</span>
+          <span class="card__text">See {{ svc.label | lower }} built for each industry we serve.</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Full index by service ========================================= #}
+{% for svc in growServices %}
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section__head section__head--center" data-reveal>
+        <span class="eyebrow eyebrow--center">{{ svc.label }}</span>
+        <h2 class="section__title">{{ svc.label }} by industry</h2>
+      </div>
+      <div class="grid grid--auto">
+        {% for lp in landingPages %}
+          {% if lp.serviceKey == svc.key and lp.tier == "A" %}
+            <a class="card card__link" href="{{ lp.permalink }}" data-reveal>
+              <span class="card__title">{{ lp.nicheLabel }}</span>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endfor %}
+
+{# ===== Closing CTA =================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">Not sure where to start?</h2>
+      <p class="cta-band__text">
+        Send us your link. We’ll scan it free and point you to the smallest thing that moves the
+        needle for your business.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="services.html">See all services</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,12 @@
+dist/
+node_modules/
+package-lock.json
+src/assets/js/symbio-widget.min.js
+src/assets/img/
+
+# Nunjucks templates: Prettier's HTML parser mangles {% %}/{{ }} tags,
+# so these are hand-formatted and validated by HTMLHint instead.
+src/**/*.njk
+
+# The chatbot demo is a deliberately self-contained, hand-authored file.
+src/chatbot-demo.html
