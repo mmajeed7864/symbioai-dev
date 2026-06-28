@@ -186,6 +186,8 @@ function makeCombo({ tier, svc, nicheKey, cityKey }) {
     nicheKey,
     nicheLabel: niche.label,
     schemaCategory: niche.schemaCategory,
+    nicheAccent: niche.accent,
+    nicheGlow: niche.glow,
     cityKey: cityKey || null,
     city, // null for Tier A
     cell,

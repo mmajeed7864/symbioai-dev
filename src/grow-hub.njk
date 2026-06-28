@@ -53,7 +53,12 @@ description: Web design, AI assistants, and booking systems built for your indus
       <div class="grid grid--auto">
         {% for lp in landingPages %}
           {% if lp.serviceKey == svc.key and lp.tier == "A" %}
-            <a class="card card__link" href="{{ lp.permalink }}" data-reveal>
+            <a
+              class="card card__link industry-card"
+              href="{{ lp.permalink }}"
+              style="--industry-accent: {{ lp.nicheAccent }}; --industry-glow: {{ lp.nicheGlow }};"
+              data-reveal
+            >
               <span class="card__title">{{ lp.nicheLabel }}</span>
             </a>
           {% endif %}

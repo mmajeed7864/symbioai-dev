@@ -2091,7 +2091,7 @@ a.card:focus-visible,
   border-radius: inherit;
   background: radial-gradient(
     240px circle at var(--mx) var(--my),
-    rgba(122, 77, 255, 0.22),
+    var(--card-glow, rgba(122, 77, 255, 0.22)),
     transparent 60%
   );
   opacity: 0;
@@ -2101,6 +2101,21 @@ a.card:focus-visible,
 
 .grid .card:hover::after {
   opacity: 1;
+}
+
+.industry-card {
+  --industry-accent: var(--c-accent);
+  --industry-glow: rgba(47, 107, 255, 0.22);
+  --card-glow: var(--industry-glow);
+  overflow: hidden;
+}
+
+.industry-card:hover,
+.industry-card:focus-visible {
+  border-color: color-mix(in srgb, var(--industry-accent) 74%, var(--c-border));
+  box-shadow:
+    0 22px 60px -34px var(--industry-glow),
+    var(--shadow-md);
 }
 
 /* Living, rotating gradient-glow border on the premium custom-apps card. */
@@ -2300,7 +2315,7 @@ a.card:focus-visible,
 
 @media (min-width: 900px) {
   .demo-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
