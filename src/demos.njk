@@ -14,8 +14,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
     <h1 class="section__title">See how your idea turns into something people can use</h1>
     <p class="section__lead">
       Pick the lane that matches the problem: a premium website, a custom app, a dashboard, a
-      chatbot, or an AI workflow agent. Judge the work before a call — then see why our prices
-      land well under typical agency quotes.
+      chatbot, or an AI workflow agent. The demos are here so you can judge the work before a call.
     </p>
     <div class="btn-row btn-row--center mt-6">
       <a class="btn btn--primary btn--lg" href="#redesign-lab">Start with the demos</a>
@@ -53,18 +52,22 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           <li>Aha moment: "My business could look this premium."</li>
           <li>Best for: local businesses, nonprofits, creators, consultants, service brands</li>
         </ul>
-        <p class="demo-price">From <strong>{{ site.productLanes[0].startsAt }}</strong> <s>{{ site.productLanes[0].compareAt }}</s></p>
         <div class="btn-row mt-6">
           <a class="btn btn--primary" href="{{ site.cta.url }}">Plan my website</a>
           <a class="btn btn--ghost" href="pricing.html">See website pricing</a>
+          <a class="btn btn--ghost" href="checkout.html">Start secure checkout</a>
         </div>
       </div>
 
       <div class="redesign-demo" data-redesign-demo aria-label="Interactive website redesign preview">
+        <div class="demo-live-strip" aria-hidden="true">
+          <span>Live redesign preview</span>
+          <strong data-premium-live-status>Booking path optimized</strong>
+        </div>
         <div class="redesign-demo__frame">
           <div class="redesign-demo__browser">
             <span></span><span></span><span></span>
-            <strong>sample clinic homepage</strong>
+            <strong>sample premium website build</strong>
           </div>
           <div class="redesign-demo__stage" data-redesign-stage role="group" aria-label="Drag to compare the old site and the redesign">
             <span class="redesign-demo__tag redesign-demo__tag--before" aria-hidden="true">Before</span>
@@ -114,6 +117,11 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
                 <span>New lead</span>
                 <strong data-premium-feed>Consultation request routed</strong>
               </div>
+              <div class="premium-device" aria-hidden="true">
+                <span></span>
+                <b>Mobile first</b>
+                <i></i><i></i><i></i>
+              </div>
             </div>
             <div class="redesign-demo__divider" data-redesign-handle aria-hidden="true">
               <span class="redesign-demo__grip">
@@ -155,9 +163,12 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Click through a portal, booking tool, and internal board so the app feels real before
             you fund the full build.
           </p>
-          <p class="demo-price">From <strong>{{ site.productLanes[1].startsAt }}</strong> <s>{{ site.productLanes[1].compareAt }}</s></p>
         </div>
         <div class="app-demo" data-app-demo>
+          <div class="demo-status-row" aria-hidden="true">
+            <span><i></i>Prototype running</span>
+            <strong data-app-status>Client request synced</strong>
+          </div>
           <div class="app-demo__tabs" role="tablist" aria-label="App demo flows">
             <button class="is-active" type="button" data-app-view="portal">Client portal</button>
             <button type="button" data-app-view="booking">Booking app</button>
@@ -171,14 +182,19 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
                 <span><strong>12m</strong> avg reply</span>
               </div>
               <p>Clients can log in, upload files, check status, and message your team.</p>
+              <div class="app-demo__activity"><span>New file uploaded</span><b>Founder notified</b></div>
               <div class="app-demo__timeline"><i></i><i></i><i></i></div>
-              <i>Secure intake</i><i>Status tracking</i><i>File notes</i>
+              <div class="app-demo__tags">
+                <button type="button">Secure intake</button>
+                <button type="button">Status tracking</button>
+                <button type="button">File notes</button>
+              </div>
             </div>
           </div>
         </div>
       </article>
 
-      <article class="demo-product" id="pulse-dashboard" data-reveal data-reveal-delay="1">
+      <article class="demo-product demo-product--flip" id="pulse-dashboard" data-reveal data-reveal-delay="1">
         <div class="demo-product__copy">
           <span class="eyebrow">Demo 03 - Dashboards</span>
           <h3 class="card__title">Pulse Dashboard</h3>
@@ -186,9 +202,12 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Watch leads, bookings, and the next best fix update in one place instead of living
             across messages and spreadsheets.
           </p>
-          <p class="demo-price">From <strong>{{ site.productLanes[2].startsAt }}</strong> <s>{{ site.productLanes[2].compareAt }}</s></p>
         </div>
         <div class="dash-demo" data-dashboard-demo>
+          <div class="demo-status-row" aria-hidden="true">
+            <span><i></i>Live owner cockpit</span>
+            <strong data-dashboard-status>Mobile leads rising</strong>
+          </div>
           <div class="dash-demo__filters">
             <button class="is-active" type="button" data-dashboard-range="week">Week</button>
             <button type="button" data-dashboard-range="month">Month</button>
@@ -204,6 +223,11 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           </div>
           <div class="dash-demo__bars" aria-hidden="true">
             <i style="--h:52%"></i><i style="--h:76%"></i><i style="--h:61%"></i><i style="--h:88%"></i><i style="--h:69%"></i>
+          </div>
+          <div class="dash-demo__funnel" aria-hidden="true">
+            <span><b>Visit</b><i style="--w:92%"></i></span>
+            <span><b>Ask</b><i style="--w:68%"></i></span>
+            <span><b>Book</b><i style="--w:44%"></i></span>
           </div>
           <div class="dash-demo__ticker" aria-hidden="true">
             <span>Live</span>
@@ -223,9 +247,12 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             See how a customer question can turn into a clean answer, a captured lead, and a real
             founder follow-up.
           </p>
-          <p class="demo-price">From <strong>{{ site.productLanes[3].startsAt }}</strong> <s>{{ site.productLanes[3].compareAt }}</s></p>
         </div>
         <div class="concierge-demo" data-concierge-demo>
+          <div class="demo-status-row" aria-hidden="true">
+            <span><i></i>24/7 customer desk</span>
+            <strong data-concierge-status>Lead card ready</strong>
+          </div>
           <div class="concierge-demo__chat">
             <p class="bot">Hi, I can help with pricing, booking, or project planning.</p>
             <p class="user" data-concierge-user>Can you help redesign my salon site?</p>
@@ -234,17 +261,21 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           <div class="concierge-demo__handoff">
             <span>Lead card</span>
             <strong>Needs redesign + booking path</strong>
-            <em>Routed to founder with website link and notes</em>
+            <em data-concierge-handoff>Routed to founder with website link and notes</em>
+          </div>
+          <div class="concierge-demo__signal" aria-hidden="true">
+            <span>Intent</span><strong data-concierge-intent>Website redesign</strong>
+            <span>Next step</span><strong data-concierge-next>Send site link</strong>
           </div>
           <div class="concierge-demo__chips">
-            <button type="button" data-concierge-prompt="website">Website</button>
+            <button class="is-active" type="button" data-concierge-prompt="website">Website</button>
             <button type="button" data-concierge-prompt="app">App</button>
             <button type="button" data-concierge-prompt="agent">Agent</button>
           </div>
         </div>
       </article>
 
-      <article class="demo-product" id="workflow-theater" data-reveal data-reveal-delay="1">
+      <article class="demo-product demo-product--flip" id="workflow-theater" data-reveal data-reveal-delay="1">
         <div class="demo-product__copy">
           <span class="eyebrow">Demo 05 - AI agents</span>
           <h3 class="card__title">Workflow Theater</h3>
@@ -252,16 +283,27 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             Run a simple agent story: the lead comes in, the next step gets drafted, the queue gets
             updated, and a human stays in control.
           </p>
-          <p class="demo-price">From <strong>{{ site.productLanes[4].startsAt }}</strong> <s>{{ site.productLanes[4].compareAt }}</s></p>
         </div>
         <div class="workflow-demo" data-workflow-demo>
+          <div class="workflow-demo__headline">
+            <span>Automate annoying tasks</span>
+            <strong>An agent that works for you, then waits for approval when it should.</strong>
+          </div>
           <button class="btn btn--primary btn--sm" type="button" data-workflow-run>Run sample workflow</button>
+          <div class="demo-status-row" aria-hidden="true">
+            <span><i></i>Human-approved automation</span>
+            <strong data-workflow-status>Ready for command</strong>
+          </div>
           <div class="workflow-demo__map" aria-hidden="true">
             <span class="workflow-demo__node is-active">Lead</span>
             <span class="workflow-demo__node">Draft</span>
             <span class="workflow-demo__node">Queue</span>
             <span class="workflow-demo__node">Approve</span>
             <b class="workflow-demo__packet">Agent packet</b>
+          </div>
+          <div class="workflow-demo__terminal" aria-live="polite">
+            <span>agent log</span>
+            <strong data-workflow-log>Waiting for a lead, rule, or customer workflow.</strong>
           </div>
           <ol class="workflow-demo__steps">
             <li class="is-active">Lead received</li>
@@ -271,37 +313,6 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
           </ol>
         </div>
       </article>
-    </div>
-  </div>
-</section>
-
-{# ===== Premium experience: Symbio Partner ============================ #}
-<section class="section section--tint">
-  <div class="container">
-    <div class="section__head section__head--center" data-reveal>
-      <span class="eyebrow eyebrow--center">The premium experience</span>
-      <h2 class="section__title">Or have us run all of it for you</h2>
-      <p class="section__lead">
-        Love more than one of these? Our flagship retainer puts both founders on call as your
-        growth team — every lane above, built and improved every month.
-      </p>
-    </div>
-
-    <div class="partner-band" data-reveal>
-      <div class="partner-band__intro">
-        <span class="price__flag price__flag--static">Flagship · S-tier</span>
-        <h3 class="partner-band__title">{{ site.partnerPlan.name }}</h3>
-        <p class="partner-band__amount">{{ site.partnerPlan.price }}<small>{{ site.partnerPlan.cadence }}</small></p>
-        <p class="partner-band__compare">{{ site.partnerPlan.compareAt }}</p>
-        <p class="partner-band__blurb">{{ site.partnerPlan.blurb }}</p>
-        <div class="btn-row mt-6">
-          <a class="btn btn--light btn--lg" href="pricing.html">See the Partner tier</a>
-          <a class="btn btn--secondary btn--lg" href="{{ site.cta.url }}">Start with a free scan</a>
-        </div>
-      </div>
-      <ul class="partner-band__features">
-        {% for feature in site.partnerPlan.features %}<li>{{ feature }}</li>{% endfor %}
-      </ul>
     </div>
   </div>
 </section>
@@ -318,6 +329,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
       <div class="btn-row btn-row--center">
         <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
         <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+        <a class="btn btn--secondary btn--lg" href="checkout.html">Open checkout</a>
       </div>
     </div>
   </div>

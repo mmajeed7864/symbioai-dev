@@ -59,7 +59,7 @@
     try {
       window.dispatchEvent(new CustomEvent("symbio:track", { detail: { name: name, props: props || {} } }));
     } catch (e) {
-      /* CustomEvent unsupported — ignore */
+      /* CustomEvent unsupported - ignore */
     }
   }
 
@@ -549,18 +549,45 @@
   const APP_DEMOS = {
     portal: {
       title: "Client Portal",
+      status: "Client request synced",
       body:
-        '<div class="app-demo__stat-row"><span><strong>3</strong> requests</span><span><strong>12m</strong> avg reply</span></div><p>Clients can log in, upload files, check status, and message your team.</p><div class="app-demo__activity"><span>New file uploaded</span><b>Founder notified</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Secure intake</i><i>Status tracking</i><i>File notes</i>',
+        '<div class="app-demo__stat-row"><span><strong>3</strong> active requests</span><span><strong>12m</strong> avg reply</span></div><p>Clients can log in, upload files, check status, and message your team without chasing a text thread.</p><div class="app-demo__activity"><span>New file uploaded</span><b>Founder notified</b></div><div class="app-demo__task-list"><button class="app-demo__task" type="button"><span>Upload received</span><b>Contract.pdf</b></button><button class="app-demo__task" type="button"><span>Client question</span><b>Needs reply</b></button><button class="app-demo__task" type="button"><span>Project stage</span><b>In review</b></button></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><div class="app-demo__tags"><button type="button">Secure intake</button><button type="button">Status tracking</button><button type="button">File notes</button></div>',
     },
     booking: {
       title: "Booking App",
+      status: "Calendar hold created",
       body:
-        '<div class="app-demo__stat-row"><span><strong>18</strong> open slots</span><span><strong>4</strong> no-shows saved</span></div><p>Visitors choose a service, pick a time, and get routed into a clean follow-up flow.</p><div class="app-demo__activity"><span>Booking confirmed</span><b>SMS reminder queued</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Calendar logic</i><i>Reminders</i><i>No-show control</i>',
+        '<div class="app-demo__stat-row"><span><strong>18</strong> open slots</span><span><strong>4</strong> no-shows saved</span></div><p>Visitors choose a service, pick a time, and get routed into a clean follow-up flow.</p><div class="app-demo__activity"><span>Booking confirmed</span><b>SMS reminder queued</b></div><div class="app-demo__schedule"><span>9:30</span><b>Consultation</b><em>Booked</em></div><div class="app-demo__schedule"><span>11:00</span><b>Follow-up</b><em>Reminder</em></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><div class="app-demo__tags"><button type="button">Calendar logic</button><button type="button">Reminders</button><button type="button">No-show control</button></div>',
     },
     ops: {
       title: "Ops Board",
+      status: "Team queue refreshed",
       body:
-        '<div class="app-demo__stat-row"><span><strong>7</strong> tasks due</span><span><strong>2</strong> blocked</span></div><p>Staff can see what is waiting, what is blocked, and what needs a founder decision.</p><div class="app-demo__activity"><span>Task moved to done</span><b>Daily report updated</b></div><div class="app-demo__timeline"><i></i><i></i><i></i></div><i>Team queue</i><i>Owner notes</i><i>Daily closeout</i>',
+        '<div class="app-demo__stat-row"><span><strong>18</strong> live tasks</span><span><strong>4</strong> owner decisions</span></div><p>Staff can see what is waiting, what is blocked, and what needs a founder decision.</p><div class="app-demo__activity"><span data-ops-active>Priority queue updated</span><b data-ops-status>Daily brief ready</b></div><div class="app-demo__ops-grid"><div class="app-demo__lane"><b>Today</b><span>7 tasks</span><i style="--fill: 82%"></i></div><div class="app-demo__lane"><b>Blocked</b><span>2 issues</span><i style="--fill: 38%"></i></div><div class="app-demo__lane"><b>Waiting</b><span>5 replies</span><i style="--fill: 64%"></i></div></div><div class="app-demo__task-list"><button class="app-demo__task is-hot" type="button"><span>Founder decision</span><b>Approve quote</b></button><button class="app-demo__task" type="button"><span>Team queue</span><b>3 tasks moved</b></button><button class="app-demo__task" type="button"><span>Closeout</span><b>Report sent</b></button></div><div class="app-demo__ops-detail"><span data-ops-kicker>Team queue</span><strong data-ops-title>3 tasks moved into today</strong><p data-ops-copy>Shows what staff should handle first, who owns it, and what can wait.</p></div><div class="app-demo__tags"><button class="is-active" type="button" data-ops-action="queue">Team queue</button><button type="button" data-ops-action="notes">Owner notes</button><button type="button" data-ops-action="closeout">Daily closeout</button></div>',
+    },
+  };
+
+  const OPS_ACTIONS = {
+    queue: {
+      active: "Priority queue updated",
+      status: "3 tasks assigned",
+      kicker: "Team queue",
+      title: "3 tasks moved into today",
+      copy: "Shows what staff should handle first, who owns it, and what can wait.",
+    },
+    notes: {
+      active: "Owner notes opened",
+      status: "Decision brief ready",
+      kicker: "Owner notes",
+      title: "Quote needs founder approval",
+      copy: "Pulls the client request, scope, price note, and next action into one clean decision card.",
+    },
+    closeout: {
+      active: "Daily closeout generated",
+      status: "Report ready",
+      kicker: "Daily closeout",
+      title: "Today summarized in plain English",
+      copy: "Shows completed work, blocked items, follow-ups, and what the owner should check tomorrow.",
     },
   };
 
@@ -579,6 +606,7 @@
       chat: "Hi, I can help choose a service, answer pricing questions, or book a time.",
       lead: "Lead captured: name, phone, service, best time",
       feed: "Consultation request routed",
+      status: "Booking path optimized",
     },
     results: {
       kicker: "Proof above the fold",
@@ -594,6 +622,7 @@
       chat: "Want proof? I can show recent results, service photos, and the fastest way to book.",
       lead: "Visitor viewed: reviews, gallery, pricing, booking",
       feed: "Review gallery opened",
+      status: "Trust proof moved above the fold",
     },
     book: {
       kicker: "Frictionless booking path",
@@ -609,6 +638,7 @@
       chat: "I can book the next open appointment or route the request to the right team member.",
       lead: "Booking ready: service, time, contact, notes",
       feed: "SMS confirmation queued",
+      status: "Follow-up flow connected",
     },
   };
 
@@ -619,6 +649,8 @@
       bars: ["52%", "76%", "61%", "88%", "69%"],
       insight: "Best channel: mobile visitors. Biggest fix: shorten the contact form.",
       command: "Call back mobile leads within 10 minutes.",
+      status: "Mobile leads rising",
+      funnel: ["92%", "68%", "44%"],
     },
     month: {
       leads: "612",
@@ -626,6 +658,8 @@
       bars: ["44%", "58%", "74%", "82%", "93%"],
       insight: "Strongest page: services. Biggest fix: add proof near pricing.",
       command: "Turn the services page into a booking path.",
+      status: "Services page carrying demand",
+      funnel: ["88%", "71%", "49%"],
     },
     quarter: {
       leads: "1,840",
@@ -633,6 +667,8 @@
       bars: ["62%", "71%", "67%", "89%", "95%"],
       insight: "Growth pattern: follow-up speed improved booked calls by 28%.",
       command: "Scale the follow-up flow before adding more ad spend.",
+      status: "Follow-up system compounding",
+      funnel: ["96%", "76%", "57%"],
     },
   };
 
@@ -641,16 +677,28 @@
       user: "Can you help redesign my salon site?",
       answer:
         "Yes. Send the link and we will review mobile flow, trust, booking, and follow-up.",
+      handoff: "Routed to founder with website link and notes",
+      intent: "Website redesign",
+      next: "Send site link",
+      status: "Lead card ready",
     },
     app: {
       user: "I need clients to log in and upload files.",
       answer:
         "That sounds like a custom portal. We can map the login, upload, notes, and status flow first.",
+      handoff: "Routed as custom app scope with portal requirements",
+      intent: "Custom portal",
+      next: "Map login flow",
+      status: "Portal request captured",
     },
     agent: {
       user: "Can an agent follow up with leads?",
       answer:
         "Yes, with human approval gates. It can draft the reply, update the queue, and wait before sending.",
+      handoff: "Routed as automation request with approval gates",
+      intent: "AI follow-up agent",
+      next: "Define safe actions",
+      status: "Automation scope detected",
     },
   };
 
@@ -676,6 +724,7 @@
       chat: demo.querySelector("[data-premium-chat]"),
       lead: demo.querySelector("[data-premium-lead]"),
       feed: demo.querySelector("[data-premium-feed]"),
+      status: demo.querySelector("[data-premium-live-status]"),
     };
 
     function clamp(n, lo, hi) {
@@ -782,6 +831,7 @@
 
     const title = demo.querySelector("[data-app-title]");
     const body = demo.querySelector("[data-app-body]");
+    const status = demo.querySelector("[data-app-status]");
     const buttons = demo.querySelectorAll("[data-app-view]");
     if (!title || !body || !buttons.length) return;
 
@@ -791,9 +841,46 @@
         if (!data) return;
         buttons.forEach((btn) => btn.classList.toggle("is-active", btn === button));
         title.textContent = data.title;
+        if (status) status.textContent = data.status;
         body.innerHTML = data.body;
       });
     });
+
+    body.addEventListener("click", (event) => {
+      const action = event.target.closest("[data-ops-action]");
+      if (!action) return;
+      const data = OPS_ACTIONS[action.getAttribute("data-ops-action")];
+      if (!data) return;
+
+      body.querySelectorAll("[data-ops-action]").forEach((button) => {
+        button.classList.toggle("is-active", button === action);
+      });
+
+      const active = body.querySelector("[data-ops-active]");
+      const opStatus = body.querySelector("[data-ops-status]");
+      const kicker = body.querySelector("[data-ops-kicker]");
+      const detailTitle = body.querySelector("[data-ops-title]");
+      const copy = body.querySelector("[data-ops-copy]");
+      if (active) active.textContent = data.active;
+      if (opStatus) opStatus.textContent = data.status;
+      if (kicker) kicker.textContent = data.kicker;
+      if (detailTitle) detailTitle.textContent = data.title;
+      if (copy) copy.textContent = data.copy;
+      demo.classList.remove("is-app-updating");
+      window.requestAnimationFrame(() => demo.classList.add("is-app-updating"));
+    });
+
+    if (!prefersReducedMotion()) {
+      let index = 0;
+      const views = Array.from(buttons);
+      onFirstView(demo, () => {
+        window.setInterval(() => {
+          if (document.hidden || demo.matches(":hover")) return;
+          index = (index + 1) % views.length;
+          views[index].click();
+        }, 4800);
+      });
+    }
   }
 
   function initDashboardDemo() {
@@ -804,6 +891,8 @@
     const booked = demo.querySelector("[data-dashboard-booked]");
     const insight = demo.querySelector("[data-dashboard-insight]");
     const command = demo.querySelector("[data-dashboard-command]");
+    const status = demo.querySelector("[data-dashboard-status]");
+    const funnel = demo.querySelectorAll(".dash-demo__funnel i");
     const bars = demo.querySelectorAll(".dash-demo__bars i");
     const buttons = demo.querySelectorAll("[data-dashboard-range]");
     if (!leads || !booked || !insight || !command || !bars.length || !buttons.length) return;
@@ -817,11 +906,27 @@
         booked.textContent = data.booked;
         insight.textContent = data.insight;
         command.textContent = data.command;
+        if (status) status.textContent = data.status;
         bars.forEach((bar, index) => {
           bar.style.setProperty("--h", data.bars[index] || data.bars[data.bars.length - 1]);
         });
+        funnel.forEach((bar, index) => {
+          bar.style.setProperty("--w", data.funnel[index] || data.funnel[data.funnel.length - 1]);
+        });
       });
     });
+
+    if (!prefersReducedMotion()) {
+      let index = 0;
+      const ranges = Array.from(buttons);
+      onFirstView(demo, () => {
+        window.setInterval(() => {
+          if (document.hidden || demo.matches(":hover")) return;
+          index = (index + 1) % ranges.length;
+          ranges[index].click();
+        }, 5200);
+      });
+    }
   }
 
   function initConciergeDemo() {
@@ -830,17 +935,71 @@
 
     const user = demo.querySelector("[data-concierge-user]");
     const answer = demo.querySelector("[data-concierge-answer]");
+    const handoff = demo.querySelector("[data-concierge-handoff]");
+    const intent = demo.querySelector("[data-concierge-intent]");
+    const next = demo.querySelector("[data-concierge-next]");
+    const status = demo.querySelector("[data-concierge-status]");
     const buttons = demo.querySelectorAll("[data-concierge-prompt]");
     if (!user || !answer || !buttons.length) return;
+
+    let typingTimers = [];
+
+    function clearTypingTimers() {
+      typingTimers.forEach((timer) => window.clearTimeout(timer));
+      typingTimers = [];
+    }
+
+    function typeText(node, text, delay, done) {
+      if (!node) return;
+      node.textContent = "";
+      node.classList.add("is-typing");
+      const safeText = String(text);
+      for (let i = 0; i <= safeText.length; i += 1) {
+        typingTimers.push(
+          window.setTimeout(() => {
+            node.textContent = safeText.slice(0, i);
+            if (i === safeText.length) {
+              node.classList.remove("is-typing");
+              if (done) done();
+            }
+          }, delay + i * 18)
+        );
+      }
+    }
+
+    function showConversation(data) {
+      clearTypingTimers();
+      typeText(user, data.user, 0, () => {
+        typeText(answer, data.answer, 220);
+      });
+      if (handoff) handoff.textContent = data.handoff;
+      if (intent) intent.textContent = data.intent;
+      if (next) next.textContent = data.next;
+      if (status) status.textContent = data.status;
+      demo.classList.remove("is-chat-typing");
+      window.requestAnimationFrame(() => demo.classList.add("is-chat-typing"));
+    }
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
         const data = CONCIERGE_DEMOS[button.getAttribute("data-concierge-prompt")];
         if (!data) return;
-        user.textContent = data.user;
-        answer.textContent = data.answer;
+        buttons.forEach((btn) => btn.classList.toggle("is-active", btn === button));
+        showConversation(data);
       });
     });
+
+    if (!prefersReducedMotion()) {
+      let index = 0;
+      const prompts = Array.from(buttons);
+      onFirstView(demo, () => {
+        window.setInterval(() => {
+          if (document.hidden || demo.matches(":hover")) return;
+          index = (index + 1) % prompts.length;
+          prompts[index].click();
+        }, 5600);
+      });
+    }
   }
 
   function initWorkflowDemo() {
@@ -848,11 +1007,25 @@
     if (!demo) return;
 
     const run = demo.querySelector("[data-workflow-run]");
+    const status = demo.querySelector("[data-workflow-status]");
+    const log = demo.querySelector("[data-workflow-log]");
     const steps = Array.from(demo.querySelectorAll(".workflow-demo__steps li"));
     const nodes = Array.from(demo.querySelectorAll(".workflow-demo__node"));
     if (!run || !steps.length || !nodes.length) return;
 
     let timers = [];
+    const logs = [
+      "Lead received from website form. Creating clean record.",
+      "Drafting reply with project notes and founder handoff.",
+      "Updating queue, tags, and follow-up reminder.",
+      "Approval required before anything is sent."
+    ];
+    const statuses = [
+      "Lead captured",
+      "Reply drafted",
+      "Queue updated",
+      "Waiting for approval"
+    ];
     function clearTimers() {
       timers.forEach((timer) => window.clearTimeout(timer));
       timers = [];
@@ -861,6 +1034,7 @@
     run.addEventListener("click", () => {
       clearTimers();
       run.disabled = true;
+      demo.classList.add("is-running");
       steps.forEach((step) => step.classList.remove("is-active"));
       nodes.forEach((node) => node.classList.remove("is-active"));
 
@@ -870,7 +1044,12 @@
           nodes.forEach((node) => node.classList.remove("is-active"));
           step.classList.add("is-active");
           if (nodes[index]) nodes[index].classList.add("is-active");
-          if (index === steps.length - 1) run.disabled = false;
+          if (status) status.textContent = statuses[index] || "Workflow running";
+          if (log) log.textContent = logs[index] || "Workflow running.";
+          if (index === steps.length - 1) {
+            run.disabled = false;
+            demo.classList.remove("is-running");
+          }
         }, index * 520);
         timers.push(timer);
       });
@@ -881,40 +1060,88 @@
     const nav = document.querySelector("[data-demo-nav]");
     if (!nav) return;
     const links = Array.from(nav.querySelectorAll("[data-demo-link]"));
-    const map = new Map();
-    links.forEach((link) => {
-      const id = (link.getAttribute("href") || "").slice(1);
-      const section = id && document.getElementById(id);
-      if (section) map.set(section, link);
-    });
-    if (!map.size || !("IntersectionObserver" in window)) return;
+    const pairs = links
+      .map((link) => {
+        const id = (link.getAttribute("href") || "").slice(1);
+        const section = id && document.getElementById(id);
+        return section ? { link, section } : null;
+      })
+      .filter(Boolean);
+    if (!pairs.length) return;
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          links.forEach((link) => link.classList.remove("is-current"));
-          const link = map.get(entry.target);
-          if (link) link.classList.add("is-current");
+    function setCurrent() {
+      const targetY = window.innerHeight * 0.42;
+      let best = pairs[0];
+      let bestDistance = Infinity;
+      pairs.forEach((pair) => {
+        const rect = pair.section.getBoundingClientRect();
+        const center = rect.top + Math.min(rect.height, window.innerHeight * 0.82) / 2;
+        const distance = Math.abs(center - targetY);
+        if (distance < bestDistance) {
+          best = pair;
+          bestDistance = distance;
+        }
+      });
+      links.forEach((link) => link.classList.toggle("is-current", link === best.link));
+    }
+
+    let ticking = false;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          setCurrent();
+          ticking = false;
         });
       },
-      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+      { passive: true }
     );
-    map.forEach((link, section) => io.observe(section));
+    window.addEventListener("resize", setCurrent);
+    setCurrent();
   }
 
-  function initProductDemos() {
-    initRedesignDemo();
-    initAppDemo();
-    initDashboardDemo();
-    initConciergeDemo();
-    initWorkflowDemo();
-    initDemoNav();
+  function initCheckoutPage() {
+    const checkout = document.querySelector("[data-checkout-page]");
+    if (!checkout) return;
+
+    const offers = checkout.querySelectorAll("[data-checkout-offer]");
+    const title = checkout.querySelector("[data-checkout-title]");
+    const price = checkout.querySelector("[data-checkout-price]");
+    const deposit = checkout.querySelector("[data-checkout-deposit]");
+    const turnaround = checkout.querySelector("[data-checkout-turnaround]");
+    const summary = checkout.querySelector("[data-checkout-summary]");
+    const checkoutLink = checkout.querySelector(".checkout-actions .btn--primary");
+    if (!offers.length) return;
+
+    function mailtoFor(offerTitle) {
+      const subject = encodeURIComponent("Symbio AI secure checkout request");
+      const body = encodeURIComponent(
+        `Hi Symbio AI,\n\nI want to start a secure checkout for: ${offerTitle}\n\nMy business name:\nMy website or social link:\nBest phone number:\n`
+      );
+      return `mailto:symbioaiiii@gmail.com?subject=${subject}&body=${body}`;
+    }
+
+    offers.forEach((offer) => {
+      offer.addEventListener("click", () => {
+        offers.forEach((item) => item.classList.toggle("is-active", item === offer));
+        const data = offer.dataset;
+        if (title) title.textContent = data.title || "";
+        if (price) price.textContent = data.price || "";
+        if (deposit) deposit.textContent = data.deposit || "";
+        if (turnaround) turnaround.textContent = data.turnaround || "";
+        if (summary) summary.textContent = data.summary || "";
+        if (checkoutLink) checkoutLink.href = mailtoFor(data.title || "Symbio AI build");
+        checkout.classList.remove("is-checkout-changing");
+        window.requestAnimationFrame(() => checkout.classList.add("is-checkout-changing"));
+      });
+    });
   }
 
   // On buy.html, package buttons without a Stripe checkout link point at the
   // intake form (#intake). When one is clicked, pre-select that package so the
-  // visitor doesn't have to choose again. Guarded — no-op on every other page.
+  // visitor doesn't have to choose again. Guarded - no-op on every other page.
   function initBuyButtons() {
     const select = document.querySelector("[data-intake-package]");
     if (!select) return;
@@ -933,7 +1160,7 @@
   /* ---- 11. Instant teardown (teardown.html) --------------------------- */
   // Posts a URL to the deployed scan Worker and renders the findings live.
   // If no endpoint is configured (data-scan-api empty), falls back to the human
-  // free-scan form. Guarded — no-op on every other page.
+  // free-scan form. Guarded - no-op on every other page.
   function initTeardown() {
     const form = document.querySelector("[data-teardown-form]");
     if (!form) return;
@@ -969,8 +1196,8 @@
       });
       if (titleEl) {
         titleEl.textContent = data.reachable
-          ? "Top fixes — site score " + data.score + "/100"
-          : "We couldn’t reach that site — here’s where we’d start";
+          ? "Top fixes - site score " + data.score + "/100"
+          : "We couldn't reach that site - here's where we'd start";
       }
       results.hidden = false;
       results.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -985,13 +1212,13 @@
       const urlInput = form.querySelector('[name="url"]');
       const url = urlInput ? urlInput.value.trim() : "";
 
-      // No backend configured yet → hand off to the human free-scan form.
+      // No backend configured yet -> hand off to the human free-scan form.
       if (!api) {
         window.location.href = "scan.html";
         return;
       }
 
-      setStatus("pending", "Scanning your site…");
+      setStatus("pending", "Scanning your site...");
       if (submitBtn) submitBtn.disabled = true;
       try {
         const res = await fetch(api + "/api/scan", {
@@ -1003,9 +1230,9 @@
         if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || "scan failed");
         renderResults(data);
         track("Teardown", { reachable: !!data.reachable });
-        setStatus("success", "Done — here’s what we found.");
+        setStatus("success", "Done - here's what we found.");
       } catch (e) {
-        setStatus("error", "Couldn’t scan that automatically — try the free scan form below.");
+        setStatus("error", "Couldn't scan that automatically - try the free scan form below.");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
@@ -1040,6 +1267,7 @@
     initWidgetLeadBridge();
     initCardMotion();
     initProductDemos();
+    initCheckoutPage();
     initBuyButtons();
     initTeardown();
     initTracking();

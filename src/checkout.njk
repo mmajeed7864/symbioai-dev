@@ -1,0 +1,173 @@
+---
+layout: base.njk
+pageKey: checkout
+title: Secure Checkout
+permalink: checkout.html
+description: Choose a Symbio AI build lane, review the deposit and turnaround window, then request a secure Stripe checkout link.
+---
+
+{% set checkoutOffers = [
+  {
+    key: "website-fast",
+    title: "Easy website",
+    price: "$1,490+",
+    deposit: "$250 early deposit",
+    turnaround: "1-3 days",
+    summary: "A clean starter website, landing page, or focused redesign when the scope is simple and ready to move.",
+    includes: ["Homepage or landing page", "Mobile-first layout", "Contact path", "Basic launch polish"]
+  },
+  {
+    key: "premium-website",
+    title: "Premium website",
+    price: "$2,500-$6,500",
+    deposit: "25% early deposit",
+    turnaround: "1-7 days",
+    summary: "A sharper multi-page site or deeper redesign with proof, booking paths, lead capture, and post-launch tuning.",
+    includes: ["Multi-page build", "Conversion copy", "Booking or lead capture", "Two weeks of tuning"]
+  },
+  {
+    key: "custom-app",
+    title: "Custom app",
+    price: "$2,000+",
+    deposit: "30% early deposit",
+    turnaround: "3-14 days",
+    summary: "A real tool for logins, dashboards, portals, uploads, quotes, staff workflows, or internal operations.",
+    includes: ["Workflow map", "App screens", "Admin view", "Handoff documentation"]
+  },
+  {
+    key: "chatbot",
+    title: "AI chatbot",
+    price: "$750+",
+    deposit: "$200 early deposit",
+    turnaround: "1-4 days",
+    summary: "A customer-facing assistant that answers common questions, captures leads, and routes the next step to a founder.",
+    includes: ["Chat widget setup", "Lead capture", "FAQ flow", "Founder handoff"]
+  },
+  {
+    key: "agent",
+    title: "AI agent system",
+    price: "$1,500+",
+    deposit: "30% early deposit",
+    turnaround: "3-10 days",
+    summary: "An agent that works for you by drafting, routing, reminding, updating, and waiting for approval when needed.",
+    includes: ["Task map", "Approval gates", "Workflow queue", "Safety rules"]
+  },
+  {
+    key: "full-system",
+    title: "Connected system",
+    price: "$7,500+",
+    deposit: "25% early deposit",
+    turnaround: "7-21 days",
+    summary: "Website, app, dashboard, chatbot, and automation connected into one polished business system.",
+    includes: ["Public site", "Internal app", "Dashboard", "Automation lane"]
+  }
+] %}
+
+<section class="section section--tight has-aurora checkout-hero">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container container--narrow center">
+    <span class="eyebrow eyebrow--center">Secure checkout</span>
+    <h1 class="section__title">Pick a build lane. Pay securely. Know the timeline.</h1>
+    <p class="section__lead">
+      Choose the offer that matches what you need. Card payments are handled through secure hosted
+      checkout, so Symbio never stores your card number.
+    </p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="checkout-layout" data-checkout-page>
+      <div class="checkout-offers" data-reveal>
+        {% for offer in checkoutOffers %}
+          <button class="checkout-offer{% if loop.first %} is-active{% endif %}" type="button"
+            data-checkout-offer
+            data-title="{{ offer.title }}"
+            data-price="{{ offer.price }}"
+            data-deposit="{{ offer.deposit }}"
+            data-turnaround="{{ offer.turnaround }}"
+            data-summary="{{ offer.summary }}">
+            <span>{{ offer.title }}</span>
+            <strong>{{ offer.price }}</strong>
+            <em>{{ offer.turnaround }}</em>
+          </button>
+        {% endfor %}
+      </div>
+
+      <aside class="checkout-panel" data-reveal data-reveal-delay="1">
+        <div class="checkout-panel__top">
+          <span>Selected build</span>
+          <strong data-checkout-title>{{ checkoutOffers[0].title }}</strong>
+        </div>
+
+        <div class="checkout-panel__price">
+          <span data-checkout-price>{{ checkoutOffers[0].price }}</span>
+          <em data-checkout-deposit>{{ checkoutOffers[0].deposit }}</em>
+        </div>
+
+        <p data-checkout-summary>{{ checkoutOffers[0].summary }}</p>
+
+        <div class="checkout-timeline">
+          <span>Estimated delivery</span>
+          <strong data-checkout-turnaround>{{ checkoutOffers[0].turnaround }}</strong>
+          <small>Final timing depends on scope, assets, revisions, and how quickly we get approvals.</small>
+        </div>
+
+        <div class="secure-card-preview" aria-label="Secure payment preview">
+          <div class="secure-card-preview__badge">
+            <span></span>
+            <strong>Secure hosted checkout</strong>
+          </div>
+          <div class="secure-card-preview__fields" aria-hidden="true">
+            <i>Card number handled by Stripe</i>
+            <b>MM / YY</b>
+            <b>CVC</b>
+          </div>
+          <p>
+            We send a secure payment link for the deposit or full amount. You enter debit or credit
+            card details inside the payment provider, not on our static website.
+          </p>
+        </div>
+
+        <div class="checkout-actions">
+          <a class="btn btn--primary btn--block" href="mailto:{{ site.businessEmail }}?subject=Symbio%20AI%20secure%20checkout%20request&body=Hi%20Symbio%20AI%2C%0A%0AI%20want%20to%20start%20a%20secure%20checkout%20for%3A%20{{ checkoutOffers[0].title | urlencode }}%0A%0AMy%20business%20name%3A%0AMy%20website%20or%20social%20link%3A%0ABest%20phone%20number%3A%0A">Request secure checkout link</a>
+          <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
+        </div>
+
+        <div class="checkout-trust">
+          <span>Deposit applies to the final project total.</span>
+          <span>No card numbers stored by Symbio.</span>
+          <span>Founder review before the build starts.</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Turnaround guide</span>
+      <h2 class="section__title">Fast when the scope is clear. Careful when it should be.</h2>
+      <p class="section__lead">
+        Simple website work can move in 1-3 days. Premium builds can still move fast, but we leave
+        room for polish, content, approvals, and launch checks.
+      </p>
+    </div>
+
+    <div class="grid grid--3">
+      <article class="card card--static" data-reveal>
+        <h3 class="card__title">Easy website</h3>
+        <p class="card__text">1-3 days when the offer, content, and pages are straightforward.</p>
+      </article>
+      <article class="card card--static" data-reveal data-reveal-delay="1">
+        <h3 class="card__title">Premium website</h3>
+        <p class="card__text">1-7 days for deeper visuals, copy, proof sections, and lead capture.</p>
+      </article>
+      <article class="card card--static" data-reveal data-reveal-delay="2">
+        <h3 class="card__title">Apps and systems</h3>
+        <p class="card__text">3-21 days depending on logins, data, dashboards, integrations, and approvals.</p>
+      </article>
+    </div>
+  </div>
+</section>
