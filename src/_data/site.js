@@ -84,8 +84,9 @@ export default {
       eyebrow: "Websites and redesigns",
       title: "Premium website or redesign",
       shortTitle: "Website / redesign",
-      startsAt: "$1,000",
-      typical: "$2,500-$6,500",
+      startsAt: "$1,500",
+      typical: "$2,500-$5,500",
+      compareAt: "$5,000-$9,000 at agencies",
       summary:
         "A modern site that makes the business look trustworthy, explains the offer clearly, and turns visitors into calls, bookings, or leads.",
       bestFor: "New websites, homepage rebuilds, landing pages, service pages, and mobile cleanup.",
@@ -103,8 +104,9 @@ export default {
       eyebrow: "Apps and portals",
       title: "Custom app",
       shortTitle: "Custom app",
-      startsAt: "$2,000",
-      typical: "$2,000-$12,000+",
+      startsAt: "$4,500",
+      typical: "$6,000-$18,000",
+      compareAt: "$25,000+ at agencies",
       summary:
         "A real tool with logins, forms, workflows, dashboards, uploads, or internal screens built around how the business actually runs.",
       bestFor: "Client portals, staff tools, quote builders, booking workflows, and internal operations.",
@@ -118,7 +120,8 @@ export default {
       title: "Business dashboard",
       shortTitle: "Dashboard",
       startsAt: "$1,500",
-      typical: "$2,500-$7,500",
+      typical: "$2,500-$6,500",
+      compareAt: "$12,000 at a BI firm",
       summary:
         "A simple command center for leads, bookings, performance, follow-ups, or team activity so owners can see what is happening.",
       bestFor: "Lead tracking, booking visibility, sales follow-up, KPIs, and founder dashboards.",
@@ -132,7 +135,8 @@ export default {
       title: "AI chatbot / lead intake",
       shortTitle: "AI chatbot",
       startsAt: "$750",
-      typical: "$1,500-$4,500",
+      typical: "$1,500-$4,000",
+      compareAt: "$6,000-$13,000 at agencies",
       summary:
         "A customer-facing assistant that answers common questions, collects lead details, and routes the next step to a real person.",
       bestFor: "24/7 intake, FAQs, bookings, service questions, and missed-lead recovery.",
@@ -146,7 +150,8 @@ export default {
       title: "AI agent system",
       shortTitle: "AI agent",
       startsAt: "$1,500",
-      typical: "$3,000-$10,000+",
+      typical: "$3,000-$9,000",
+      compareAt: "$7,500+ at AI agencies",
       summary:
         "A controlled automation lane that drafts, routes, reminds, updates, or organizes repeat work while humans approve the important steps.",
       bestFor: "Follow-up systems, inbox routing, CRM cleanup, content drafts, reminders, and repeat admin work.",
@@ -160,7 +165,8 @@ export default {
       title: "Website + app + AI system",
       shortTitle: "Connected system",
       startsAt: "$7,500",
-      typical: "$10,000-$25,000+",
+      typical: "$12,000-$25,000",
+      compareAt: "$50,000+ at agencies",
       summary:
         "A connected build where the site, app, dashboard, chatbot, and automation work together instead of living as separate tools.",
       bestFor: "Businesses that need a full lead, booking, dashboard, and follow-up system built as one experience.",
@@ -174,7 +180,7 @@ export default {
     {
       key: "speed-fix",
       name: "Site speed & mobile fix",
-      price: "$499",
+      price: "$399",
       cadence: "one-time",
       blurb: "The easy first yes. We make your existing site fast and flawless on phones.",
       features: [
@@ -188,7 +194,7 @@ export default {
     {
       key: "website-7-days",
       name: "Website in 7 days",
-      price: "$1,500",
+      price: "$1,290",
       cadence: "flat",
       blurb: "A fast, modern site that earns trust and turns visitors into enquiries.",
       features: [
@@ -202,7 +208,7 @@ export default {
     {
       key: "booking-system",
       name: "Booking + lead system",
-      price: "$1,200",
+      price: "$890",
       cadence: "one-time",
       blurb: "Turn enquiries into booked time, with reminders that cut no-shows.",
       features: [
@@ -216,12 +222,12 @@ export default {
     {
       key: "ai-assistant",
       name: "AI assistant install",
-      price: "$900",
+      price: "$690",
       cadence: "setup + monthly",
       blurb: "Our always-on assistant on your site — answers, captures leads, books.",
       features: [
-        "One-time $900 setup & styling",
-        "From $99/mo — hosting, AI & lead delivery",
+        "One-time $690 setup & styling",
+        "From $39/mo — hosting, AI & lead delivery",
         "Every lead reaches a real person on your team",
       ],
       checkoutUrl: "",
@@ -234,12 +240,12 @@ export default {
   // Paste a link into each checkoutUrl, or run:
   //   npm run set-stripe -- widget-growth=https://buy.stripe.com/...
   // Empty links fall back to the free scan, so there are never dead buttons.
-  widgetSetup: "$900 one-time setup",
+  widgetSetup: "$690 one-time setup",
   widgetPlans: [
     {
       key: "widget-starter",
       name: "Starter",
-      price: "$49",
+      price: "$39",
       cadence: "/mo",
       blurb: "The always-on assistant on one site — answering questions and catching leads.",
       features: [
@@ -254,7 +260,7 @@ export default {
     {
       key: "widget-growth",
       name: "Growth",
-      price: "$99",
+      price: "$89",
       cadence: "/mo",
       blurb: "More volume, booking hand-off, and monthly tuning as you grow.",
       features: [
@@ -291,7 +297,7 @@ export default {
     {
       key: "care-essential",
       name: "Essential",
-      price: "$99",
+      price: "$79",
       cadence: "/mo",
       blurb: "We keep your site fast, secure, online, and up to date — so you never think about it.",
       features: [
@@ -306,7 +312,7 @@ export default {
     {
       key: "care-growth",
       name: "Growth",
-      price: "$199",
+      price: "$149",
       cadence: "/mo",
       blurb: "Everything in Essential, plus monthly improvements and a plain-English report.",
       features: [
@@ -321,7 +327,7 @@ export default {
     {
       key: "care-pro",
       name: "Pro",
-      price: "$299",
+      price: "$279",
       cadence: "/mo",
       blurb: "Ongoing conversion work — we keep improving the site to win more leads.",
       features: [
@@ -334,6 +340,31 @@ export default {
       featured: false,
     },
   ],
+
+  // ── Flagship retainer: the premium "S-tier" offer (shown on pricing.html
+  // and demos.html). A deliberate high anchor — a recurring growth partnership
+  // that makes every one-time price below it read as an easy yes. Subscription
+  // Payment Link; empty checkoutUrl falls back to the free scan.
+  partnerPlan: {
+    key: "symbio-partner",
+    name: "Symbio Partner",
+    price: "$2,500",
+    cadence: "/mo",
+    minimum: "3-month minimum, then month-to-month",
+    blurb:
+      "A done-with-you growth partnership for ambitious businesses and nonprofits that want a senior team on call — not another vendor. Both founders, priority everything, and a website + AI system run as a living growth engine.",
+    compareAt: "$2,500-$5,000/mo at a premium agency",
+    features: [
+      "Direct line to both founders — private channel, same-day priority response",
+      "Quarterly strategy roadmap + monthly growth sprints (conversion, SEO, AI tuning) with a scorecard",
+      "Unlimited reasonable design & content edits, 48-hour turnaround — no per-ticket nickel-and-diming",
+      "Managed AI assistant + automations included (Pro widget, lead routing, follow-up sequences)",
+      "Full website care: hosting oversight, security, backups, uptime & performance tuning",
+      "First access to new builds (apps, dashboards, agents) at a 15% partner rate + a launch-day guarantee",
+    ],
+    checkoutUrl: "",
+    featured: true,
+  },
 
   footerCredit: "Built by Mohammed and Ravi.",
 };

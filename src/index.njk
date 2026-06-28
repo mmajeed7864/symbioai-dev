@@ -237,7 +237,8 @@ description: Symbio AI builds premium websites, redesigns, custom apps, dashboar
       <h2 class="section__title">Clear product lanes. Buy one by itself, or connect them later.</h2>
       <p class="section__lead">
         Start with a premium website, a redesign, a custom app, a dashboard, a chatbot, or an
-        AI agent. Each lane has its own price anchor, demo, and scope.
+        AI agent. Each lane has its own price anchor, demo, and scope — and every one is priced
+        well below typical agency rates.
       </p>
     </div>
 
@@ -247,6 +248,7 @@ description: Symbio AI builds premium websites, redesigns, custom apps, dashboar
           <div class="product-card__topline">
             <span class="eyebrow">{{ lane.eyebrow }}</span>
             <span class="product-card__price">Starts at {{ lane.startsAt }}</span>
+            {% if lane.compareAt %}<span class="product-card__compare">{{ lane.compareAt }}</span>{% endif %}
           </div>
           <h3 class="product-card__title">{{ lane.title }}</h3>
           <p class="product-card__text">{{ lane.summary }}</p>

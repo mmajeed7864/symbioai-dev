@@ -12,8 +12,9 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
     <span class="eyebrow eyebrow--center">Pricing</span>
     <h1 class="section__title">Honest pricing. A free scan first, a real number second.</h1>
     <p class="section__lead">
-      We do not quote blind. Website work starts at $1,000, and every other lane has a clear
-      starting point. The free scan tells us what is actually worth building first.
+      Agency-grade work at independent-studio prices. We do not quote blind — website work starts
+      at $1,500 (small agencies charge $5,000–$9,000 for the same thing), and every lane has a
+      clear starting point well below market. The free scan tells us what is worth building first.
     </p>
   </div>
 </section>
@@ -35,9 +36,25 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         <a class="price-anchor{% if lane.key == 'website' %} price-anchor--feature{% endif %}" href="{{ lane.demoUrl }}">
           <span class="price-anchor__label">{{ lane.shortTitle }}</span>
           <span class="price-anchor__amount">{{ lane.startsAt }}</span>
+          {% if lane.compareAt %}<span class="price-anchor__compare">{{ lane.compareAt }}</span>{% endif %}
           <span class="price-anchor__note">{{ lane.bestFor }}</span>
         </a>
       {% endfor %}
+    </div>
+
+    <div class="assurances" data-reveal>
+      <div class="assurance">
+        <strong>7-day website, or it's free</strong>
+        <span>Miss the deadline on a Website-in-7-days build and you don't pay.</span>
+      </div>
+      <div class="assurance">
+        <strong>Love the build in 14 days</strong>
+        <span>We keep iterating at no extra cost until it's right — no risk on the low price.</span>
+      </div>
+      <div class="assurance">
+        <strong>Only 4 new builds a month</strong>
+        <span>A two-founder studio means senior attention on every project, not a queue.</span>
+      </div>
     </div>
   </div>
 </section>
@@ -54,7 +71,8 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
     <div class="grid grid--3">
       <article class="price" data-reveal>
         <h2 class="price__name">Website start</h2>
-        <p class="price__amount">$1k+ <small>site or redesign</small></p>
+        <p class="price__amount">$1.5k+ <small>site or redesign</small></p>
+        <span class="price__compare"><s>Agencies: $5k–$9k</s> · you save thousands</span>
         <p class="price__desc">A focused website or redesign scope that makes the business look credible and easier to contact.</p>
         <ul class="price__features">
           <li>New website, landing page, or homepage rebuild</li>
@@ -70,7 +88,8 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
       <article class="price price--popular" data-reveal data-reveal-delay="1">
         <span class="price__flag">Most common</span>
         <h2 class="price__name">Growth website</h2>
-        <p class="price__amount">$2.5k-$6.5k</p>
+        <p class="price__amount">$2.5k-$5.5k</p>
+        <span class="price__compare"><s>Agencies: $9k+</s> · best value</span>
         <p class="price__desc">A polished multi-page website with booking, lead capture, proof, and basic follow-up connected.</p>
         <ul class="price__features">
           <li>Multi-page site or landing system</li>
@@ -86,7 +105,8 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
 
       <article class="price" data-reveal data-reveal-delay="2">
         <h2 class="price__name">Custom product</h2>
-        <p class="price__amount">$2k+ <small>quoted</small></p>
+        <p class="price__amount">$1.5k+ <small>quoted</small></p>
+        <span class="price__compare"><s>Agencies: $25k+</s> · apps, dashboards, AI</span>
         <p class="price__desc">Custom apps, dashboards, chatbots, AI agents, or a connected system built around your workflow.</p>
         <ul class="price__features">
           <li>Apps, portals, dashboards, or AI systems</li>
@@ -110,6 +130,38 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         <a href="buy.html">buy a fixed-price package</a> — no call required. After launch, keep it
         running with a <a href="care.html">care plan</a>.
       </p>
+    </div>
+  </div>
+</section>
+
+{# ===== Flagship: Symbio Partner (premium S-tier) ===================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">The flagship</span>
+      <h2 class="section__title">When you want a team, not a vendor</h2>
+      <p class="section__lead">
+        Most clients start with a one-time build. The ones who want to compound results put us on
+        retainer — a senior team running the whole growth engine for them.
+      </p>
+    </div>
+
+    <div class="partner-band" data-reveal>
+      <div class="partner-band__intro">
+        <span class="price__flag price__flag--static">Flagship · S-tier</span>
+        <h3 class="partner-band__title">{{ site.partnerPlan.name }}</h3>
+        <p class="partner-band__amount">{{ site.partnerPlan.price }}<small>{{ site.partnerPlan.cadence }}</small></p>
+        <p class="partner-band__compare">{{ site.partnerPlan.compareAt }}</p>
+        <p class="partner-band__blurb">{{ site.partnerPlan.blurb }}</p>
+        <p class="partner-band__min">{{ site.partnerPlan.minimum }}</p>
+        <div class="btn-row mt-6">
+          <a class="btn btn--light btn--lg" href="{% if site.partnerPlan.checkoutUrl %}{{ site.partnerPlan.checkoutUrl }}{% else %}{{ site.cta.url }}{% endif %}">Become a Partner</a>
+          <a class="btn btn--secondary btn--lg" href="{{ site.cta.url }}">Start with a free scan</a>
+        </div>
+      </div>
+      <ul class="partner-band__features">
+        {% for feature in site.partnerPlan.features %}<li>{{ feature }}</li>{% endfor %}
+      </ul>
     </div>
   </div>
 </section>
