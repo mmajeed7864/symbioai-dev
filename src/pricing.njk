@@ -82,6 +82,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         </ul>
         <div class="price__cta">
           <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
+          <a class="btn btn--secondary btn--block" href="{{ site.checkout.url }}">Open checkout</a>
         </div>
       </article>
 
@@ -99,7 +100,8 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
           <li>Two weeks of tuning after launch</li>
         </ul>
         <div class="price__cta">
-          <a class="btn btn--primary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
+          <a class="btn btn--primary btn--block" href="{{ site.checkout.url }}">Open checkout</a>
+          <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Start with a free scan</a>
         </div>
       </article>
 
@@ -117,6 +119,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         </ul>
         <div class="price__cta">
           <a class="btn btn--secondary btn--block" href="{{ site.cta.url }}">Book a scope call</a>
+          <a class="btn btn--secondary btn--block" href="{{ site.checkout.url }}">Open checkout</a>
         </div>
       </article>
     </div>
@@ -127,7 +130,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         Every number starts with a free scan. No pressure and no blind invoice. You will get a
         plain-English breakdown of the first build we recommend, the starting lane it belongs to,
         and what it costs before you decide anything. Already know what you need? You can
-        <a href="buy.html">buy a fixed-price package</a> — no call required. After launch, keep it
+        <a href="buy.html">buy a fixed-price package</a> or <a href="{{ site.checkout.url }}">open checkout</a> — no call required. After launch, keep it
         running with a <a href="care.html">care plan</a>.
       </p>
     </div>
@@ -155,7 +158,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         <p class="partner-band__blurb">{{ site.partnerPlan.blurb }}</p>
         <p class="partner-band__min">{{ site.partnerPlan.minimum }}</p>
         <div class="btn-row mt-6">
-          <a class="btn btn--light btn--lg" href="{% if site.partnerPlan.checkoutUrl %}{{ site.partnerPlan.checkoutUrl }}{% else %}{{ site.cta.url }}{% endif %}">Become a Partner</a>
+          <a class="btn btn--light btn--lg" href="{% if site.partnerPlan.checkoutUrl %}{{ site.partnerPlan.checkoutUrl }}{% else %}{{ site.checkout.url }}{% endif %}">Become a Partner</a>
           <a class="btn btn--secondary btn--lg" href="{{ site.cta.url }}">Start with a free scan</a>
         </div>
       </div>
@@ -177,6 +180,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
       </p>
       <div class="btn-row btn-row--center">
         <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+        <a class="btn btn--secondary btn--lg" href="{{ site.checkout.url }}">Open checkout</a>
         <a class="btn btn--secondary btn--lg" href="services.html">See what we build</a>
       </div>
     </div>

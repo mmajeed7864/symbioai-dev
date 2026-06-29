@@ -6,7 +6,10 @@
       {% include "brand.njk" %}
       <p class="site-footer__blurb">{{ site.tagline }}</p>
       <p class="site-footer__small">{{ site.poweredBy }}</p>
-      <a class="btn btn--primary" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+      <div class="site-footer__actions">
+        <a class="btn btn--primary" href="{{ site.cta.url }}">{{ site.cta.label }}</a>
+        <a class="btn btn--secondary" href="{{ site.checkout.url }}">{{ site.checkout.label }}</a>
+      </div>
     </div>
 
     <nav class="site-footer__col" aria-label="Footer explore">
@@ -16,6 +19,7 @@
           <li><a href="{{ item.url }}">{{ item.label }}</a></li>
         {% endfor %}
         <li><a href="{{ site.cta.url }}">{{ site.cta.label }}</a></li>
+        <li><a href="{{ site.checkout.url }}">{{ site.checkout.label }}</a></li>
       </ul>
     </nav>
 
@@ -25,6 +29,7 @@
         <li><a href="{{ site.links.demos }}">Product demos</a></li>
         <li><a href="{{ site.links.demo }}">Live chatbot demo</a></li>
         <li><a href="{{ site.links.portfolio }}">Example portfolio build</a></li>
+        <li><a href="{{ site.checkout.url }}">Deposits and payment</a></li>
       </ul>
     </nav>
 

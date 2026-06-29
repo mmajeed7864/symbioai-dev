@@ -1407,6 +1407,8 @@ a.card:focus-visible,
 }
 
 .price__cta {
+  display: grid;
+  gap: 0.65rem;
   margin-top: auto;
 }
 
@@ -1625,6 +1627,13 @@ a.card:focus-visible,
   max-width: 24rem;
   color: var(--c-text-muted);
   font-size: var(--fs-300);
+}
+
+.site-footer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
 }
 
 .site-footer__heading {

@@ -48,6 +48,7 @@ export default {
   ],
 
   cta: { key: "scan", label: "Get a free project scan", url: "scan.html" },
+  checkout: { key: "checkout", label: "Checkout", url: "checkout.html" },
 
   businessEmail: "symbioaiiii@gmail.com",
 

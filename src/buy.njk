@@ -43,11 +43,11 @@ description: Buy a fixed-price package — no call required. Website in 7 days, 
           <div class="price__cta">
             <a
               class="btn {% if pkg.featured %}btn--primary{% else %}btn--secondary{% endif %} btn--block"
-              href="{{ pkg.checkoutUrl if pkg.checkoutUrl else '#intake' }}"
+              href="{{ pkg.checkoutUrl if pkg.checkoutUrl else site.checkout.url }}"
               {% if pkg.checkoutUrl %}rel="noopener"{% endif %}
               data-buy-package="{{ pkg.name }}"
             >
-              {% if pkg.checkoutUrl %}Buy — {{ pkg.price }}{% else %}Start this package{% endif %}
+              {% if pkg.checkoutUrl %}Buy — {{ pkg.price }}{% else %}Start checkout{% endif %}
             </a>
           </div>
         </article>
@@ -186,6 +186,7 @@ description: Buy a fixed-price package — no call required. Website in 7 days, 
       </p>
       <div class="btn-row btn-row--center">
         <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="{{ site.checkout.url }}">Open checkout</a>
         <a class="btn btn--secondary btn--lg" href="pricing.html">See full pricing</a>
       </div>
     </div>

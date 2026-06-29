@@ -18,6 +18,14 @@
         {% endfor %}
         <li class="site-nav__item site-nav__item--cta">
           <a
+            class="btn btn--secondary btn--sm"
+            href="{{ site.checkout.url }}"
+            {% if site.checkout.key == pageKey %}aria-current="page"{% endif %}
+            >{{ site.checkout.label }}</a
+          >
+        </li>
+        <li class="site-nav__item site-nav__item--cta">
+          <a
             class="btn btn--primary btn--sm"
             href="{{ site.cta.url }}"
             {% if site.cta.key == pageKey %}aria-current="page"{% endif %}

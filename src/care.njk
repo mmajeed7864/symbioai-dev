@@ -81,7 +81,7 @@ description: Keep your site fast, secure, updated, and converting — managed we
           <div class="price__cta">
             <a
               class="btn {% if plan.featured %}btn--primary{% else %}btn--secondary{% endif %} btn--block"
-              href="{{ plan.checkoutUrl if plan.checkoutUrl else site.cta.url }}"
+              href="{{ plan.checkoutUrl if plan.checkoutUrl else site.checkout.url }}"
               {% if plan.checkoutUrl %}rel="noopener"{% endif %}
             >
               {% if plan.checkoutUrl %}Start {{ plan.name }} — {{ plan.price }}{{ plan.cadence }}{% else %}Get started{% endif %}
@@ -111,6 +111,7 @@ description: Keep your site fast, secure, updated, and converting — managed we
       </p>
       <div class="btn-row btn-row--center">
         <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
+        <a class="btn btn--secondary btn--lg" href="{{ site.checkout.url }}">Open checkout</a>
         <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
       </div>
     </div>
