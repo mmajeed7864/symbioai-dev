@@ -51,6 +51,12 @@ export default {
 
   businessEmail: "symbioaiiii@gmail.com",
 
+  payment: {
+    venmoHandle: "@symbioaii",
+    venmoUrl: "https://venmo.com/u/symbioaii",
+    venmoQr: "assets/img/symbio-venmo-qr.png",
+  },
+
   founders: [
     {
       name: "Mohammed H. Majeed",
