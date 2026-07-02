@@ -209,16 +209,21 @@ body.has-symbio-intro {
   transform: scale(1);
   clip-path: circle(150% at 50% 50%);
   transition:
-    opacity 760ms ease,
-    transform 980ms cubic-bezier(0.19, 1, 0.22, 1),
-    clip-path 1120ms cubic-bezier(0.19, 1, 0.22, 1);
+    opacity 640ms ease 360ms,
+    filter 840ms ease,
+    transform 1080ms cubic-bezier(0.16, 1, 0.3, 1),
+    clip-path 1180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.symbio-intro.is-exiting {
+  filter: saturate(1.26) brightness(1.12);
 }
 
 .symbio-intro.is-complete {
   opacity: 0;
   pointer-events: none;
-  transform: scale(1.08);
-  clip-path: circle(0% at 50% 50%);
+  transform: scale(1.18);
+  clip-path: circle(0% at 50% 42%);
 }
 
 .symbio-intro__canvas {
@@ -228,6 +233,24 @@ body.has-symbio-intro {
   height: 100%;
   display: block;
   pointer-events: none;
+  opacity: 0;
+  transform: scale(1.035);
+  filter: blur(8px) saturate(1.1);
+  transition:
+    opacity 920ms ease,
+    filter 1180ms ease,
+    transform 1300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.symbio-intro.is-stage-logo .symbio-intro__canvas {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0) saturate(1.08);
+}
+
+.symbio-intro.is-exiting .symbio-intro__canvas {
+  transform: scale(1.18);
+  filter: blur(1px) saturate(1.34);
 }
 
 .symbio-intro__grid,
@@ -238,15 +261,23 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__grid {
-  opacity: 0.42;
+  opacity: 0;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.075) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.075) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at 50% 45%, black 0, transparent 72%);
+  transform: scale(1.05);
+  transition: opacity 840ms ease 340ms, transform 1200ms cubic-bezier(0.16, 1, 0.3, 1) 340ms;
+}
+
+.symbio-intro.is-stage-brand .symbio-intro__grid {
+  opacity: 0.34;
+  transform: scale(1);
 }
 
 .symbio-intro__scan {
+  opacity: 0;
   background: linear-gradient(
     180deg,
     transparent 0%,
@@ -258,6 +289,11 @@ body.has-symbio-intro {
   background-size: 100% 240%;
   mix-blend-mode: screen;
   animation: symbioIntroScan 4.8s linear infinite;
+  transition: opacity 700ms ease 760ms;
+}
+
+.symbio-intro.is-stage-actions .symbio-intro__scan {
+  opacity: 1;
 }
 
 .symbio-intro__content {
@@ -282,7 +318,16 @@ body.has-symbio-intro {
     0 0 80px rgba(47, 107, 255, 0.24),
     inset 0 0 80px rgba(50, 232, 255, 0.06);
   filter: blur(0.2px);
-  transform: perspective(900px) rotateX(64deg) scale(1.18);
+  opacity: 0;
+  transform: perspective(900px) rotateX(64deg) scale(1.32) translateY(20px);
+  transition:
+    opacity 860ms ease 560ms,
+    transform 1180ms cubic-bezier(0.16, 1, 0.3, 1) 560ms;
+}
+
+.symbio-intro.is-stage-brand .symbio-intro__content::before {
+  opacity: 1;
+  transform: perspective(900px) rotateX(64deg) scale(1.18) translateY(0);
 }
 
 .symbio-intro__mark-shell {
@@ -301,10 +346,10 @@ body.has-symbio-intro {
     inset 0 0 34px rgba(122, 76, 255, 0.26);
   transform: translateY(10px) scale(0.82);
   opacity: 0;
-  transition: opacity 800ms ease, transform 900ms cubic-bezier(0.19, 1, 0.22, 1);
+  transition: opacity 800ms ease, transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.symbio-intro.is-ready .symbio-intro__mark-shell {
+.symbio-intro.is-stage-logo .symbio-intro__mark-shell {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
@@ -341,7 +386,7 @@ body.has-symbio-intro {
   color: rgba(255, 255, 255, 0.72);
   transform: translateY(16px);
   opacity: 0;
-  transition: opacity 740ms ease 220ms, transform 740ms ease 220ms;
+  transition: opacity 740ms ease, transform 740ms ease;
 }
 
 .symbio-intro__title {
@@ -356,7 +401,7 @@ body.has-symbio-intro {
     0 0 42px rgba(47, 107, 255, 0.34);
   transform: translateY(18px) scale(0.95);
   opacity: 0;
-  transition: opacity 900ms ease 360ms, transform 900ms cubic-bezier(0.19, 1, 0.22, 1) 360ms;
+  transition: opacity 900ms ease 100ms, transform 900ms cubic-bezier(0.16, 1, 0.3, 1) 100ms;
 }
 
 .symbio-intro__title span {
@@ -375,12 +420,12 @@ body.has-symbio-intro {
   color: rgba(255, 255, 255, 0.78);
   transform: translateY(18px);
   opacity: 0;
-  transition: opacity 820ms ease 520ms, transform 820ms ease 520ms;
+  transition: opacity 820ms ease 260ms, transform 820ms ease 260ms;
 }
 
-.symbio-intro.is-ready .symbio-intro__kicker,
-.symbio-intro.is-ready .symbio-intro__title,
-.symbio-intro.is-ready .symbio-intro__line {
+.symbio-intro.is-stage-brand .symbio-intro__kicker,
+.symbio-intro.is-stage-brand .symbio-intro__title,
+.symbio-intro.is-stage-brand .symbio-intro__line {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
@@ -393,10 +438,10 @@ body.has-symbio-intro {
   margin-top: 1.85rem;
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 720ms ease 760ms, transform 720ms ease 760ms;
+  transition: opacity 720ms ease, transform 720ms ease;
 }
 
-.symbio-intro.is-ready .symbio-intro__actions {
+.symbio-intro.is-stage-actions .symbio-intro__actions {
   opacity: 1;
   transform: translateY(0);
 }
@@ -426,9 +471,16 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__skip {
-  color: rgba(255, 255, 255, 0.78);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 8.9rem;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.symbio-intro__skip:hover,
+.symbio-intro__skip:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.11);
 }
 
 .symbio-intro__enter:hover,
@@ -455,6 +507,13 @@ body.has-symbio-intro {
   gap: 0.5rem;
   width: min(92vw, 42rem);
   transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 650ms ease 1080ms, transform 650ms ease 1080ms;
+}
+
+.symbio-intro.is-stage-actions .symbio-intro__status {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .symbio-intro__status span {
@@ -474,6 +533,7 @@ body.has-symbio-intro {
   from {
     background-position: 0 -120%;
   }
+
   to {
     background-position: 0 120%;
   }
@@ -486,6 +546,7 @@ body.has-symbio-intro {
       0 18px 48px rgba(47, 107, 255, 0.42),
       0 0 34px rgba(50, 232, 255, 0.24);
   }
+
   50% {
     box-shadow:
       0 22px 60px rgba(122, 76, 255, 0.5),
@@ -497,6 +558,7 @@ body.has-symbio-intro {
   from {
     transform: rotate(0deg) scaleX(1.28) rotateX(58deg);
   }
+
   to {
     transform: rotate(360deg) scaleX(1.28) rotateX(58deg);
   }
@@ -578,10 +640,10 @@ body.has-symbio-intro {
     transition-duration: 180ms;
   }
 
-  .symbio-intro.is-ready .symbio-intro__kicker,
-  .symbio-intro.is-ready .symbio-intro__title,
-  .symbio-intro.is-ready .symbio-intro__line,
-  .symbio-intro.is-ready .symbio-intro__actions {
+  .symbio-intro.is-stage-brand .symbio-intro__kicker,
+  .symbio-intro.is-stage-brand .symbio-intro__title,
+  .symbio-intro.is-stage-brand .symbio-intro__line,
+  .symbio-intro.is-stage-actions .symbio-intro__actions {
     opacity: 1;
     transform: translateY(0) scale(1);
   }

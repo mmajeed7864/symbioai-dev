@@ -15,36 +15,91 @@
   let logoGroup = null;
   let stageGroup = null;
   let field = null;
-  let bars = [];
+  const bars = [];
+  let lightTrails = [];
+  const trailPulses = [];
   let depthPanels = [];
   let targetX = 0;
   let targetY = 0;
   let pointerEnergy = 0;
+  let animationLoop = null;
+  let disposed = false;
+  const stageTimers = [];
 
   root.classList.add("has-symbio-intro");
   body.classList.add("has-symbio-intro");
 
+  const stopRenderLoop = () => {
+    if (renderer) renderer.setAnimationLoop(null);
+  };
+
+  const disposeMaterial = (material) => {
+    if (!material) return;
+    if (Array.isArray(material)) {
+      material.forEach(disposeMaterial);
+      return;
+    }
+    Object.values(material).forEach((value) => {
+      if (value && typeof value.dispose === "function") value.dispose();
+    });
+    if (typeof material.dispose === "function") material.dispose();
+  };
+
+  const disposeScene = () => {
+    if (disposed) return;
+    disposed = true;
+    stopRenderLoop();
+    if (scene) {
+      scene.traverse((object) => {
+        if (object.geometry && typeof object.geometry.dispose === "function") object.geometry.dispose();
+        disposeMaterial(object.material);
+      });
+    }
+    if (renderer && typeof renderer.dispose === "function") renderer.dispose();
+  };
+
   const finishIntro = () => {
     if (finished) return;
     finished = true;
-    intro.classList.add("is-complete");
+    pointerEnergy = 1;
+    stageTimers.forEach((timer) => window.clearTimeout(timer));
+    intro.classList.add("is-exiting");
+
+    window.setTimeout(() => {
+      intro.classList.add("is-complete");
+    }, 260);
+
     window.setTimeout(() => {
       intro.setAttribute("hidden", "");
       root.classList.remove("has-symbio-intro");
       body.classList.remove("has-symbio-intro");
-      if (renderer) renderer.setAnimationLoop(null);
-    }, 1180);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      disposeScene();
+    }, 1250);
   };
 
   enter?.addEventListener("click", finishIntro);
   skip?.addEventListener("click", finishIntro);
 
   const armIntro = () => {
-    intro.classList.add("is-ready");
+    if (finished) return;
+    intro.classList.add("is-stage-logo");
+    stageTimers.push(
+      window.setTimeout(() => {
+        if (!finished) intro.classList.add("is-stage-brand");
+      }, 420)
+    );
+    stageTimers.push(
+      window.setTimeout(() => {
+        if (!finished) intro.classList.add("is-stage-actions", "is-ready");
+      }, 940)
+    );
   };
 
   const fallback = () => {
     canvas.setAttribute("data-fallback", "true");
+    intro.classList.add("is-fallback");
     window.__symbioIntroStats = { mode: "fallback", rendered: true };
     armIntro();
   };
@@ -213,6 +268,59 @@
       return group;
     });
 
+    const trailSpecs = [
+      { color: 0x32e8ff, y: 1.88, z: -0.45, delay: 0, side: -1 },
+      { color: 0x7a4cff, y: 1.15, z: -0.72, delay: 0.24, side: 1 },
+      { color: 0x2f6bff, y: -1.32, z: -0.55, delay: 0.48, side: -1 },
+      { color: 0x4ff4ff, y: -1.82, z: -0.42, delay: 0.72, side: 1 },
+      { color: 0x8d6bff, y: 0.26, z: -1.02, delay: 0.92, side: -1 },
+    ];
+
+    lightTrails = trailSpecs.map((spec, index) => {
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(spec.side * 4.25, spec.y + spec.side * 0.24, spec.z - 0.45),
+        new THREE.Vector3(spec.side * 2.08, spec.y + Math.sin(index) * 0.4, spec.z + 0.2),
+        new THREE.Vector3(spec.side * 0.68, spec.y * 0.38, spec.z + 0.54),
+        new THREE.Vector3(0, spec.y * 0.08, 0.52),
+      ]);
+      const material = new THREE.MeshBasicMaterial({
+        color: spec.color,
+        transparent: true,
+        opacity: 0.16,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 90, 0.012, 8, false), material);
+      mesh.userData = {
+        baseOpacity: 0.16,
+        delay: spec.delay,
+        speed: 0.34 + index * 0.035,
+      };
+      stageGroup.add(mesh);
+
+      for (let i = 0; i < 2; i += 1) {
+        const pulse = new THREE.Mesh(
+          new THREE.SphereGeometry(0.045 + i * 0.01, 16, 16),
+          new THREE.MeshBasicMaterial({
+            color: spec.color,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          })
+        );
+        pulse.userData = {
+          curve,
+          offset: (spec.delay + i * 0.44) % 1,
+          speed: 0.12 + index * 0.008,
+        };
+        trailPulses.push(pulse);
+        stageGroup.add(pulse);
+      }
+
+      return mesh;
+    });
+
     logoGroup = new THREE.Group();
     logoGroup.rotation.z = -0.12;
     logoGroup.position.z = 0.36;
@@ -263,7 +371,8 @@
       logoGroup.add(ring);
     }
 
-    const particleCount = 520;
+    const mobileInitial = window.innerWidth < 700;
+    const particleCount = mobileInitial ? 220 : 360;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const color = new THREE.Color();
@@ -285,10 +394,10 @@
     field = new THREE.Points(
       particleGeometry,
       new THREE.PointsMaterial({
-        size: 0.028,
+        size: mobileInitial ? 0.033 : 0.026,
         vertexColors: true,
         transparent: true,
-        opacity: 0.86,
+        opacity: 0.68,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       })
@@ -317,12 +426,17 @@
 
   const animate = (THREE) => {
     const clock = new THREE.Clock();
-    renderer.setAnimationLoop(() => {
+    animationLoop = () => {
+      if (finished || disposed) return;
       const elapsed = clock.getElapsedTime();
       if (logoGroup) {
         logoGroup.rotation.y += (targetX * 0.38 - logoGroup.rotation.y) * 0.045;
         logoGroup.rotation.x += (targetY * 0.22 - logoGroup.rotation.x) * 0.045;
         logoGroup.rotation.z = -0.12 + Math.sin(elapsed * 0.55) * 0.035 + pointerEnergy * 0.03;
+        const exitLift = intro.classList.contains("is-exiting") ? 0.028 : 0;
+        logoGroup.scale.x += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.x) * 0.02;
+        logoGroup.scale.y += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.y) * 0.02;
+        logoGroup.scale.z += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.z) * 0.02;
         logoGroup.children.forEach((child) => {
           if (child.geometry && child.geometry.type === "TorusGeometry") {
             child.rotation.z += child.userData.speed * 0.006;
@@ -341,6 +455,17 @@
         field.rotation.y = elapsed * 0.035;
         field.rotation.x = Math.sin(elapsed * 0.18) * 0.08;
       }
+      lightTrails.forEach((trail, index) => {
+        const pulse = (Math.sin(elapsed * 2.25 + trail.userData.delay * 8) + 1) / 2;
+        trail.material.opacity = trail.userData.baseOpacity + pulse * (index % 2 ? 0.17 : 0.12);
+      });
+      trailPulses.forEach((pulse) => {
+        const progress = (elapsed * pulse.userData.speed + pulse.userData.offset) % 1;
+        pulse.position.copy(pulse.userData.curve.getPointAt(progress));
+        const scale = 0.72 + Math.sin(progress * Math.PI) * 1.15;
+        pulse.scale.setScalar(scale);
+        pulse.material.opacity = 0.18 + Math.sin(progress * Math.PI) * 0.78;
+      });
       bars.forEach((bar) => {
         const pulse = (Math.sin(elapsed * 4.2 + bar.userData.offset) + 1) / 2;
         bar.material.opacity = 0.2 + pulse * 0.58;
@@ -354,7 +479,17 @@
         height: canvas.height,
         objects: scene.children.length,
       };
-    });
+    };
+    renderer.setAnimationLoop(animationLoop);
+  };
+
+  const handleVisibility = () => {
+    if (!renderer || !animationLoop || finished || disposed) return;
+    if (document.hidden) {
+      stopRenderLoop();
+    } else {
+      renderer.setAnimationLoop(animationLoop);
+    }
   };
 
   const bindPointer = () => {
@@ -385,6 +520,26 @@
       resize();
       bindPointer();
       window.addEventListener("resize", resize);
+      document.addEventListener("visibilitychange", handleVisibility);
+      canvas.addEventListener(
+        "webglcontextlost",
+        (event) => {
+          event.preventDefault();
+          stopRenderLoop();
+          intro.classList.add("is-fallback");
+        },
+        false
+      );
+      canvas.addEventListener(
+        "webglcontextrestored",
+        () => {
+          if (!finished && animationLoop) {
+            intro.classList.remove("is-fallback");
+            renderer.setAnimationLoop(animationLoop);
+          }
+        },
+        false
+      );
       animate(THREE);
       window.setTimeout(armIntro, 180);
     } catch (error) {
