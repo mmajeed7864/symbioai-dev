@@ -115,6 +115,11 @@
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="stylesheet" href="assets/css/symbio-extra.css" />
     <script src="assets/js/main.js" defer></script>
+    {% if extraScripts %}
+      {% for script in extraScripts %}
+        <script src="{{ script.src }}" {% if script.type %}type="{{ script.type }}"{% endif %}{% if script.defer %} defer{% endif %}></script>
+      {% endfor %}
+    {% endif %}
   </head>
   <body class="page page--{{ pageKey or 'default' }}">
     <a class="skip-link" href="#main">Skip to content</a>
