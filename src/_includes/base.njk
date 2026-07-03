@@ -112,8 +112,8 @@
     {# Worker base URL for fire-and-forget lead notifications (Telegram). #}
     <script>window.__symbioScanApi = {{ site.scanApi | dump | safe }};</script>
 
-    <link rel="stylesheet" href="assets/css/styles.css" />
-    <link rel="stylesheet" href="assets/css/symbio-extra.css" />
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260703-perf2" />
+    <link rel="stylesheet" href="assets/css/symbio-extra.css?v=20260703-perf2" />
     <script src="assets/js/main.js" defer></script>
     {% if extraScripts %}
       {% for script in extraScripts %}
@@ -159,6 +159,25 @@
           "Hey, this is Symbio AI. Send your website, app idea, dashboard need, or workflow problem, and we will point you toward the right next step.",
       };
     </script>
-    <script src="assets/js/symbio-widget.js" defer></script>
+    <script>
+      (function () {
+        function loadSymbioWidget() {
+          if (window.SymbioWidget || document.querySelector("script[data-symbio-widget-loader]")) return;
+          var script = document.createElement("script");
+          script.src = "assets/js/symbio-widget.js";
+          script.defer = true;
+          script.setAttribute("data-symbio-widget-loader", "true");
+          document.body.appendChild(script);
+        }
+
+        window.addEventListener("load", function () {
+          if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(loadSymbioWidget, { timeout: 1800 });
+          } else {
+            window.setTimeout(loadSymbioWidget, 900);
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
