@@ -215,10 +215,6 @@ body.has-symbio-intro {
     clip-path 1180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.symbio-intro[hidden] {
-  display: none !important;
-}
-
 .symbio-intro.is-exiting {
   filter: saturate(1.26) brightness(1.12);
 }

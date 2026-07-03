@@ -8,11 +8,6 @@
   const enter = intro.querySelector("[data-symbio-enter]");
   const skip = intro.querySelector("[data-symbio-skip]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const compactMotion = window.matchMedia("(max-width: 760px)").matches;
-  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const saveData = Boolean(navigator.connection?.saveData);
-  const lowPowerDevice =
-    saveData || (Number.isFinite(navigator.hardwareConcurrency) && navigator.hardwareConcurrency <= 4);
   let finished = false;
   let renderer = null;
   let scene = null;
@@ -122,23 +117,10 @@
     }
   };
 
-  const quality = {
-    strandSteps: compactMotion || lowPowerDevice ? 96 : 150,
-    strandTubeSegments: compactMotion || lowPowerDevice ? 126 : 190,
-    strandRadialSegments: compactMotion || lowPowerDevice ? 8 : 10,
-    platformSegments: compactMotion || lowPowerDevice ? 72 : 108,
-    ringSegments: compactMotion || lowPowerDevice ? 112 : 160,
-    trailSegments: compactMotion || lowPowerDevice ? 54 : 78,
-    sphereSegments: compactMotion || lowPowerDevice ? 10 : 14,
-    particleCount: compactMotion || lowPowerDevice ? 110 : 280,
-    pixelRatio: compactMotion || lowPowerDevice ? 1.08 : 1.45,
-    antialias: !(compactMotion || lowPowerDevice),
-  };
-
   const makeCylinder = (THREE, start, end, radius, material) => {
     const direction = new THREE.Vector3().subVectors(end, start);
     const length = direction.length();
-    const geometry = new THREE.CylinderGeometry(radius, radius, length, quality.strandRadialSegments, 1, true);
+    const geometry = new THREE.CylinderGeometry(radius, radius, length, 10, 1, true);
     const mesh = new THREE.Mesh(geometry, material.clone());
     mesh.position.copy(start).add(end).multiplyScalar(0.5);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
@@ -147,7 +129,7 @@
 
   const makeStrand = (THREE, phase, primary, secondary) => {
     const points = [];
-    const steps = quality.strandSteps;
+    const steps = 170;
     for (let i = 0; i <= steps; i += 1) {
       const t = i / steps;
       const angle = t * Math.PI * 4.35 + phase;
@@ -163,13 +145,7 @@
     }
 
     const curve = new THREE.CatmullRomCurve3(points);
-    const geometry = new THREE.TubeGeometry(
-      curve,
-      quality.strandTubeSegments,
-      compactMotion ? 0.034 : 0.038,
-      quality.strandRadialSegments,
-      false
-    );
+    const geometry = new THREE.TubeGeometry(curve, 230, 0.038, 12, false);
     const material = new THREE.MeshPhysicalMaterial({
       color: primary,
       emissive: secondary,
@@ -191,11 +167,11 @@
     renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: true,
-      antialias: quality.antialias,
+      antialias: true,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: false,
+      preserveDrawingBuffer: true,
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, quality.pixelRatio));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.8));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     scene.add(new THREE.AmbientLight(0x86baff, 0.9));
@@ -229,7 +205,7 @@
     });
 
     const platform = new THREE.Mesh(
-      new THREE.CylinderGeometry(3.1, 3.55, 0.08, quality.platformSegments, 1, true),
+      new THREE.CylinderGeometry(3.1, 3.55, 0.08, 128, 1, true),
       glassMaterial.clone()
     );
     platform.position.set(0, -2.55, 0.1);
@@ -237,7 +213,7 @@
     stageGroup.add(platform);
 
     const platformRing = new THREE.Mesh(
-      new THREE.TorusGeometry(3.18, 0.014, 8, quality.ringSegments),
+      new THREE.TorusGeometry(3.18, 0.014, 8, 220),
       new THREE.MeshBasicMaterial({
         color: 0x36eaff,
         transparent: true,
@@ -314,10 +290,7 @@
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       });
-      const mesh = new THREE.Mesh(
-        new THREE.TubeGeometry(curve, quality.trailSegments, 0.012, 6, false),
-        material
-      );
+      const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 90, 0.012, 8, false), material);
       mesh.userData = {
         baseOpacity: 0.16,
         delay: spec.delay,
@@ -327,7 +300,7 @@
 
       for (let i = 0; i < 2; i += 1) {
         const pulse = new THREE.Mesh(
-          new THREE.SphereGeometry(0.045 + i * 0.01, quality.sphereSegments, quality.sphereSegments),
+          new THREE.SphereGeometry(0.045 + i * 0.01, 16, 16),
           new THREE.MeshBasicMaterial({
             color: spec.color,
             transparent: true,
@@ -391,10 +364,7 @@
       blending: THREE.AdditiveBlending,
     });
     for (let i = 0; i < 4; i += 1) {
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(2.05 + i * 0.38, 0.008, 8, quality.ringSegments),
-        ringMaterial.clone()
-      );
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.05 + i * 0.38, 0.008, 8, 160), ringMaterial.clone());
       ring.rotation.x = Math.PI / 2 + i * 0.21;
       ring.rotation.y = i * 0.62;
       ring.userData.speed = 0.16 + i * 0.04;
@@ -402,7 +372,7 @@
     }
 
     const mobileInitial = window.innerWidth < 700;
-    const particleCount = quality.particleCount;
+    const particleCount = mobileInitial ? 220 : 360;
     const positions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);
     const color = new THREE.Color();
@@ -424,7 +394,7 @@
     field = new THREE.Points(
       particleGeometry,
       new THREE.PointsMaterial({
-        size: mobileInitial ? 0.035 : 0.026,
+        size: mobileInitial ? 0.033 : 0.026,
         vertexColors: true,
         transparent: true,
         opacity: 0.68,
@@ -523,15 +493,6 @@
   };
 
   const bindPointer = () => {
-    if (!finePointer) {
-      intro.addEventListener("pointerdown", () => {
-        pointerEnergy = 1;
-        intro.classList.add("is-pulsing");
-        window.setTimeout(() => intro.classList.remove("is-pulsing"), 300);
-      });
-      return;
-    }
-
     intro.addEventListener("pointermove", (event) => {
       const rect = intro.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - 0.5;
