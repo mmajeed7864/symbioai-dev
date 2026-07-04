@@ -27,6 +27,24 @@ function parseRecipients(value) {
     .filter(Boolean);
 }
 
+const REQUIRED_FREE_SCAN_RECIPIENTS = [
+  "freescan@symbioai.dev",
+  "mohammed@symbioai.dev",
+  "ravi@symbioai.dev",
+];
+
+function freeScanRecipients(value) {
+  const recipients = [];
+  const seen = new Set();
+  for (const email of [...parseRecipients(value), ...REQUIRED_FREE_SCAN_RECIPIENTS]) {
+    const key = email.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    recipients.push(email);
+  }
+  return recipients;
+}
+
 function compact(value, limit = 1200) {
   return String(value || "")
     .replace(/\s+/g, " ")
@@ -208,7 +226,7 @@ function smtpConfig() {
     process.env.OLYMPUS_EMAIL_FROM ||
     process.env.ALERT_EMAIL_FROM ||
     (user ? `Symbio AI <${user}>` : "");
-  const to = parseRecipients(process.env.ALERT_EMAIL_TO || "freescan@symbioai.dev");
+  const to = freeScanRecipients(process.env.ALERT_EMAIL_TO);
   return { host, port, user, pass, from, to };
 }
 
@@ -258,7 +276,7 @@ async function sendSmtpEmail(payload) {
 async function sendResendEmail(payload) {
   const apiKey = process.env.RESEND_API_KEY || "";
   const from = process.env.ALERT_EMAIL_FROM || "Symbio AI <freescan@symbioai.dev>";
-  const to = parseRecipients(process.env.ALERT_EMAIL_TO || "freescan@symbioai.dev");
+  const to = freeScanRecipients(process.env.ALERT_EMAIL_TO);
   if (!apiKey || !to.length) {
     return { configured: false, ok: false, detail: "Resend email is not configured." };
   }

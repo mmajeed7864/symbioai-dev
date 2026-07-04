@@ -207,7 +207,7 @@ On submit, the form POSTs JSON to:
 | Host                       | Endpoint                                                                  |
 | -------------------------- | ------------------------------------------------------------------------- |
 | `localhost` / `127.0.0.1`  | `http://127.0.0.1:8878/api/free-scan`                                     |
-| anything else (production) | `https://instances-sie-book-appointments.trycloudflare.com/api/free-scan` |
+| anything else (production) | `/api/free-scan` on `https://www.symbioai.dev`                            |
 
 **Body** (JSON):
 
@@ -228,7 +228,7 @@ On submit, the form POSTs JSON to:
 
 **Success** = HTTP `200` **and** a body of `{"ok": true}`. On any other response, a network
 error, or a CORS failure, the form falls back to a pre-filled **mailto** to
-`freescan@symbioai.dev`.
+`freescan@symbioai.dev` and CCs `mohammed@symbioai.dev,ravi@symbioai.dev`.
 
 ### 2. Widget lead delivery — `leadEndpoint` (optional)
 

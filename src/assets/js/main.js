@@ -366,7 +366,7 @@
     "sourceUrl",
   ];
   const LEAD_EMAIL = "freescan@symbioai.dev";
-  const LEAD_EMAIL_CC = "";
+  const LEAD_EMAIL_CC = "mohammed@symbioai.dev,ravi@symbioai.dev";
   const PERMANENT_SCAN_ENDPOINT = "/api/free-scan";
 
   function scanEndpoints() {

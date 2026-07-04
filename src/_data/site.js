@@ -74,7 +74,7 @@ export default {
   ],
 
   leadEmail: "freescan@symbioai.dev",
-  leadEmailCc: "",
+  leadEmailCc: "mohammed@symbioai.dev,ravi@symbioai.dev",
   // Emergency bridge while the permanent Cloudflare Worker route is being deployed.
   // The JS default is the permanent endpoint: https://api.symbioai.dev/api/free-scan
   freeScanEndpoint: "/api/free-scan",
