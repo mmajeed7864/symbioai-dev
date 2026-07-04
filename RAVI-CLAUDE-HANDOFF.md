@@ -17,7 +17,7 @@ npx @11ty/eleventy --serve --port 8895
 - Built output is generated into `dist/`; do not edit `dist/` directly.
 - Keep the site customer-facing: premium websites, redesigns, apps, dashboards, chatbots, and AI agents.
 - Keep copy human and direct. Avoid fake testimonials, personal GitHub links, private files, and em dashes.
-- Public email: symbioaiiii@gmail.com.
+- Public email: contact@symbioai.dev.
 
 ## Important guardrails
 

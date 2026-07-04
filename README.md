@@ -228,7 +228,7 @@ On submit, the form POSTs JSON to:
 
 **Success** = HTTP `200` **and** a body of `{"ok": true}`. On any other response, a network
 error, or a CORS failure, the form falls back to a pre-filled **mailto** to
-`symbioaiiii@gmail.com`.
+`freescan@symbioai.dev`.
 
 ### 2. Widget lead delivery — `leadEndpoint` (optional)
 
@@ -273,7 +273,7 @@ HTML in `dist/`.
 
 ## Contacts
 
-- **Symbio AI** — business inbox — symbioaiiii@gmail.com
+- **Symbio AI** — business inbox — contact@symbioai.dev
 - **Mohammed H. Majeed** — founder & lead builder — 510-585-7136
 - **Ravi** — build partner
 - Technical portfolio / GitHub: https://mmajeed7864.github.io/

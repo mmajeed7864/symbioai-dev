@@ -258,7 +258,7 @@ async function sendSmtpEmail(payload) {
 async function sendResendEmail(payload) {
   const apiKey = process.env.RESEND_API_KEY || "";
   const from = process.env.ALERT_EMAIL_FROM || "Symbio AI <freescan@symbioai.dev>";
-  const to = parseRecipients(process.env.ALERT_EMAIL_TO || "symbioaiiii@gmail.com");
+  const to = parseRecipients(process.env.ALERT_EMAIL_TO || "freescan@symbioai.dev");
   if (!apiKey || !to.length) {
     return { configured: false, ok: false, detail: "Resend email is not configured." };
   }

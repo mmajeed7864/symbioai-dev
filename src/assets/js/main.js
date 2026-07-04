@@ -365,7 +365,7 @@
     "problem",
     "sourceUrl",
   ];
-  const LEAD_EMAIL = "symbioaiiii@gmail.com";
+  const LEAD_EMAIL = "freescan@symbioai.dev";
   const LEAD_EMAIL_CC = "";
   const PERMANENT_SCAN_ENDPOINT = "/api/free-scan";
 
@@ -1209,7 +1209,7 @@
       const body = encodeURIComponent(
         `Hi Symbio AI,\n\nI want to start a secure checkout for: ${offerTitle}\n\nMy business name:\nMy website or social link:\nBest phone number:\n`
       );
-      return `mailto:symbioaiiii@gmail.com?subject=${subject}&body=${body}`;
+      return `mailto:contact@symbioai.dev?subject=${subject}&body=${body}`;
     }
 
     offers.forEach((offer) => {

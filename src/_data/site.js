@@ -50,7 +50,7 @@ export default {
   cta: { key: "scan", label: "Get a free project scan", url: "scan.html" },
   checkout: { key: "checkout", label: "Checkout", url: "checkout.html" },
 
-  businessEmail: "symbioaiiii@gmail.com",
+  businessEmail: "contact@symbioai.dev",
 
   payment: {
     venmoHandle: "@symbioaii",
@@ -62,18 +62,18 @@ export default {
     {
       name: "Mohammed H. Majeed",
       role: "Founder and lead builder",
-      email: "symbioaiiii@gmail.com",
+      email: "contact@symbioai.dev",
       phone: "510-585-7136",
     },
     {
       name: "Ravi Kumar",
       role: "Founder and lead builder",
-      email: "symbioaiiii@gmail.com",
+      email: "contact@symbioai.dev",
       phone: "925-597-8128",
     },
   ],
 
-  leadEmail: "symbioaiiii@gmail.com",
+  leadEmail: "freescan@symbioai.dev",
   leadEmailCc: "",
   // Emergency bridge while the permanent Cloudflare Worker route is being deployed.
   // The JS default is the permanent endpoint: https://api.symbioai.dev/api/free-scan
