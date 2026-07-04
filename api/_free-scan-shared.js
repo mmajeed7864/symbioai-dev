@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "crypto";
+import nodemailer from "nodemailer";
 
 const ALLOWED_ORIGINS = new Set([
   "https://symbioai.dev",
@@ -197,7 +198,64 @@ function scanText(payload) {
   ].join("\n");
 }
 
-async function sendEmail(payload) {
+function smtpConfig() {
+  const host = process.env.SMTP_HOST || process.env.OLYMPUS_SMTP_HOST || "";
+  const port = Number(process.env.SMTP_PORT || process.env.OLYMPUS_SMTP_PORT || 587);
+  const user = process.env.SMTP_USER || process.env.OLYMPUS_SMTP_USER || "";
+  const pass = process.env.SMTP_PASSWORD || process.env.OLYMPUS_SMTP_PASSWORD || "";
+  const from =
+    process.env.SMTP_FROM ||
+    process.env.OLYMPUS_EMAIL_FROM ||
+    process.env.ALERT_EMAIL_FROM ||
+    (user ? `Symbio AI <${user}>` : "");
+  const to = parseRecipients(process.env.ALERT_EMAIL_TO || "freescan@symbioai.dev");
+  return { host, port, user, pass, from, to };
+}
+
+async function sendSmtpEmail(payload) {
+  const config = smtpConfig();
+  if (!config.host || !config.user || !config.pass || !config.from || !config.to.length) {
+    return { configured: false, ok: false, provider: "smtp", detail: "SMTP email is not configured." };
+  }
+  try {
+    const transporter = nodemailer.createTransport({
+      host: config.host,
+      port: config.port,
+      secure: config.port === 465,
+      auth: {
+        user: config.user,
+        pass: config.pass,
+      },
+      requireTLS: config.port !== 465,
+    });
+    const info = await transporter.sendMail({
+      from: config.from,
+      to: config.to,
+      subject: `New free scan: ${payload.business || payload.name || "Symbio lead"}`,
+      text: scanText(payload),
+    });
+    return {
+      configured: true,
+      ok: true,
+      provider: "smtp",
+      status: 202,
+      detail: {
+        messageId: info.messageId,
+        accepted: Array.isArray(info.accepted) ? info.accepted.length : 0,
+      },
+    };
+  } catch (error) {
+    return {
+      configured: true,
+      ok: false,
+      provider: "smtp",
+      status: 500,
+      detail: { error: error?.message || String(error) },
+    };
+  }
+}
+
+async function sendResendEmail(payload) {
   const apiKey = process.env.RESEND_API_KEY || "";
   const from = process.env.ALERT_EMAIL_FROM || "Symbio AI <freescan@symbioai.dev>";
   const to = parseRecipients(process.env.ALERT_EMAIL_TO || "symbioaiiii@gmail.com");
@@ -218,7 +276,15 @@ async function sendEmail(payload) {
     }),
   });
   const data = await response.json().catch(() => null);
-  return { configured: true, ok: response.ok, status: response.status, detail: data };
+  return { configured: true, ok: response.ok, provider: "resend", status: response.status, detail: data };
+}
+
+async function sendEmail(payload) {
+  const smtp = smtpConfig();
+  if (smtp.host || smtp.user || smtp.pass) {
+    return sendSmtpEmail(payload);
+  }
+  return sendResendEmail(payload);
 }
 
 async function sendSms(payload) {
