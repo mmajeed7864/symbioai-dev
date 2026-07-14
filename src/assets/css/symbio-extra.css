@@ -268,7 +268,9 @@ body.has-symbio-intro {
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at 50% 45%, black 0, transparent 72%);
   transform: scale(1.05);
-  transition: opacity 840ms ease 340ms, transform 1200ms cubic-bezier(0.16, 1, 0.3, 1) 340ms;
+  transition:
+    opacity 840ms ease 340ms,
+    transform 1200ms cubic-bezier(0.16, 1, 0.3, 1) 340ms;
 }
 
 .symbio-intro.is-stage-brand .symbio-intro__grid {
@@ -297,32 +299,20 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__content {
-  position: relative;
+  position: absolute;
+  left: max(2rem, 5vw);
+  bottom: clamp(4.5rem, 9vh, 7.5rem);
   z-index: 2;
-  width: min(92vw, 860px);
+  width: min(42vw, 40rem);
   display: grid;
-  justify-items: center;
-  text-align: center;
-  padding: 2rem;
+  justify-items: start;
+  text-align: left;
+  padding: 0;
   isolation: isolate;
 }
 
 .symbio-intro__content::before {
-  content: "";
-  position: absolute;
-  inset: 8% 12%;
-  z-index: -1;
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
-  box-shadow:
-    0 0 80px rgba(47, 107, 255, 0.24),
-    inset 0 0 80px rgba(50, 232, 255, 0.06);
-  filter: blur(0.2px);
-  opacity: 0;
-  transform: perspective(900px) rotateX(64deg) scale(1.32) translateY(20px);
-  transition:
-    opacity 860ms ease 560ms,
-    transform 1180ms cubic-bezier(0.16, 1, 0.3, 1) 560ms;
+  display: none;
 }
 
 .symbio-intro.is-stage-brand .symbio-intro__content::before {
@@ -332,21 +322,27 @@ body.has-symbio-intro {
 
 .symbio-intro__mark-shell {
   position: relative;
-  width: 7rem;
-  height: 7rem;
+  width: 4.8rem;
+  height: 4.8rem;
   display: grid;
   place-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(47, 107, 255, 0.08) 48%, rgba(3, 8, 20, 0.62) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.2),
+    rgba(47, 107, 255, 0.08) 48%,
+    rgba(3, 8, 20, 0.62) 100%
+  );
   box-shadow:
     0 0 38px rgba(50, 232, 255, 0.42),
     inset 0 0 34px rgba(122, 76, 255, 0.26);
   transform: translateY(10px) scale(0.82);
   opacity: 0;
-  transition: opacity 800ms ease, transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    opacity 800ms ease,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .symbio-intro.is-stage-logo .symbio-intro__mark-shell {
@@ -372,8 +368,8 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__mark {
-  width: 4.8rem;
-  height: 4.8rem;
+  width: 3.1rem;
+  height: 3.1rem;
   filter: drop-shadow(0 0 18px rgba(50, 232, 255, 0.85));
 }
 
@@ -386,12 +382,14 @@ body.has-symbio-intro {
   color: rgba(255, 255, 255, 0.72);
   transform: translateY(16px);
   opacity: 0;
-  transition: opacity 740ms ease, transform 740ms ease;
+  transition:
+    opacity 740ms ease,
+    transform 740ms ease;
 }
 
 .symbio-intro__title {
   margin: 0;
-  font-size: 7.2rem;
+  font-size: 5.5rem;
   line-height: 0.88;
   font-weight: 950;
   letter-spacing: 0;
@@ -401,12 +399,19 @@ body.has-symbio-intro {
     0 0 42px rgba(47, 107, 255, 0.34);
   transform: translateY(18px) scale(0.95);
   opacity: 0;
-  transition: opacity 900ms ease 100ms, transform 900ms cubic-bezier(0.16, 1, 0.3, 1) 100ms;
+  transition:
+    opacity 900ms ease 100ms,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1) 100ms;
 }
 
 .symbio-intro__title span {
   color: transparent;
-  background: linear-gradient(135deg, var(--intro-cyan), var(--intro-blue) 48%, var(--intro-violet));
+  background: linear-gradient(
+    135deg,
+    var(--intro-cyan),
+    var(--intro-blue) 48%,
+    var(--intro-violet)
+  );
   background-clip: text;
   -webkit-background-clip: text;
   filter: drop-shadow(0 0 20px rgba(50, 232, 255, 0.5));
@@ -414,13 +419,15 @@ body.has-symbio-intro {
 
 .symbio-intro__line {
   width: min(100%, 36rem);
-  margin: 1.15rem auto 0;
+  margin: 1.15rem 0 0;
   font-size: 1.15rem;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.78);
   transform: translateY(18px);
   opacity: 0;
-  transition: opacity 820ms ease 260ms, transform 820ms ease 260ms;
+  transition:
+    opacity 820ms ease 260ms,
+    transform 820ms ease 260ms;
 }
 
 .symbio-intro.is-stage-brand .symbio-intro__kicker,
@@ -433,12 +440,14 @@ body.has-symbio-intro {
 .symbio-intro__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
   margin-top: 1.85rem;
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 720ms ease, transform 720ms ease;
+  transition:
+    opacity 720ms ease,
+    transform 720ms ease;
 }
 
 .symbio-intro.is-stage-actions .symbio-intro__actions {
@@ -458,7 +467,10 @@ body.has-symbio-intro {
   font-weight: 900;
   letter-spacing: 0;
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
 }
 
 .symbio-intro__enter {
@@ -498,22 +510,24 @@ body.has-symbio-intro {
 
 .symbio-intro__status {
   position: absolute;
-  left: 50%;
+  right: max(1.5rem, 4vw);
   bottom: 1.5rem;
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  width: min(92vw, 42rem);
-  transform: translateX(-50%);
+  width: auto;
+  transform: translateY(8px);
   opacity: 0;
-  transition: opacity 650ms ease 1080ms, transform 650ms ease 1080ms;
+  transition:
+    opacity 650ms ease 1080ms,
+    transform 650ms ease 1080ms;
 }
 
 .symbio-intro.is-stage-actions .symbio-intro__status {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .symbio-intro__status span {
@@ -527,6 +541,44 @@ body.has-symbio-intro {
   color: rgba(255, 255, 255, 0.68);
   background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(12px);
+}
+
+.symbio-intro__boot {
+  position: absolute;
+  top: max(1.5rem, 4vh);
+  left: max(2rem, 5vw);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) minmax(8rem, 14rem) auto;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.symbio-intro__boot > span,
+.symbio-intro__boot > strong {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.symbio-intro__boot > i {
+  display: block;
+  width: 100%;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.symbio-intro__boot b {
+  display: block;
+  width: 12%;
+  height: 100%;
+  background: var(--intro-cyan);
+  box-shadow: 0 0 16px rgba(50, 232, 255, 0.78);
+  transition: width 720ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes symbioIntroScan {
@@ -566,7 +618,7 @@ body.has-symbio-intro {
 
 @media (min-width: 1200px) {
   .symbio-intro__title {
-    font-size: 8.8rem;
+    font-size: 6.8rem;
   }
 }
 
@@ -576,17 +628,15 @@ body.has-symbio-intro {
   }
 
   .symbio-intro__content {
+    position: relative;
+    left: auto;
+    bottom: auto;
     align-self: end;
     width: min(92vw, 23rem);
     margin-bottom: 4.45rem;
-    padding: 1.15rem 1rem 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 1.45rem;
-    background: linear-gradient(145deg, rgba(3, 9, 24, 0.74), rgba(11, 20, 42, 0.46));
-    box-shadow:
-      0 26px 70px rgba(0, 0, 0, 0.38),
-      inset 0 1px 0 rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(16px);
+    justify-items: center;
+    padding: 1rem;
+    text-align: center;
   }
 
   .symbio-intro__content::before {
@@ -594,9 +644,7 @@ body.has-symbio-intro {
   }
 
   .symbio-intro__mark-shell {
-    width: 4.8rem;
-    height: 4.8rem;
-    margin-bottom: 0.8rem;
+    display: none;
   }
 
   .symbio-intro__mark {
@@ -613,6 +661,7 @@ body.has-symbio-intro {
   }
 
   .symbio-intro__line {
+    margin-inline: auto;
     font-size: 1rem;
     max-width: 19rem;
     color: rgba(255, 255, 255, 0.92);
@@ -620,6 +669,7 @@ body.has-symbio-intro {
   }
 
   .symbio-intro__actions {
+    justify-content: center;
     gap: 0.7rem;
     margin-top: 1.1rem;
   }
@@ -649,7 +699,22 @@ body.has-symbio-intro {
   }
 
   .symbio-intro__status {
+    right: auto;
+    left: 50%;
     bottom: 0.75rem;
+    width: min(92vw, 42rem);
+    transform: translateX(-50%);
+  }
+
+  .symbio-intro.is-stage-actions .symbio-intro__status {
+    transform: translateX(-50%);
+  }
+
+  .symbio-intro__boot {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    grid-template-columns: minmax(7rem, auto) minmax(4rem, 1fr) auto;
   }
 }
 
@@ -672,4 +737,3 @@ body.has-symbio-intro {
     transition-duration: 0.01ms !important;
   }
 }
-

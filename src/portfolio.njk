@@ -4,6 +4,9 @@ pageKey: portfolio
 title: Portfolio
 permalink: portfolio.html
 description: Example website redesigns, live demos, custom apps, AI assistants, and pilot systems from Symbio AI.
+extraScripts:
+  - src: assets/js/portfolio-lab.js?v=20260714-product-lab
+    defer: true
 ---
 
 {# ===== Live client work ============================================= #}
@@ -66,46 +69,307 @@ description: Example website redesigns, live demos, custom apps, AI assistants, 
   </div>
 </section>
 
-{# ===== Concepts we can build ========================================= #}
-<section class="section section--tint">
+{# ===== Interactive concept lab ======================================= #}
+<section class="section section--tint concept-lab-section" id="product-lab">
   <div class="container">
     <div class="section__head section__head--center" data-reveal>
-      <span class="eyebrow eyebrow--center">Concepts we can build</span>
-      <h2 class="section__title">Examples of what can sit behind the website</h2>
+      <span class="eyebrow eyebrow--center">Interactive product lab</span>
+      <h2 class="section__title">Try the systems that can sit behind your website</h2>
       <p class="section__lead">
-        These are concept examples to show what is possible. We shape the final version around
-        your business, your customers, and your workflow.
+        Four working concepts. Change the inputs, move the workflow, and see how each product
+        turns customer activity into a clean next step.
       </p>
     </div>
 
-    <div class="grid grid--auto">
-      <article class="card" data-reveal>
-        <span class="badge badge--concept">Concept</span>
-        <h3 class="card__title">Free scan intake app</h3>
-        <p class="card__text">
-          A guided intake that turns website interest into a structured lead your team can act on.
-        </p>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="1">
-        <span class="badge badge--concept">Concept</span>
-        <h3 class="card__title">Client booking dashboard</h3>
-        <p class="card__text">One screen for bookings, reminders, status, and no-show tracking.</p>
-      </article>
-      <article class="card card--link" data-reveal data-reveal-delay="2">
-        <span class="badge badge--booked">Live demo</span>
-        <h3 class="card__title">AI lead follow-up agent</h3>
-        <p class="card__text">
-          Replies in seconds, qualifies the lead, and hands off to a real person.
-        </p>
-        <a class="card__link" href="{{ site.links.demo }}">Try the live demo</a>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="3">
-        <span class="badge badge--concept">Concept</span>
-        <h3 class="card__title">School or nonprofit request portal</h3>
-        <p class="card__text">
-          A simple portal for requests, approvals, and status updates. Less email, less confusion.
-        </p>
-      </article>
+    <div class="product-lab" data-product-lab data-reveal>
+      <div class="product-lab__tabs" role="tablist" aria-label="Interactive product demos">
+        <button
+          class="product-lab__tab is-active"
+          id="lab-tab-scan"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="lab-scan"
+          data-lab-tab="scan"
+        >
+          <span>01</span>
+          <strong>Scan intake</strong>
+          <small>Live</small>
+        </button>
+        <button
+          class="product-lab__tab"
+          id="lab-tab-booking"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="lab-booking"
+          tabindex="-1"
+          data-lab-tab="booking"
+        >
+          <span>02</span>
+          <strong>Booking desk</strong>
+          <small>Live</small>
+        </button>
+        <button
+          class="product-lab__tab"
+          id="lab-tab-agent"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="lab-agent"
+          tabindex="-1"
+          data-lab-tab="agent"
+        >
+          <span>03</span>
+          <strong>Lead agent</strong>
+          <small>Live</small>
+        </button>
+        <button
+          class="product-lab__tab"
+          id="lab-tab-portal"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="lab-portal"
+          tabindex="-1"
+          data-lab-tab="portal"
+        >
+          <span>04</span>
+          <strong>Request portal</strong>
+          <small>Live</small>
+        </button>
+      </div>
+
+      <div class="product-lab__workspace">
+        <header class="product-lab__header">
+          <div>
+            <span class="product-lab__eyebrow" data-lab-eyebrow>Live workflow 01</span>
+            <h3 data-lab-title>Free scan intake app</h3>
+          </div>
+          <span class="product-lab__online"><i aria-hidden="true"></i><span data-lab-status>Demo environment online</span></span>
+        </header>
+
+        <section
+          class="product-lab__panel is-active"
+          id="lab-scan"
+          role="tabpanel"
+          aria-labelledby="lab-tab-scan"
+          tabindex="0"
+          data-lab-panel="scan"
+        >
+          <div class="lab-split lab-split--scan">
+            <form class="lab-form" data-scan-demo>
+              <div class="lab-form__heading">
+                <span>Project intake</span>
+                <strong>Turn a vague inquiry into a useful brief.</strong>
+              </div>
+              <div class="lab-field-grid">
+                <label class="lab-field lab-field--wide">
+                  <span>Business website</span>
+                  <input type="url" value="https://yourbusiness.com" data-scan-url required />
+                </label>
+                <label class="lab-field">
+                  <span>Main goal</span>
+                  <select data-scan-goal>
+                    <option value="leads">Generate better leads</option>
+                    <option value="bookings">Book more appointments</option>
+                    <option value="sales">Sell products online</option>
+                    <option value="brand">Modernize the brand</option>
+                  </select>
+                </label>
+                <label class="lab-field">
+                  <span>Response speed</span>
+                  <select data-scan-speed>
+                    <option value="urgent">This week</option>
+                    <option value="soon">This month</option>
+                    <option value="planning">Planning ahead</option>
+                  </select>
+                </label>
+              </div>
+              <fieldset class="lab-choices">
+                <legend>What feels broken?</legend>
+                <label><input type="checkbox" value="mobile" checked /><span>Mobile flow</span></label>
+                <label><input type="checkbox" value="trust" checked /><span>Trust and proof</span></label>
+                <label><input type="checkbox" value="followup" /><span>Lead follow-up</span></label>
+                <label><input type="checkbox" value="speed" /><span>Page speed</span></label>
+              </fieldset>
+              <button class="btn btn--primary" type="submit">Build scan packet</button>
+            </form>
+
+            <div class="lab-output" aria-live="polite" data-scan-output>
+              <div class="lab-output__topline">
+                <span><i aria-hidden="true"></i> Priority packet</span>
+                <strong data-scan-id>SCAN-4821</strong>
+              </div>
+              <div class="scan-score-row">
+                <div class="scan-score" style="--score: 89" data-scan-score-ring>
+                  <span><strong data-scan-score>89</strong>/100</span>
+                </div>
+                <div>
+                  <span class="lab-label">Recommended build</span>
+                  <h4 data-scan-route>Conversion site + lead routing</h4>
+                  <p data-scan-summary>Shorten the mobile path, move proof forward, and route every inquiry to one owner.</p>
+                </div>
+              </div>
+              <dl class="lab-metrics">
+                <div><dt>Priority</dt><dd data-scan-priority>P0 conversion path</dd></div>
+                <div><dt>First fix</dt><dd data-scan-fix>Mobile inquiry flow</dd></div>
+                <div><dt>Reply target</dt><dd data-scan-reply>Under 5 minutes</dd></div>
+              </dl>
+              <div class="lab-progress"><i style="--progress: 89%" data-scan-progress></i></div>
+              <p class="lab-caption"><span data-scan-site>yourbusiness.com</span> is ready for founder review.</p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="product-lab__panel"
+          id="lab-booking"
+          role="tabpanel"
+          aria-labelledby="lab-tab-booking"
+          tabindex="0"
+          data-lab-panel="booking"
+          hidden
+        >
+          <div class="booking-demo" data-booking-demo>
+            <div class="booking-demo__toolbar">
+              <div class="lab-segment" aria-label="Filter bookings">
+                <button class="is-active" type="button" data-booking-filter="all">All</button>
+                <button type="button" data-booking-filter="attention">Needs reply</button>
+                <button type="button" data-booking-filter="confirmed">Confirmed</button>
+              </div>
+              <button class="btn btn--secondary btn--sm" type="button" data-booking-add>Add sample booking</button>
+            </div>
+            <dl class="booking-demo__metrics" aria-live="polite">
+              <div><dt>Today</dt><dd data-booking-total>4</dd></div>
+              <div><dt>Confirmed</dt><dd data-booking-confirmed>3</dd></div>
+              <div><dt>Needs reply</dt><dd data-booking-attention>1</dd></div>
+              <div><dt>Show rate</dt><dd>92%</dd></div>
+            </dl>
+            <div class="booking-demo__list" data-booking-list>
+              <div class="booking-row" data-booking-state="confirmed">
+                <time>9:30 AM</time><span><strong>Nina Patel</strong><small>Consultation</small></span>
+                <span class="booking-status booking-status--confirmed">Confirmed</span>
+                <button type="button" data-booking-action>Check in</button>
+              </div>
+              <div class="booking-row" data-booking-state="attention">
+                <time>11:00 AM</time><span><strong>Marcus Lee</strong><small>New project</small></span>
+                <span class="booking-status booking-status--attention">Needs reply</span>
+                <button type="button" data-booking-action>Confirm</button>
+              </div>
+              <div class="booking-row" data-booking-state="confirmed">
+                <time>1:45 PM</time><span><strong>Avery Stone</strong><small>Follow-up</small></span>
+                <span class="booking-status booking-status--confirmed">Confirmed</span>
+                <button type="button" data-booking-action>Check in</button>
+              </div>
+              <div class="booking-row" data-booking-state="complete">
+                <time>3:15 PM</time><span><strong>Jordan Kim</strong><small>Design review</small></span>
+                <span class="booking-status booking-status--complete">Complete</span>
+                <button type="button" data-booking-action disabled>Done</button>
+              </div>
+            </div>
+            <p class="lab-caption" data-booking-message aria-live="polite">Four appointments are synced for today.</p>
+          </div>
+        </section>
+
+        <section
+          class="product-lab__panel"
+          id="lab-agent"
+          role="tabpanel"
+          aria-labelledby="lab-tab-agent"
+          tabindex="0"
+          data-lab-panel="agent"
+          hidden
+        >
+          <div class="agent-demo" data-agent-demo>
+            <div class="agent-demo__conversation">
+              <div class="lab-segment lab-segment--wide" aria-label="Choose a lead scenario">
+                <button class="is-active" type="button" data-agent-scenario="pricing">Pricing lead</button>
+                <button type="button" data-agent-scenario="afterhours">After-hours</button>
+                <button type="button" data-agent-scenario="handoff">Needs human</button>
+              </div>
+              <div class="agent-demo__messages" aria-live="polite">
+                <p class="agent-message agent-message--lead" data-agent-lead>How much would a booking website cost for my salon?</p>
+                <p class="agent-message agent-message--system">Intent detected. Draft prepared. Human approval is still required.</p>
+                <p class="agent-message agent-message--agent" data-agent-reply hidden></p>
+              </div>
+              <div class="agent-demo__actions">
+                <button class="btn btn--primary btn--sm" type="button" data-agent-draft>Draft next reply</button>
+                <button class="btn btn--secondary btn--sm" type="button" data-agent-approve disabled>Approve founder handoff</button>
+              </div>
+            </div>
+            <aside class="agent-route">
+              <div class="lab-output__topline"><span><i aria-hidden="true"></i> Lead route</span><strong data-agent-state>Ready</strong></div>
+              <dl class="agent-route__details">
+                <div><dt>Intent</dt><dd data-agent-intent>Website + booking</dd></div>
+                <div><dt>Lead score</dt><dd data-agent-score>86 / 100</dd></div>
+                <div><dt>Owner</dt><dd data-agent-owner>Founder queue</dd></div>
+                <div><dt>Next action</dt><dd data-agent-next>Draft pricing reply</dd></div>
+              </dl>
+              <div class="agent-route__timeline" aria-hidden="true">
+                <span class="is-complete">Captured</span><span class="is-active">Draft</span><span>Approve</span><span>Handoff</span>
+              </div>
+              <p class="lab-caption" data-agent-caption>No message leaves this demo.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section
+          class="product-lab__panel"
+          id="lab-portal"
+          role="tabpanel"
+          aria-labelledby="lab-tab-portal"
+          tabindex="0"
+          data-lab-panel="portal"
+          hidden
+        >
+          <div class="lab-split" data-portal-demo>
+            <form class="lab-form" data-portal-form>
+              <div class="lab-form__heading">
+                <span>Community request</span>
+                <strong>One place for requests, approvals, and updates.</strong>
+              </div>
+              <div class="lab-field-grid">
+                <label class="lab-field">
+                  <span>Request type</span>
+                  <select data-portal-type>
+                    <option>Facility booking</option>
+                    <option>Volunteer support</option>
+                    <option>Student service</option>
+                    <option>Community event</option>
+                  </select>
+                </label>
+                <label class="lab-field">
+                  <span>Urgency</span>
+                  <select data-portal-urgency>
+                    <option>Normal</option>
+                    <option>Time sensitive</option>
+                    <option>Urgent</option>
+                  </select>
+                </label>
+                <label class="lab-field lab-field--wide">
+                  <span>Request details</span>
+                  <textarea rows="4" data-portal-detail>Reserve the community hall for a Saturday youth workshop.</textarea>
+                </label>
+              </div>
+              <button class="btn btn--primary" type="submit">Submit sample request</button>
+            </form>
+            <div class="portal-status" aria-live="polite">
+              <div class="lab-output__topline"><span><i aria-hidden="true"></i> Request record</span><strong data-portal-id>REQ-2048</strong></div>
+              <span class="lab-label">Current request</span>
+              <h4 data-portal-title>Facility booking</h4>
+              <p data-portal-detail-output>Reserve the community hall for a Saturday youth workshop.</p>
+              <ol class="portal-timeline" data-portal-timeline>
+                <li class="is-complete"><i></i><span><strong>Submitted</strong><small>Request received</small></span></li>
+                <li class="is-active"><i></i><span><strong>In review</strong><small>Assigned to operations</small></span></li>
+                <li><i></i><span><strong>Approved</strong><small>Decision recorded</small></span></li>
+                <li><i></i><span><strong>Scheduled</strong><small>Confirmation sent</small></span></li>
+              </ol>
+              <button class="btn btn--secondary btn--sm" type="button" data-portal-advance>Advance demo status</button>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </section>

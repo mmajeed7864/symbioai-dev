@@ -7,6 +7,9 @@
   const body = document.body;
   const enter = intro.querySelector("[data-symbio-enter]");
   const skip = intro.querySelector("[data-symbio-skip]");
+  const phaseLabel = intro.querySelector("[data-symbio-intro-phase]");
+  const progressBar = intro.querySelector("[data-symbio-intro-progress]");
+  const progressLabel = intro.querySelector("[data-symbio-intro-percent]");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let finished = false;
   let renderer = null;
@@ -15,6 +18,7 @@
   let logoGroup = null;
   let stageGroup = null;
   let field = null;
+  let core = null;
   const bars = [];
   let lightTrails = [];
   const trailPulses = [];
@@ -51,7 +55,8 @@
     stopRenderLoop();
     if (scene) {
       scene.traverse((object) => {
-        if (object.geometry && typeof object.geometry.dispose === "function") object.geometry.dispose();
+        if (object.geometry && typeof object.geometry.dispose === "function")
+          object.geometry.dispose();
         disposeMaterial(object.material);
       });
     }
@@ -62,6 +67,9 @@
     if (finished) return;
     finished = true;
     pointerEnergy = 1;
+    if (phaseLabel) phaseLabel.textContent = "Opening experience";
+    if (progressLabel) progressLabel.textContent = "100%";
+    if (progressBar) progressBar.style.width = "100%";
     stageTimers.forEach((timer) => window.clearTimeout(timer));
     intro.classList.add("is-exiting");
 
@@ -84,16 +92,29 @@
 
   const armIntro = () => {
     if (finished) return;
+    const setProgress = (value, label) => {
+      if (phaseLabel) phaseLabel.textContent = label;
+      if (progressLabel) progressLabel.textContent = `${value}%`;
+      if (progressBar) progressBar.style.width = `${value}%`;
+    };
+
+    setProgress(24, "Building spatial field");
     intro.classList.add("is-stage-logo");
     stageTimers.push(
       window.setTimeout(() => {
-        if (!finished) intro.classList.add("is-stage-brand");
-      }, 420)
+        if (!finished) {
+          intro.classList.add("is-stage-brand");
+          setProgress(68, "Aligning brand system");
+        }
+      }, 520)
     );
     stageTimers.push(
       window.setTimeout(() => {
-        if (!finished) intro.classList.add("is-stage-actions", "is-ready");
-      }, 940)
+        if (!finished) {
+          intro.classList.add("is-stage-actions", "is-ready");
+          setProgress(100, "Experience ready");
+        }
+      }, 1260)
     );
   };
 
@@ -135,13 +156,7 @@
       const angle = t * Math.PI * 4.35 + phase;
       const radius = 1.02 + Math.sin(t * Math.PI * 3) * 0.08;
       const y = (t - 0.5) * 4.35;
-      points.push(
-        new THREE.Vector3(
-          Math.cos(angle) * radius,
-          y,
-          Math.sin(angle) * radius * 0.52
-        )
-      );
+      points.push(new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius * 0.52));
     }
 
     const curve = new THREE.CatmullRomCurve3(points);
@@ -162,7 +177,8 @@
   const buildScene = (THREE) => {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
-    camera.position.set(0, 0.15, 8.2);
+    camera.position.set(0, 0.15, 10.8);
+    camera.userData.targetZ = 8.2;
 
     renderer = new THREE.WebGLRenderer({
       canvas,
@@ -235,8 +251,28 @@
     stageGroup.add(volumeFrame);
 
     const panelSpecs = [
-      { x: -2.85, y: 0.85, z: -1.12, rx: 0.08, ry: 0.62, rz: 0.06, w: 1.62, h: 2.55, color: 0x32e8ff },
-      { x: 2.75, y: -0.12, z: -1.05, rx: -0.04, ry: -0.58, rz: -0.08, w: 1.58, h: 2.35, color: 0x7a4cff },
+      {
+        x: -2.85,
+        y: 0.85,
+        z: -1.12,
+        rx: 0.08,
+        ry: 0.62,
+        rz: 0.06,
+        w: 1.62,
+        h: 2.55,
+        color: 0x32e8ff,
+      },
+      {
+        x: 2.75,
+        y: -0.12,
+        z: -1.05,
+        rx: -0.04,
+        ry: -0.58,
+        rz: -0.08,
+        w: 1.58,
+        h: 2.35,
+        color: 0x7a4cff,
+      },
       { x: 0.04, y: 2.42, z: -1.58, rx: 0.58, ry: 0.02, rz: 0, w: 4.85, h: 1.2, color: 0x2f6bff },
     ];
     depthPanels = panelSpecs.map((spec, index) => {
@@ -343,7 +379,7 @@
       logoGroup.add(bar);
     }
 
-    const core = new THREE.Mesh(
+    core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.34, 2),
       new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
@@ -364,7 +400,10 @@
       blending: THREE.AdditiveBlending,
     });
     for (let i = 0; i < 4; i += 1) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.05 + i * 0.38, 0.008, 8, 160), ringMaterial.clone());
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(2.05 + i * 0.38, 0.008, 8, 160),
+        ringMaterial.clone()
+      );
       ring.rotation.x = Math.PI / 2 + i * 0.21;
       ring.rotation.y = i * 0.62;
       ring.userData.speed = 0.16 + i * 0.04;
@@ -413,15 +452,18 @@
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const mobile = width < 700;
+    const cinematic = width >= 900;
     if (logoGroup) {
       logoGroup.scale.setScalar(mobile ? 0.54 : 1);
       logoGroup.position.y = mobile ? 1.35 : 0;
+      logoGroup.position.x = cinematic ? 1.62 : 0;
     }
     if (stageGroup) {
       stageGroup.scale.setScalar(mobile ? 0.62 : 1);
       stageGroup.position.y = mobile ? 1.08 : -0.16;
+      stageGroup.position.x = cinematic ? 1.08 : 0;
     }
-    if (camera) camera.position.z = mobile ? 9.5 : 8.2;
+    if (camera) camera.userData.targetZ = mobile ? 9.5 : 8.2;
   };
 
   const animate = (THREE) => {
@@ -429,27 +471,45 @@
     animationLoop = () => {
       if (finished || disposed) return;
       const elapsed = clock.getElapsedTime();
+      if (camera) {
+        camera.position.z += ((camera.userData.targetZ || 8.2) - camera.position.z) * 0.028;
+        camera.position.x += (targetX * 0.035 - camera.position.x) * 0.02;
+        camera.position.y += (0.15 + targetY * 0.02 - camera.position.y) * 0.02;
+      }
       if (logoGroup) {
         logoGroup.rotation.y += (targetX * 0.38 - logoGroup.rotation.y) * 0.045;
         logoGroup.rotation.x += (targetY * 0.22 - logoGroup.rotation.x) * 0.045;
         logoGroup.rotation.z = -0.12 + Math.sin(elapsed * 0.55) * 0.035 + pointerEnergy * 0.03;
         const exitLift = intro.classList.contains("is-exiting") ? 0.028 : 0;
-        logoGroup.scale.x += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.x) * 0.02;
-        logoGroup.scale.y += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.y) * 0.02;
-        logoGroup.scale.z += ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.z) * 0.02;
+        logoGroup.scale.x +=
+          ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.x) * 0.02;
+        logoGroup.scale.y +=
+          ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.y) * 0.02;
+        logoGroup.scale.z +=
+          ((intro.clientWidth < 700 ? 0.54 : 1) + exitLift - logoGroup.scale.z) * 0.02;
         logoGroup.children.forEach((child) => {
           if (child.geometry && child.geometry.type === "TorusGeometry") {
             child.rotation.z += child.userData.speed * 0.006;
           }
         });
       }
+      if (core) {
+        const corePulse = 1 + Math.sin(elapsed * 2.15) * 0.055 + pointerEnergy * 0.08;
+        core.scale.setScalar(corePulse);
+        core.material.emissiveIntensity =
+          1.05 + Math.sin(elapsed * 2.15) * 0.22 + pointerEnergy * 0.4;
+      }
       if (stageGroup) {
         stageGroup.rotation.y += (targetX * 0.13 - stageGroup.rotation.y) * 0.026;
-        stageGroup.rotation.x += (targetY * 0.06 + Math.sin(elapsed * 0.2) * 0.025 - stageGroup.rotation.x) * 0.03;
+        stageGroup.rotation.x +=
+          (targetY * 0.06 + Math.sin(elapsed * 0.2) * 0.025 - stageGroup.rotation.x) * 0.03;
       }
       depthPanels.forEach((panel, index) => {
-        panel.position.y = panel.userData.baseY + Math.sin(elapsed * (0.52 + index * 0.09) + panel.userData.offset) * 0.075;
-        panel.rotation.z = panel.userData.baseRz + Math.sin(elapsed * 0.42 + panel.userData.offset) * 0.018;
+        panel.position.y =
+          panel.userData.baseY +
+          Math.sin(elapsed * (0.52 + index * 0.09) + panel.userData.offset) * 0.075;
+        panel.rotation.z =
+          panel.userData.baseRz + Math.sin(elapsed * 0.42 + panel.userData.offset) * 0.018;
       });
       if (field) {
         field.rotation.y = elapsed * 0.035;
