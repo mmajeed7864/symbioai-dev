@@ -313,6 +313,9 @@
         .launcher, .panel, .typing span { transition: none; animation: none; }
       }
       @media (max-width: 480px) {
+        .root { bottom: 12px; ${cfg.position}: 12px; }
+        .launcher { width: 48px; height: 48px; }
+        .launcher svg { width: 22px; height: 22px; }
         .panel { height: calc(100vh - 32px); }
       }
     `;

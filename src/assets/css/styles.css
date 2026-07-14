@@ -617,7 +617,7 @@ ol {
 }
 
 /* Tablet/mobile: collapse the link list before it can crowd the header. */
-@media (max-width: 1399px) {
+@media (max-width: 1535px) {
   .site-nav__list {
     position: absolute;
     inset: calc(100% + 0.6rem) var(--gutter) auto;
@@ -693,7 +693,7 @@ ol {
   background: var(--c-surface-3);
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1536px) {
   .nav-toggle {
     display: none;
   }
@@ -1451,6 +1451,151 @@ a.card:focus-visible,
 .proof__text {
   color: var(--c-text-muted);
   font-size: var(--fs-300);
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.1rem, 2.5vw, 1.6rem);
+}
+
+.project-grid--portfolio {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.project-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--c-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.project-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.project-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 420ms var(--ease);
+}
+
+.project-card:hover .project-card__media img {
+  transform: scale(1.018);
+}
+
+.project-card__status {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.7rem;
+  color: #fff;
+  font-size: var(--fs-200);
+  font-weight: 750;
+  background: rgba(9, 15, 28, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.project-card__status i {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
+}
+
+.project-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: clamp(1.2rem, 3vw, 1.65rem);
+}
+
+.project-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.8rem;
+}
+
+.project-card__meta span {
+  padding: 0.35rem 0.58rem;
+  color: var(--c-accent);
+  font-size: var(--fs-200);
+  font-weight: 700;
+  background: var(--c-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--c-accent) 20%, transparent);
+  border-radius: var(--radius-pill);
+}
+
+.project-card__title {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+.project-card__summary {
+  margin-top: 0.65rem;
+  color: var(--c-text-muted);
+}
+
+.project-card__features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1rem;
+  margin-top: 1.1rem;
+  color: var(--c-text-muted);
+  font-size: var(--fs-300);
+}
+
+.project-card__features li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.project-card__features li::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  transform: translateY(-50%);
+  background: var(--grad-accent);
+  border-radius: 50%;
+}
+
+.project-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: auto;
+  padding-top: 1.35rem;
 }
 
 .note-card {
@@ -3754,6 +3899,7 @@ a.card:focus-visible,
 /* -------------------------------------------------------------------------
    18b. Premium demo refresh
    ------------------------------------------------------------------------- */
+/* stylelint-disable no-duplicate-selectors -- This section intentionally enhances the base demo components. */
 .demo-product {
   isolation: isolate;
 }
@@ -4071,7 +4217,7 @@ a.card:focus-visible,
   height: 1em;
   margin-left: 0.14rem;
   vertical-align: -0.14em;
-  background: currentColor;
+  background: currentcolor;
   border-radius: 1px;
   animation: cursor-blink 0.85s steps(2, end) infinite;
 }
@@ -4429,7 +4575,7 @@ a.card:focus-visible,
     height: 1em;
     margin-left: 0.18rem;
     vertical-align: -0.16em;
-    background: currentColor;
+    background: currentcolor;
     animation: cursor-blink 0.85s steps(2, end) infinite;
   }
 
@@ -4555,6 +4701,8 @@ a.card:focus-visible,
     position: static;
   }
 }
+
+/* stylelint-enable no-duplicate-selectors */
 
 /* -------------------------------------------------------------------------
    19. Reveal-on-scroll (only hides when JS is active)
@@ -5252,6 +5400,18 @@ a.card:focus-visible,
 }
 
 @media (max-width: 720px) {
+  .project-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-card__features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-card__actions .btn {
+    flex: 1 1 100%;
+  }
+
   .lead-inbox--float {
     position: relative;
     right: auto;

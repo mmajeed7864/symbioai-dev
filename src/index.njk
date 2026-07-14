@@ -349,6 +349,52 @@ extraScripts:
   </div>
 </section>
 
+{# ===== Selected client work ========================================== #}
+<section class="section">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Selected work</span>
+      <h2 class="section__title">See what the finished product can feel like</h2>
+      <p class="section__lead">
+        Two very different businesses, each with a site built around its customers and the action
+        that matters most.
+      </p>
+    </div>
+
+    <div class="project-grid project-grid--home">
+      {% for project in site.projects %}
+        <article class="project-card" data-reveal{% if loop.index > 1 %} data-reveal-delay="{{ loop.index - 1 }}"{% endif %}>
+          <a
+            class="project-card__media"
+            href="{{ project.url }}"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open the live {{ project.name }} website"
+          >
+            <img src="{{ project.image }}" alt="{{ project.imageAlt }}" loading="lazy" width="1440" height="900" />
+            <span class="project-card__status"><i aria-hidden="true"></i> Live client site</span>
+          </a>
+          <div class="project-card__body">
+            <div class="project-card__meta">
+              <span>{{ project.category }}</span>
+              <span>{{ project.service }}</span>
+            </div>
+            <h3 class="project-card__title">{{ project.name }}</h3>
+            <p class="project-card__summary">{{ project.summary }}</p>
+            <div class="project-card__actions">
+              <a class="btn btn--primary" href="{{ project.url }}" target="_blank" rel="noopener">View live project</a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="btn-row btn-row--center mt-6" data-reveal>
+      <a class="btn btn--secondary" href="{{ site.links.portfolio }}">Explore the full portfolio</a>
+    </div>
+  </div>
+</section>
+
 {# ===== Explore teasers (link to every page) ========================== #}
 <section class="section section--tint">
   <div class="container">

@@ -85,6 +85,43 @@ export default {
     demos: "demos.html",
   },
 
+  projects: [
+    {
+      name: "Bay Area Auto Customz",
+      category: "Automotive customization",
+      service: "Website + interactive design tool",
+      url: "https://bayareaautocustomz.com/",
+      image: "assets/img/portfolio-bay-area-auto-customz.png",
+      imageAlt:
+        "Bay Area Auto Customz website with its starlight headliner design selector",
+      summary:
+        "A premium sales site that lets customers explore finishes, design a starlight headliner, watch real shop work, and request an install without hunting through social media.",
+      features: [
+        "Interactive 300-4,000 star designer",
+        "Finish previews and RGB controls",
+        "Quote and booking flow",
+        "Real work, video, and review proof",
+      ],
+    },
+    {
+      name: "East Bay Hindu Temple",
+      category: "Faith and community",
+      service: "Multi-page website redesign",
+      url: "https://ravikus1457.github.io/Symbio-AI/clients/east-bay-hindu-temple/",
+      image: "assets/img/portfolio-east-bay-hindu-temple.png",
+      imageAlt:
+        "East Bay Hindu Temple redesign with a red and gold cultural visual system",
+      summary:
+        "A respectful red-and-gold redesign that makes darshan times, pooja booking, events, giving, and first-visit information easy to find on any screen.",
+      features: [
+        "Culturally grounded visual direction",
+        "Pooja services and booking paths",
+        "Events, calendar, and timings",
+        "Mobile-first visitor experience",
+      ],
+    },
+  ],
+
   productLanes: [
     {
       key: "website",
