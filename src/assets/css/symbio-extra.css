@@ -299,20 +299,32 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__content {
-  position: absolute;
-  left: max(2rem, 5vw);
-  bottom: clamp(4.5rem, 9vh, 7.5rem);
+  position: relative;
   z-index: 2;
-  width: min(42vw, 40rem);
+  width: min(92vw, 860px);
   display: grid;
-  justify-items: start;
-  text-align: left;
-  padding: 0;
+  justify-items: center;
+  text-align: center;
+  padding: 2rem;
   isolation: isolate;
 }
 
 .symbio-intro__content::before {
-  display: none;
+  content: "";
+  position: absolute;
+  inset: 8% 12%;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    0 0 80px rgba(47, 107, 255, 0.24),
+    inset 0 0 80px rgba(50, 232, 255, 0.06);
+  filter: blur(0.2px);
+  opacity: 0;
+  transform: perspective(900px) rotateX(64deg) scale(1.32) translateY(20px);
+  transition:
+    opacity 860ms ease 560ms,
+    transform 1180ms cubic-bezier(0.16, 1, 0.3, 1) 560ms;
 }
 
 .symbio-intro.is-stage-brand .symbio-intro__content::before {
@@ -322,11 +334,11 @@ body.has-symbio-intro {
 
 .symbio-intro__mark-shell {
   position: relative;
-  width: 4.8rem;
-  height: 4.8rem;
+  width: 7rem;
+  height: 7rem;
   display: grid;
   place-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 50%;
   background: radial-gradient(
@@ -368,8 +380,8 @@ body.has-symbio-intro {
 }
 
 .symbio-intro__mark {
-  width: 3.1rem;
-  height: 3.1rem;
+  width: 4.8rem;
+  height: 4.8rem;
   filter: drop-shadow(0 0 18px rgba(50, 232, 255, 0.85));
 }
 
@@ -389,7 +401,7 @@ body.has-symbio-intro {
 
 .symbio-intro__title {
   margin: 0;
-  font-size: 5.5rem;
+  font-size: 7.2rem;
   line-height: 0.88;
   font-weight: 950;
   letter-spacing: 0;
@@ -419,7 +431,7 @@ body.has-symbio-intro {
 
 .symbio-intro__line {
   width: min(100%, 36rem);
-  margin: 1.15rem 0 0;
+  margin: 1.15rem auto 0;
   font-size: 1.15rem;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.78);
@@ -440,7 +452,7 @@ body.has-symbio-intro {
 .symbio-intro__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.85rem;
   opacity: 0;
@@ -510,15 +522,15 @@ body.has-symbio-intro {
 
 .symbio-intro__status {
   position: absolute;
-  right: max(1.5rem, 4vw);
+  left: 50%;
   bottom: 1.5rem;
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  width: auto;
-  transform: translateY(8px);
+  width: min(92vw, 42rem);
+  transform: translateX(-50%);
   opacity: 0;
   transition:
     opacity 650ms ease 1080ms,
@@ -527,7 +539,7 @@ body.has-symbio-intro {
 
 .symbio-intro.is-stage-actions .symbio-intro__status {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .symbio-intro__status span {
@@ -618,7 +630,7 @@ body.has-symbio-intro {
 
 @media (min-width: 1200px) {
   .symbio-intro__title {
-    font-size: 6.8rem;
+    font-size: 8.8rem;
   }
 }
 

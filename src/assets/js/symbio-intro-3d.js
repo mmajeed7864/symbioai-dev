@@ -452,16 +452,15 @@
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const mobile = width < 700;
-    const cinematic = width >= 900;
     if (logoGroup) {
       logoGroup.scale.setScalar(mobile ? 0.54 : 1);
       logoGroup.position.y = mobile ? 1.35 : 0;
-      logoGroup.position.x = cinematic ? 1.62 : 0;
+      logoGroup.position.x = 0;
     }
     if (stageGroup) {
       stageGroup.scale.setScalar(mobile ? 0.62 : 1);
       stageGroup.position.y = mobile ? 1.08 : -0.16;
-      stageGroup.position.x = cinematic ? 1.08 : 0;
+      stageGroup.position.x = 0;
     }
     if (camera) camera.userData.targetZ = mobile ? 9.5 : 8.2;
   };
