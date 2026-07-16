@@ -91,7 +91,7 @@ export default {
       category: "Automotive customization",
       service: "Website + interactive design tool",
       url: "https://bayareaautocustomz.com/",
-      image: "assets/img/portfolio-bay-area-auto-customz.png",
+      image: "assets/img/portfolio-bay-area-auto-customz.jpg",
       imageAlt:
         "Bay Area Auto Customz website with its starlight headliner design selector",
       summary:
@@ -108,7 +108,7 @@ export default {
       category: "Faith and community",
       service: "Multi-page website redesign",
       url: "https://ravikus1457.github.io/Symbio-AI/clients/east-bay-hindu-temple/",
-      image: "assets/img/portfolio-east-bay-hindu-temple.png",
+      image: "assets/img/portfolio-east-bay-hindu-temple.jpg",
       imageAlt:
         "East Bay Hindu Temple redesign with a red and gold cultural visual system",
       summary:

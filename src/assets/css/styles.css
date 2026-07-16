@@ -5459,23 +5459,65 @@ a.card:focus-visible,
 }
 
 .product-lab {
-  --lab-bg: #080b12;
-  --lab-surface: #101520;
-  --lab-surface-2: #151b28;
-  --lab-line: rgba(255, 255, 255, 0.11);
-  --lab-text: #f7f9ff;
-  --lab-muted: #9ba8bd;
-  --lab-blue: #5f82ff;
-  --lab-cyan: #42d8e8;
-  --lab-green: #45d69a;
-  --lab-amber: #f5b84b;
+  --lab-bg: var(--c-surface);
+  --lab-surface: var(--c-surface-2);
+  --lab-surface-2: var(--c-surface-3);
+  --lab-line: var(--c-border-strong);
+  --lab-text: var(--c-text);
+  --lab-muted: var(--c-text-muted);
+  --lab-blue: var(--c-accent);
+  --lab-cyan: #087c90;
+  --lab-green: #087955;
+  --lab-green-soft: var(--c-success-soft);
+  --lab-amber: #946000;
+  --lab-tabs-bg: var(--c-surface-2);
+  --lab-header-bg: var(--c-surface);
+  --lab-hover: rgba(47, 107, 255, 0.06);
+  --lab-active: var(--c-accent-soft);
+  --lab-selected-text: #163d91;
+  --lab-selected-bg: var(--c-accent-soft);
+  --lab-selected-border: rgba(47, 107, 255, 0.55);
+  --lab-track: var(--c-border);
+  --lab-subtle: rgba(47, 107, 255, 0.035);
+  --lab-shadow: var(--shadow-lg);
   margin-top: clamp(2rem, 5vw, 3.75rem);
   color: var(--lab-text);
   background: var(--lab-bg);
   border: 1px solid rgba(47, 107, 255, 0.28);
   border-radius: var(--radius-lg);
-  box-shadow: 0 34px 90px -42px rgba(6, 12, 28, 0.75);
+  box-shadow: var(--lab-shadow);
+  color-scheme: light;
   overflow: hidden;
+}
+
+:root[data-theme="dark"] .product-lab {
+  --lab-cyan: #42d8e8;
+  --lab-green: #45d69a;
+  --lab-amber: #f5b84b;
+  --lab-hover: rgba(255, 255, 255, 0.035);
+  --lab-active: rgba(95, 130, 255, 0.1);
+  --lab-selected-text: #fff;
+  --lab-selected-bg: rgba(95, 130, 255, 0.15);
+  --lab-selected-border: rgba(95, 130, 255, 0.58);
+  --lab-subtle: rgba(255, 255, 255, 0.025);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .product-lab {
+    --lab-cyan: #42d8e8;
+    --lab-green: #45d69a;
+    --lab-amber: #f5b84b;
+    --lab-hover: rgba(255, 255, 255, 0.035);
+    --lab-active: rgba(95, 130, 255, 0.1);
+    --lab-selected-text: #fff;
+    --lab-selected-bg: rgba(95, 130, 255, 0.15);
+    --lab-selected-border: rgba(95, 130, 255, 0.58);
+    --lab-subtle: rgba(255, 255, 255, 0.025);
+
+    color-scheme: dark;
+  }
 }
 
 .product-lab button,
@@ -5488,7 +5530,7 @@ a.card:focus-visible,
 .product-lab__tabs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  background: #0b0f17;
+  background: var(--lab-tabs-bg);
   border-bottom: 1px solid var(--lab-line);
 }
 
@@ -5533,12 +5575,12 @@ a.card:focus-visible,
 
 .product-lab__tab:hover {
   color: var(--lab-text);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--lab-hover);
 }
 
 .product-lab__tab.is-active {
   color: var(--lab-text);
-  background: rgba(95, 130, 255, 0.1);
+  background: var(--lab-active);
 }
 
 .product-lab__tab.is-active::after {
@@ -5568,7 +5610,7 @@ a.card:focus-visible,
   letter-spacing: 0;
   color: var(--lab-green);
   text-transform: uppercase;
-  background: rgba(69, 214, 154, 0.1);
+  background: var(--lab-green-soft);
   border: 1px solid rgba(69, 214, 154, 0.22);
   border-radius: var(--radius-pill);
 }
@@ -5584,7 +5626,7 @@ a.card:focus-visible,
   gap: 1.25rem;
   min-height: 6.4rem;
   padding: 1.35rem clamp(1rem, 3vw, 2rem);
-  background: #0c1019;
+  background: var(--lab-header-bg);
   border-bottom: 1px solid var(--lab-line);
 }
 
@@ -5773,9 +5815,9 @@ a.card:focus-visible,
 }
 
 .lab-choices input:checked + span {
-  color: #fff;
-  background: rgba(95, 130, 255, 0.15);
-  border-color: rgba(95, 130, 255, 0.58);
+  color: var(--lab-selected-text);
+  background: var(--lab-selected-bg);
+  border-color: var(--lab-selected-border);
 }
 
 .lab-choices input:focus-visible + span {
@@ -5795,7 +5837,7 @@ a.card:focus-visible,
 }
 
 .product-lab .btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--lab-hover);
 }
 
 .lab-output,
@@ -5840,7 +5882,7 @@ a.card:focus-visible,
   place-items: center;
   width: 7rem;
   height: 7rem;
-  background: conic-gradient(var(--lab-blue) calc(var(--score) * 1%), rgba(255, 255, 255, 0.08) 0);
+  background: conic-gradient(var(--lab-blue) calc(var(--score) * 1%), var(--lab-track) 0);
   border-radius: 50%;
 }
 
@@ -5925,7 +5967,7 @@ a.card:focus-visible,
   height: 0.35rem;
   margin-top: 1.35rem;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--lab-track);
   border-radius: var(--radius-pill);
 }
 
@@ -5975,15 +6017,15 @@ a.card:focus-visible,
 }
 
 .lab-segment button.is-active {
-  color: #fff;
-  background: rgba(95, 130, 255, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(95, 130, 255, 0.38);
+  color: var(--lab-selected-text);
+  background: var(--lab-selected-bg);
+  box-shadow: inset 0 0 0 1px var(--lab-selected-border);
 }
 
 .booking-demo__metrics {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-block: 1.5rem 1rem;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--lab-subtle);
 }
 
 .booking-demo__metrics dd {
@@ -6154,7 +6196,7 @@ a.card:focus-visible,
   right: 0.2rem;
   left: 0;
   height: 0.22rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--lab-track);
   border-radius: var(--radius-pill);
 }
 
