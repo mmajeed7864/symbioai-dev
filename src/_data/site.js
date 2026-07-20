@@ -125,7 +125,7 @@ export default {
       name: "Ravi & Aachal — Wedding Platform",
       category: "Weddings",
       service: "Custom event platform",
-      url: "portfolio/wedding-demo/",
+      url: "portfolio/wedding-demo",
       ctaLabel: "View sanitized demo",
       statusLabel: "Interactive portfolio demo",
       serviceUrl: "weddings/",
