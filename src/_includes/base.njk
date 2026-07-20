@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
+    {% if baseHref %}<base href="{{ baseHref }}" />{% endif %}
 
     <title>{% if title %}{{ title }} | {{ site.name }}{% else %}{{ site.name }} - {{ site.tagline }}{% endif %}</title>
     <meta name="description" content="{{ description or site.description }}" />
@@ -15,7 +16,7 @@
     <meta property="og:site_name" content="{{ site.name }}" />
     <meta property="og:title" content="{% if title %}{{ title }} | {{ site.name }}{% else %}{{ site.name }}{% endif %}" />
     <meta property="og:description" content="{{ description or site.description }}" />
-    <meta property="og:image" content="{{ (site.url + '/assets/img/logo-symbio-color.svg') if site.url else 'assets/img/logo-symbio-color.svg' }}" />
+    <meta property="og:image" content="{{ ogImage or ((site.url + '/assets/img/logo-symbio-color.svg') if site.url else 'assets/img/logo-symbio-color.svg') }}" />
     <meta name="twitter:card" content="summary" />
 
     {# Canonical + og:url — self-referencing absolute URL. A page may set its own
@@ -114,6 +115,7 @@
 
     <link rel="stylesheet" href="assets/css/styles.css?v=20260715-themed-lab" />
     <link rel="stylesheet" href="assets/css/symbio-extra.css?v=20260714-cinematic" />
+    {% if pageStylesheet %}<link rel="stylesheet" href="{{ pageStylesheet }}" />{% endif %}
     <script src="assets/js/main.js" defer></script>
     {% if extraScripts %}
       {% for script in extraScripts %}

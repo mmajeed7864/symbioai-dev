@@ -83,6 +83,7 @@ export default {
     portfolio: "portfolio.html",
     demo: "chatbot-demo.html",
     demos: "demos.html",
+    weddings: "weddings/",
   },
 
   projects: [

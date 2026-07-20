@@ -1,0 +1,606 @@
+.page--weddings .site-main {
+  overflow: clip;
+}
+
+.weddings-page {
+  --w-gold: #c7a451;
+  --w-gold-soft: rgba(199, 164, 81, 0.14);
+  --w-ink: var(--c-text);
+  --w-muted: var(--c-text-muted);
+  color: var(--w-ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(199, 164, 81, 0.12), transparent 25rem),
+    radial-gradient(circle at 85% 6%, rgba(47, 107, 255, 0.14), transparent 28rem),
+    var(--c-bg);
+}
+
+.weddings-page :where(h1, h2, h3) {
+  letter-spacing: -0.035em;
+}
+
+.weddings-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--w-gold);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.weddings-kicker::before {
+  width: 1.8rem;
+  height: 1px;
+  content: "";
+  background: currentcolor;
+}
+
+.weddings-hero {
+  position: relative;
+  padding-block: clamp(4.25rem, 10vw, 8rem) clamp(3.5rem, 8vw, 6.5rem);
+}
+
+.weddings-hero::before,
+.weddings-hero::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.weddings-hero::before {
+  top: -11rem;
+  right: -10rem;
+  width: 30rem;
+  height: 30rem;
+}
+
+.weddings-hero::after {
+  right: 3rem;
+  bottom: -15rem;
+  width: 23rem;
+  height: 23rem;
+}
+
+.weddings-hero__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(3rem, 7vw, 6.5rem);
+  align-items: center;
+}
+
+.weddings-hero__copy h1 {
+  max-width: 12ch;
+  margin-top: 1.2rem;
+  font-size: clamp(3rem, 7.3vw, 6.7rem);
+  line-height: 0.98;
+}
+
+.weddings-hero__copy h1 span {
+  color: transparent;
+  background: linear-gradient(120deg, var(--c-accent), #7a4dff 54%, var(--w-gold));
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.weddings-hero__copy > p {
+  max-width: 40rem;
+  margin-top: 1.6rem;
+  color: var(--w-muted);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+}
+
+.weddings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 2rem;
+}
+
+.weddings-trust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 38rem;
+  margin-top: 2.5rem;
+  border-block: 1px solid var(--c-border);
+}
+
+.weddings-trust li {
+  padding: 1rem 0.9rem;
+}
+
+.weddings-trust li + li {
+  border-left: 1px solid var(--c-border);
+}
+
+.weddings-trust strong,
+.weddings-trust span {
+  display: block;
+}
+
+.weddings-trust strong {
+  font-size: 0.92rem;
+}
+
+.weddings-trust span {
+  margin-top: 0.15rem;
+  color: var(--w-muted);
+  font-size: 0.76rem;
+}
+
+.weddings-hero__copy .weddings-fine-print {
+  margin-top: 0.65rem;
+  font-size: 0.76rem;
+  color: var(--c-text-faint);
+}
+
+.weddings-proof {
+  position: relative;
+}
+
+.weddings-proof__glow {
+  position: absolute;
+  inset: 12% 8% -8%;
+  z-index: -1;
+  background: linear-gradient(135deg, rgba(47, 107, 255, 0.38), rgba(199, 164, 81, 0.3));
+  filter: blur(52px);
+  opacity: 0.75;
+}
+
+.weddings-browser {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--c-border-strong);
+  border-radius: clamp(1rem, 3vw, 1.6rem);
+  box-shadow: var(--shadow-lg);
+  transform: rotate(1.2deg);
+}
+
+.weddings-browser__bar {
+  display: flex;
+  gap: 0.42rem;
+  align-items: center;
+  min-height: 2.8rem;
+  padding-inline: 1rem;
+  color: #5c6478;
+  background: #f7f8fc;
+  border-bottom: 1px solid #e6e9f4;
+}
+
+.weddings-browser__bar > span {
+  width: 0.58rem;
+  height: 0.58rem;
+  background: #ff6b68;
+  border-radius: 50%;
+}
+
+.weddings-browser__bar > span:nth-child(2) {
+  background: #f5c451;
+}
+
+.weddings-browser__bar > span:nth-child(3) {
+  background: #4ed69b;
+}
+
+.weddings-browser__bar div {
+  min-width: 0;
+  margin-left: 0.35rem;
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weddings-browser img {
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+
+.weddings-proof__caption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: start;
+  max-width: 29rem;
+  margin: 1.4rem auto 0;
+}
+
+.weddings-proof__caption span {
+  padding: 0.3rem 0.55rem;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--c-accent);
+  border-radius: var(--radius-pill);
+}
+
+.weddings-proof__caption p {
+  color: var(--w-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.weddings-strip {
+  border-block: 1px solid var(--c-border);
+  background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+}
+
+.weddings-strip__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem clamp(1rem, 3vw, 2rem);
+  align-items: center;
+  justify-content: center;
+  min-height: 5rem;
+  padding-block: 1rem;
+}
+
+.weddings-strip p {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.weddings-strip span {
+  color: var(--w-gold);
+  font-size: 0.55rem;
+}
+
+.weddings-section {
+  padding-block: clamp(4rem, 9vw, 7.5rem);
+}
+
+.weddings-section--tint {
+  background:
+    linear-gradient(180deg, transparent, var(--c-accent-soft) 45%, transparent),
+    var(--c-bg-tint);
+  border-block: 1px solid var(--c-border);
+}
+
+.weddings-heading {
+  max-width: 45rem;
+  margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+  text-align: center;
+}
+
+.weddings-heading .weddings-kicker::before {
+  display: none;
+}
+
+.weddings-heading h2,
+.weddings-faq-intro h2,
+.weddings-close h2 {
+  margin-top: 0.9rem;
+  font-size: clamp(2.1rem, 5vw, 4.25rem);
+  line-height: 1.04;
+}
+
+.weddings-heading p,
+.weddings-faq-intro p {
+  margin-top: 1rem;
+  color: var(--w-muted);
+  font-size: 1.05rem;
+}
+
+.weddings-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.weddings-feature {
+  position: relative;
+  min-height: 15rem;
+  padding: 1.7rem;
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--c-surface), var(--c-surface-2));
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.weddings-feature:hover {
+  border-color: color-mix(in srgb, var(--w-gold) 48%, var(--c-border));
+  transform: translateY(-4px);
+}
+
+.weddings-feature__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  color: var(--w-gold);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: var(--w-gold-soft);
+  border: 1px solid color-mix(in srgb, var(--w-gold) 35%, transparent);
+  border-radius: 50%;
+}
+
+.weddings-feature h3 {
+  margin-top: 2.2rem;
+  font-size: 1.25rem;
+}
+
+.weddings-feature p {
+  margin-top: 0.65rem;
+  color: var(--w-muted);
+  font-size: 0.92rem;
+}
+
+.weddings-tiers {
+  display: grid;
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.weddings-tier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 4vw, 2.1rem);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.weddings-tier--featured {
+  border-color: var(--c-accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.weddings-tier__badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  padding: 0.42rem 0.9rem;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--grad-accent);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  transform: translateX(-50%);
+}
+
+.weddings-tier__top {
+  min-height: 4.1rem;
+}
+
+.weddings-tier__top p {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.weddings-tier__top span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--w-muted);
+  font-size: 0.82rem;
+}
+
+.weddings-price {
+  margin-block: 1rem 1.35rem;
+  font-size: clamp(3rem, 6vw, 4.2rem);
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.weddings-price span {
+  margin-right: 0.1rem;
+  color: var(--w-gold);
+  font-size: 0.46em;
+  vertical-align: top;
+}
+
+.weddings-tier ul {
+  flex: 1;
+  margin-bottom: 1.7rem;
+}
+
+.weddings-tier li {
+  position: relative;
+  padding: 0.7rem 0 0.7rem 1.45rem;
+  color: var(--w-muted);
+  font-size: 0.87rem;
+  border-bottom: 1px dashed var(--c-border);
+}
+
+.weddings-tier li::before {
+  position: absolute;
+  top: 0.78rem;
+  left: 0;
+  color: var(--c-accent);
+  font-weight: 900;
+  content: "✓";
+}
+
+.weddings-steps {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+}
+
+.weddings-steps li {
+  min-height: 13rem;
+  padding: 1.7rem;
+  background: var(--c-surface);
+}
+
+.weddings-steps li > span {
+  color: var(--w-gold);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.weddings-steps h3 {
+  margin-top: 2.3rem;
+  font-size: 1.15rem;
+}
+
+.weddings-steps p {
+  margin-top: 0.55rem;
+  color: var(--w-muted);
+  font-size: 0.9rem;
+}
+
+.weddings-section--faq {
+  padding-top: clamp(2rem, 5vw, 4rem);
+}
+
+.weddings-faq-layout {
+  display: grid;
+  gap: clamp(2rem, 7vw, 6rem);
+  align-items: start;
+}
+
+.weddings-faq-intro {
+  max-width: 31rem;
+}
+
+.weddings-faq details {
+  border-bottom: 1px solid var(--c-border);
+}
+
+.weddings-faq summary {
+  position: relative;
+  padding: 1.25rem 2.4rem 1.25rem 0;
+  font-weight: 750;
+  cursor: pointer;
+  list-style: none;
+}
+
+.weddings-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.weddings-faq summary::after {
+  position: absolute;
+  top: 1.1rem;
+  right: 0;
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--c-accent);
+  content: "+";
+  place-items: center;
+  background: var(--c-accent-soft);
+  border-radius: 50%;
+}
+
+.weddings-faq details[open] summary::after {
+  content: "−";
+}
+
+.weddings-faq details p {
+  max-width: 42rem;
+  padding: 0 2.4rem 1.35rem 0;
+  color: var(--w-muted);
+  font-size: 0.94rem;
+}
+
+.weddings-close {
+  padding-block: 0 clamp(4rem, 10vw, 8rem);
+}
+
+.weddings-close__card {
+  position: relative;
+  padding: clamp(2.5rem, 7vw, 5.5rem);
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.18), transparent 20rem),
+    linear-gradient(125deg, #183fbd, #6b42db 64%, #9d7835);
+  border-radius: clamp(1.4rem, 4vw, 2.4rem);
+  box-shadow: var(--shadow-lg);
+}
+
+.weddings-close .weddings-kicker {
+  color: #f2d78f;
+}
+
+.weddings-close .weddings-kicker::before {
+  display: none;
+}
+
+.weddings-close__card p {
+  max-width: 36rem;
+  margin: 1rem auto 1.8rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+@media (min-width: 760px) {
+  .weddings-tiers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .weddings-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .weddings-faq-layout {
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  }
+
+  .weddings-faq-intro {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .weddings-hero__grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(24rem, 0.92fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .weddings-actions .btn {
+    width: 100%;
+  }
+
+  .weddings-trust {
+    grid-template-columns: 1fr;
+  }
+
+  .weddings-trust li + li {
+    border-top: 1px solid var(--c-border);
+    border-left: 0;
+  }
+
+  .weddings-strip__inner span {
+    display: none;
+  }
+
+  .weddings-strip__inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weddings-browser,
+  .weddings-feature {
+    transform: none;
+  }
+}
