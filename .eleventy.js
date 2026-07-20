@@ -15,6 +15,11 @@ export default function (eleventyConfig) {
   // The chatbot demo is a self-contained, shareable file — ship it untouched.
   eleventyConfig.addPassthroughCopy({ "src/chatbot-demo.html": "chatbot-demo.html" });
 
+  // Sanitized portfolio demo: intentionally self-contained and not templated.
+  eleventyConfig.addPassthroughCopy({
+    "src/portfolio/wedding-demo": "portfolio/wedding-demo",
+  });
+
   // Preserve the custom domain when GitHub Pages deploys the built dist folder.
   eleventyConfig.addPassthroughCopy({ "src/CNAME": "CNAME" });
 

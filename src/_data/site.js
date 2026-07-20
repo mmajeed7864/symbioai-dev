@@ -121,6 +121,27 @@ export default {
         "Mobile-first visitor experience",
       ],
     },
+    {
+      name: "Ravi & Aachal — Wedding Platform",
+      category: "Weddings",
+      service: "Custom event platform",
+      url: "portfolio/wedding-demo/",
+      ctaLabel: "View sanitized demo",
+      statusLabel: "Interactive portfolio demo",
+      serviceUrl: "weddings/",
+      serviceCta: "Build a wedding site",
+      image: "assets/img/weddings-showcase.jpg",
+      imageAlt:
+        "Ravi and Aachal wedding platform with a custom four-day celebration experience",
+      summary:
+        "A four-day Indian wedding brought into one custom platform: bespoke design, per-event RSVP, family notifications, thoughtful venue privacy, and QR guest cameras feeding a private couple's album.",
+      features: [
+        "Per-event RSVP and family notifications",
+        "Multi-day, dual-family event schedules",
+        "Guest-camera QR upload experience",
+        "Private couple's album and venue handling",
+      ],
+    },
   ],
 
   productLanes: [

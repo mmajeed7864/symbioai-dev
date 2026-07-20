@@ -29,7 +29,7 @@ extraScripts:
             href="{{ project.url }}"
             target="_blank"
             rel="noopener"
-            aria-label="Open the live {{ project.name }} website"
+            aria-label="Open {{ project.statusLabel or ('the live ' + project.name + ' website') }}"
           >
             <img
               src="{{ project.image }}"
@@ -38,7 +38,7 @@ extraScripts:
               width="1440"
               height="900"
             />
-            <span class="project-card__status"><i aria-hidden="true"></i> Live client site</span>
+            <span class="project-card__status"><i aria-hidden="true"></i> {{ project.statusLabel or 'Live client site' }}</span>
           </a>
           <div class="project-card__body">
             <div class="project-card__meta">
@@ -51,8 +51,8 @@ extraScripts:
               {% for feature in project.features %}<li>{{ feature }}</li>{% endfor %}
             </ul>
             <div class="project-card__actions">
-              <a class="btn btn--primary" href="{{ project.url }}" target="_blank" rel="noopener">View live project</a>
-              <a class="btn btn--ghost" href="{{ site.cta.url }}">Build something like this</a>
+              <a class="btn btn--primary" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.ctaLabel or 'View live project' }}</a>
+              <a class="btn btn--ghost" href="{{ project.serviceUrl or site.cta.url }}">{{ project.serviceCta or 'Build something like this' }}</a>
             </div>
           </div>
         </article>

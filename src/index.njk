@@ -375,10 +375,10 @@ extraScripts:
             href="{{ project.url }}"
             target="_blank"
             rel="noopener"
-            aria-label="Open the live {{ project.name }} website"
+            aria-label="Open {{ project.statusLabel or ('the live ' + project.name + ' website') }}"
           >
             <img src="{{ project.image }}" alt="{{ project.imageAlt }}" loading="lazy" width="1440" height="900" />
-            <span class="project-card__status"><i aria-hidden="true"></i> Live client site</span>
+            <span class="project-card__status"><i aria-hidden="true"></i> {{ project.statusLabel or 'Live client site' }}</span>
           </a>
           <div class="project-card__body">
             <div class="project-card__meta">
@@ -388,7 +388,7 @@ extraScripts:
             <h3 class="project-card__title">{{ project.name }}</h3>
             <p class="project-card__summary">{{ project.summary }}</p>
             <div class="project-card__actions">
-              <a class="btn btn--primary" href="{{ project.url }}" target="_blank" rel="noopener">View live project</a>
+              <a class="btn btn--primary" href="{{ project.url }}" target="_blank" rel="noopener">{{ project.ctaLabel or 'View live project' }}</a>
             </div>
           </div>
         </article>
