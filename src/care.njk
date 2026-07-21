@@ -3,64 +3,99 @@ layout: base.njk
 pageKey: care
 title: "Website care plans"
 permalink: care.html
-description: Keep your site fast, secure, updated, and converting — managed website care plans from $79/mo. Hosting, monitoring, updates, and ongoing improvements, handled by the people who built it.
+description: Transparent website care from $79/mo for every Symbio-hosted website. See exactly what the monthly fee covers, what is separate, and how each plan works.
 ---
 
-{# ===== Hero =========================================================== #}
 <section class="section section--tight has-aurora">
   <div class="aurora" aria-hidden="true"></div>
   <div class="container container--narrow center">
-    <span class="eyebrow eyebrow--center">Care plans</span>
-    <h1 class="section__title">We keep it running — from $79/mo</h1>
+    <span class="eyebrow eyebrow--center">Website care · disclosed before launch</span>
+    <h1 class="section__title">Your build gets it live. Care keeps it live.</h1>
     <p class="section__lead">
-      A website isn’t “done” — it needs hosting, updates, monitoring, and the occasional change.
-      A care plan hands all of that to the people who built it, so it stays fast, secure, and
-      working while you run your business.
+      For every new website Symbio hosts and manages, care starts at <strong>$79/mo</strong> when
+      the site launches. The one-time build and monthly care always appear as separate line items,
+      so you know both numbers before approving the project.
     </p>
+    <div class="care-policy" role="note">
+      <span class="care-policy__dot" aria-hidden="true"></span>
+      No surprise subscription · month-to-month · self-managed handoff available
+    </div>
     <div class="btn-row btn-row--center mt-6">
-      <a class="btn btn--primary btn--lg" href="#plans">See plans</a>
-      <a class="btn btn--ghost btn--lg" href="{{ site.cta.url }}">Get a free scan</a>
+      <a class="btn btn--primary btn--lg" href="#plans">Compare care plans</a>
+      <a class="btn btn--ghost btn--lg" href="pricing.html">See build pricing</a>
     </div>
   </div>
 </section>
 
-{# ===== What's covered ================================================= #}
 <section class="section section--tight">
   <div class="container">
     <div class="section__head section__head--center" data-reveal>
-      <span class="eyebrow eyebrow--center">What’s covered</span>
-      <h2 class="section__title">Off your plate, on ours</h2>
+      <span class="eyebrow eyebrow--center">Two prices, two jobs</span>
+      <h2 class="section__title">Build cost and care cost are not the same charge</h2>
+      <p class="section__lead">One creates the website. The other operates it after launch.</p>
     </div>
-    <div class="grid grid--auto">
-      <article class="card" data-reveal>
-        <h3 class="card__title">Fast &amp; online</h3>
-        <p class="card__text">Managed hosting, SSL, and uptime monitoring so your site stays quick and reachable.</p>
+    <div class="care-model" data-reveal>
+      <article class="care-model__card">
+        <span class="care-model__label">One time</span>
+        <h3>Website build</h3>
+        <p>Strategy, design, development, mobile polish, forms, testing, and launch.</p>
+        <strong>Quoted before work begins</strong>
       </article>
-      <article class="card" data-reveal data-reveal-delay="1">
-        <h3 class="card__title">Secure &amp; current</h3>
-        <p class="card__text">Updates and security monitoring so nothing goes stale or gets exploited.</p>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="2">
-        <h3 class="card__title">Always editable</h3>
-        <p class="card__text">Send us the change — new hours, a new photo, a new page — and we handle it.</p>
-      </article>
-      <article class="card" data-reveal data-reveal-delay="3">
-        <h3 class="card__title">Always improving</h3>
-        <p class="card__text">On higher plans we keep tuning the site to win more leads, not just keep the lights on.</p>
+      <article class="care-model__card care-model__card--active">
+        <span class="care-model__label">Monthly after launch</span>
+        <h3>Website care</h3>
+        <p>Managed hosting, monitoring, maintenance, restore points, support, and included updates.</p>
+        <strong>From $79/mo</strong>
       </article>
     </div>
   </div>
 </section>
 
-{# ===== Plans ========================================================== #}
+<section class="section section--tight section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Where the fee goes</span>
+      <h2 class="section__title">The work that continues after launch</h2>
+      <p class="section__lead">
+        The monthly fee is not payment for the same website twice. It covers the infrastructure
+        and hands-on work required to keep a managed site healthy.
+      </p>
+    </div>
+    <div class="care-cost-grid">
+      <article class="care-cost" data-reveal>
+        <span class="care-cost__num">01</span>
+        <h3>Hosting &amp; SSL</h3>
+        <p>Your website stays published on managed infrastructure with encrypted HTTPS.</p>
+      </article>
+      <article class="care-cost" data-reveal data-reveal-delay="1">
+        <span class="care-cost__num">02</span>
+        <h3>Monitoring &amp; recovery</h3>
+        <p>We watch availability and keep deployment history and restore points ready.</p>
+      </article>
+      <article class="care-cost" data-reveal data-reveal-delay="2">
+        <span class="care-cost__num">03</span>
+        <h3>Platform maintenance</h3>
+        <p>Security, dependency, compatibility, and performance maintenance as the web changes.</p>
+      </article>
+      <article class="care-cost" data-reveal data-reveal-delay="3">
+        <span class="care-cost__num">04</span>
+        <h3>Real human support</h3>
+        <p>Minor content changes and troubleshooting from the same builders who know the site.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="section section--tight" id="plans">
   <div class="container">
     <div class="section__head section__head--center" data-reveal>
-      <span class="eyebrow eyebrow--center">Plans</span>
-      <h2 class="section__title">Simple monthly care</h2>
-      <p class="section__lead">Month-to-month, cancel anytime. Already a client? We’ll roll your site straight in.</p>
+      <span class="eyebrow eyebrow--center">Monthly plans</span>
+      <h2 class="section__title">Choose how hands-on you want us to be</h2>
+      <p class="section__lead">
+        Essential is the required minimum for new Symbio-managed websites. Upgrade when you want
+        more edit time, reporting, and faster support.
+      </p>
     </div>
-
     <div class="grid grid--3">
       {% for plan in site.carePlans %}
         <article
@@ -71,6 +106,9 @@ description: Keep your site fast, secure, updated, and converting — managed we
         >
           {% if plan.featured %}<span class="price__flag">Most popular</span>{% endif %}
           <h2 class="price__name">{{ plan.name }}</h2>
+          {% if plan.key == "care-essential" %}
+            <span class="price__kicker">Managed-site minimum</span>
+          {% endif %}
           <p class="price__amount">{{ plan.price }} <small>{{ plan.cadence }}</small></p>
           <p class="price__desc">{{ plan.blurb }}</p>
           <ul class="price__features">
@@ -84,35 +122,105 @@ description: Keep your site fast, secure, updated, and converting — managed we
               href="{{ plan.checkoutUrl if plan.checkoutUrl else site.checkout.url }}"
               {% if plan.checkoutUrl %}rel="noopener"{% endif %}
             >
-              {% if plan.checkoutUrl %}Start {{ plan.name }} — {{ plan.price }}{{ plan.cadence }}{% else %}Get started{% endif %}
+              {% if plan.checkoutUrl %}Start {{ plan.name }} — {{ plan.price }}{{ plan.cadence }}{% else %}Choose {{ plan.name }}{% endif %}
             </a>
           </div>
         </article>
       {% endfor %}
     </div>
-
     <div class="note-card mt-7" data-reveal>
-      <span class="note-card__tag">Not a client yet?</span>
+      <span class="note-card__tag">When billing starts</span>
       <p>
-        We can take over an existing site or build you a new one first. <a href="{{ site.cta.url }}">Start with a free scan</a> and we’ll tell you which plan fits — or whether you need one at all.
+        Care begins when the website launches, not while we are building it. It is month-to-month.
+        If you cancel, managed hosting, monitoring, maintenance, and support end after the paid
+        billing period. Ask us for a separately quoted self-managed handoff before cancellation
+        if you want to operate the site elsewhere.
       </p>
     </div>
   </div>
 </section>
 
-{# ===== Closing CTA =================================================== #}
+<section class="section section--tight section--tint">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Clear boundaries</span>
+      <h2 class="section__title">What care covers—and what needs a new quote</h2>
+      <p class="section__lead">We ask before doing billable work outside your plan.</p>
+    </div>
+    <div class="scope-grid">
+      <article class="scope-panel" data-reveal>
+        <span class="scope-panel__label">Included on every plan</span>
+        <ul class="scope-panel__list">
+          <li>Managed hosting and SSL/TLS</li>
+          <li>Availability monitoring and restore points</li>
+          <li>Security, platform, and dependency maintenance</li>
+          <li>The content-update allowance listed in your plan</li>
+          <li>Support from the builders who know your website</li>
+        </ul>
+      </article>
+      <article class="scope-panel scope-panel--separate" data-reveal data-reveal-delay="1">
+        <span class="scope-panel__label">Quoted separately—with approval first</span>
+        <ul class="scope-panel__list">
+          <li>New pages, major features, or redesigns</li>
+          <li>Custom integrations, e-commerce, or app development</li>
+          <li>Full copywriting, photo/video production, or ad campaigns</li>
+          <li>Third-party subscriptions, domains, ads, or paid software</li>
+          <li>Work beyond the plan's monthly update allowance</li>
+        </ul>
+      </article>
+    </div>
+    <p class="care-fineprint" data-reveal>
+      Monthly update time resets each billing cycle and does not roll over. “Response time” means
+      acknowledgment and triage—not guaranteed resolution time. Business hours are Monday–Friday,
+      9am–6pm in the client's local time, excluding holidays.
+    </p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">Straight answers</span>
+      <h2 class="section__title">The questions clients usually ask</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card card--static" data-reveal>
+        <h3 class="card__title">Why is this monthly?</h3>
+        <p class="card__text">
+          Hosting, monitoring, maintenance, and support continue every month. The build fee only
+          covers creating and launching the website.
+        </p>
+      </article>
+      <article class="card card--static" data-reveal data-reveal-delay="1">
+        <h3 class="card__title">Can I host it myself?</h3>
+        <p class="card__text">
+          Yes. A self-managed handoff can be quoted separately. You take responsibility for
+          hosting, security, maintenance, and future changes.
+        </p>
+      </article>
+      <article class="card card--static" data-reveal data-reveal-delay="2">
+        <h3 class="card__title">Will you charge extra without asking?</h3>
+        <p class="card__text">
+          No. If a request falls outside your plan, we explain the scope and price before starting
+          that work.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section class="section">
   <div class="container">
     <div class="cta-band" data-reveal>
-      <h2 class="cta-band__title">Stop worrying about your website</h2>
+      <h2 class="cta-band__title">One build number. One care number. No surprise bill.</h2>
       <p class="cta-band__text">
-        Hand it to the people who built it. We’ll keep it fast, secure, and converting — you get
-        back to running the business.
+        We show both before you approve the project, then start monthly care only when your site
+        goes live.
       </p>
       <div class="btn-row btn-row--center">
         <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Get my free scan</a>
         <a class="btn btn--secondary btn--lg" href="{{ site.checkout.url }}">Open checkout</a>
-        <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+        <a class="btn btn--secondary btn--lg" href="pricing.html">See build pricing</a>
       </div>
     </div>
   </div>
