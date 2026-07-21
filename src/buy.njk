@@ -35,6 +35,9 @@ description: Buy a fixed-price package — no call required. Website in 7 days, 
           <h2 class="price__name">{{ pkg.name }}</h2>
           <p class="price__amount">{{ pkg.price }} <small>{{ pkg.cadence }}</small></p>
           <p class="price__desc">{{ pkg.blurb }}</p>
+          {% if pkg.ongoing %}
+            <p class="price__ongoing"><span>After launch</span><strong>{{ pkg.ongoing }}</strong></p>
+          {% endif %}
           <ul class="price__features">
             {% for feature in pkg.features %}
               <li>{{ feature }}</li>
@@ -68,9 +71,9 @@ description: Buy a fixed-price package — no call required. Website in 7 days, 
       <span class="note-card__tag">Bundle &amp; save</span>
       <p>
         Combine lanes — e.g. <strong>Website + Booking + AI Assistant</strong> — and we take
-        <strong>15% off</strong> the bundle. Most clients add a <a href="care.html">care plan</a>
-        or the <a href="widget.html">AI assistant</a> after launch to keep results compounding at
-        a low monthly cost.
+        <strong>15% off</strong> the bundle. For website packages Symbio hosts and manages,
+        <a href="care.html">Essential care starts at $79/mo</a> when the site launches. AI service
+        plans are separate and shown before checkout.
       </p>
     </div>
   </div>
