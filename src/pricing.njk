@@ -16,6 +16,11 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
       at $1,490 (small agencies charge $5,000–$9,000 for the same thing), and every lane has a
       clear starting point well below market. The free scan tells us what is worth building first.
     </p>
+    <p class="pricing-care-inline">
+      <strong>For websites we manage after launch:</strong> website care is a separate recurring
+      line from <strong>$79/mo</strong>, beginning when the site goes live.
+      <a href="care.html">See exactly what the monthly fee covers.</a>
+    </p>
   </div>
 </section>
 
@@ -38,6 +43,9 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
           <span class="price-anchor__amount">{{ lane.startsAt }}</span>
           {% if lane.compareAt %}<span class="price-anchor__compare">{{ lane.compareAt }}</span>{% endif %}
           <span class="price-anchor__note">{{ lane.bestFor }}</span>
+          {% if lane.key == "website" %}
+            <span class="price-anchor__recurring">After launch: managed care from $79/mo</span>
+          {% endif %}
         </a>
       {% endfor %}
     </div>
@@ -73,6 +81,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         <h2 class="price__name">Website start</h2>
         <p class="price__amount">$1.5k+ <small>site or redesign</small></p>
         <span class="price__compare"><s>Agencies: $5k–$9k</s> · you save thousands</span>
+        <p class="price__ongoing"><span>After launch</span><strong>+ managed care from $79/mo</strong></p>
         <p class="price__desc">A focused website or redesign scope that makes the business look credible and easier to contact.</p>
         <ul class="price__features">
           <li>New website, landing page, or homepage rebuild</li>
@@ -91,6 +100,7 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         <h2 class="price__name">Growth website</h2>
         <p class="price__amount">$2.5k-$5.5k</p>
         <span class="price__compare"><s>Agencies: $9k+</s> · best value</span>
+        <p class="price__ongoing"><span>After launch</span><strong>+ managed care from $79/mo</strong></p>
         <p class="price__desc">A polished multi-page website with booking, lead capture, proof, and basic follow-up connected.</p>
         <ul class="price__features">
           <li>Multi-page site or landing system</li>
@@ -130,8 +140,8 @@ description: Honest pricing for website redesigns first, with custom apps, chatb
         Every number starts with a free scan. No pressure and no blind invoice. You will get a
         plain-English breakdown of the first build we recommend, the starting lane it belongs to,
         and what it costs before you decide anything. Already know what you need? You can
-        <a href="buy.html">buy a fixed-price package</a> or <a href="{{ site.checkout.url }}">open checkout</a> — no call required. After launch, keep it
-        running with a <a href="care.html">care plan</a>.
+        <a href="buy.html">buy a fixed-price package</a> or <a href="{{ site.checkout.url }}">open checkout</a> — no call required. For new websites Symbio hosts and manages, at least
+        Essential care ($79/mo) is required after launch and appears as its own line before you approve.
       </p>
     </div>
   </div>

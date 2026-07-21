@@ -1201,13 +1201,14 @@
     const deposit = checkout.querySelector("[data-checkout-deposit]");
     const turnaround = checkout.querySelector("[data-checkout-turnaround]");
     const summary = checkout.querySelector("[data-checkout-summary]");
+    const ongoing = checkout.querySelector("[data-checkout-ongoing]");
     const checkoutLink = checkout.querySelector(".checkout-actions .btn--primary");
     if (!offers.length) return;
 
-    function mailtoFor(offerTitle) {
+    function mailtoFor(offerTitle, ongoingCost) {
       const subject = encodeURIComponent("Symbio AI secure checkout request");
       const body = encodeURIComponent(
-        `Hi Symbio AI,\n\nI want to start a secure checkout for: ${offerTitle}\n\nMy business name:\nMy website or social link:\nBest phone number:\n`
+        `Hi Symbio AI,\n\nI want to start a secure checkout for: ${offerTitle}\nOngoing terms shown at checkout: ${ongoingCost || "None listed"}\n\nMy business name:\nMy website or social link:\nBest phone number:\n`
       );
       return `mailto:contact@symbioai.dev?subject=${subject}&body=${body}`;
     }
@@ -1221,7 +1222,8 @@
         if (deposit) deposit.textContent = data.deposit || "";
         if (turnaround) turnaround.textContent = data.turnaround || "";
         if (summary) summary.textContent = data.summary || "";
-        if (checkoutLink) checkoutLink.href = mailtoFor(data.title || "Symbio AI build");
+        if (ongoing) ongoing.textContent = data.ongoing || "No recurring cost listed.";
+        if (checkoutLink) checkoutLink.href = mailtoFor(data.title || "Symbio AI build", data.ongoing);
         checkout.classList.remove("is-checkout-changing");
         window.requestAnimationFrame(() => checkout.classList.add("is-checkout-changing"));
       });
