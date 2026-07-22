@@ -122,7 +122,7 @@ export default {
       ],
     },
     {
-      name: "Ravi & Aachal — Wedding Platform",
+      name: "Four-Day Indian Wedding — Event Platform",
       category: "Weddings",
       service: "Custom event platform",
       url: "portfolio/wedding-demo",
@@ -132,7 +132,7 @@ export default {
       serviceCta: "Build a wedding site",
       image: "assets/img/weddings-showcase.jpg",
       imageAlt:
-        "Ravi and Aachal wedding platform with a custom four-day celebration experience",
+        "Custom wedding event platform demo with a four-day Indian celebration experience",
       summary:
         "A four-day Indian wedding brought into one custom platform: bespoke design, per-event RSVP, family notifications, thoughtful venue privacy, and QR guest cameras feeding a private couple's album.",
       features: [
