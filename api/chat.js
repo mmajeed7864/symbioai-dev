@@ -1,5 +1,4 @@
 import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 
 import {
   DEFAULT_CHAT_MODEL,
@@ -14,6 +13,12 @@ import {
   safeSessionId,
   scrubSensitiveMessages,
 } from "./_chat-shared.js";
+import {
+  getChatRedis,
+  normalizeProviderUsage,
+  recordChatMetric,
+  storeLearningEvent,
+} from "./_chat-telemetry.js";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const CACHE_SECONDS = 15 * 60;
@@ -24,21 +29,12 @@ let redisState;
 function getRedisState() {
   if (redisState !== undefined) return redisState;
 
-  const url =
-    process.env.UPSTASH_REDIS_REST_URL ||
-    process.env.KV_REST_API_URL ||
-    process.env.SYMBIO_REDIS_REST_URL;
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN ||
-    process.env.KV_REST_API_TOKEN ||
-    process.env.SYMBIO_REDIS_REST_TOKEN;
-
-  if (!url || !token) {
+  const redis = getChatRedis();
+  if (!redis) {
     redisState = null;
     return redisState;
   }
 
-  const redis = new Redis({ url, token });
   redisState = {
     redis,
     ipLimiter: new Ratelimit({
@@ -121,6 +117,26 @@ function responseText(payload) {
   return content.map((part) => (typeof part === "string" ? part : part?.text || "")).join("\n");
 }
 
+function latestUserQuestion(messages) {
+  return (
+    [...messages]
+      .reverse()
+      .find(({ role }) => role === "user")
+      ?.content?.trim() || ""
+  );
+}
+
+async function recordProviderError(state, model) {
+  try {
+    await recordChatMetric(state.redis, {
+      kind: "providerError",
+      model,
+    });
+  } catch {
+    // Telemetry must never replace the customer-facing error response.
+  }
+}
+
 export default async function handler(req, res) {
   setCors(req, res);
 
@@ -135,7 +151,7 @@ export default async function handler(req, res) {
   }
 
   const origin = req.headers.origin || "";
-  if (origin && !isAllowedOrigin(origin)) {
+  if (!origin || !isAllowedOrigin(origin)) {
     res.status(403).json({ ok: false, error: "Origin not allowed." });
     return;
   }
@@ -212,7 +228,31 @@ export default async function handler(req, res) {
   try {
     const cached = await state.redis.get(answerKey);
     if (typeof cached === "string" && cached) {
-      res.status(200).json({ ok: true, reply: cached, source: "cache" });
+      let learningEvent = null;
+      try {
+        [learningEvent] = await Promise.all([
+          storeLearningEvent(state.redis, {
+            question: latestUserQuestion(modelMessages),
+            answer: cached,
+            sessionId,
+            source: "cache",
+            model: String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim(),
+            costKnown: true,
+          }),
+          recordChatMetric(state.redis, {
+            kind: "cache",
+            model: String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim(),
+          }),
+        ]);
+      } catch {
+        // A telemetry failure must not hide a valid cached answer.
+      }
+      res.status(200).json({
+        ok: true,
+        reply: cached,
+        source: "cache",
+        messageId: learningEvent?.id || "",
+      });
       return;
     }
   } catch {
@@ -238,6 +278,7 @@ export default async function handler(req, res) {
   try {
     providerResponse = await fetchOpenRouter(buildOpenRouterBody(modelMessages, model), apiKey);
   } catch {
+    await recordProviderError(state, model);
     res.status(502).json({ ok: false, error: "The assistant could not answer right now." });
     return;
   }
@@ -248,29 +289,58 @@ export default async function handler(req, res) {
       model,
       status: providerResponse.status,
     });
+    await recordProviderError(state, model);
     res.status(502).json({ ok: false, error: "The assistant could not answer right now." });
     return;
   }
 
   const reply = cleanModelReply(responseText(payload));
   if (!reply) {
+    await recordProviderError(state, model);
     res.status(502).json({ ok: false, error: "The assistant returned an empty answer." });
     return;
   }
 
+  const usage = normalizeProviderUsage(payload);
+  let learningEvent = null;
   try {
-    await state.redis.set(answerKey, reply, { ex: CACHE_SECONDS });
+    const results = await Promise.all([
+      state.redis.set(answerKey, reply, { ex: CACHE_SECONDS }),
+      recordChatMetric(state.redis, {
+        kind: "model",
+        model,
+        ...usage,
+      }),
+      storeLearningEvent(state.redis, {
+        question: latestUserQuestion(modelMessages),
+        answer: reply,
+        sessionId,
+        source: "model",
+        model,
+        ...usage,
+      }),
+    ]);
+    learningEvent = results[2];
   } catch {
-    // A cache failure must not hide a valid provider answer.
+    // Cache and telemetry failures must not hide a valid provider answer.
   }
 
-  console.info("[symbio-chat] answer generated", {
-    model,
-    promptTokens: payload?.usage?.prompt_tokens || null,
-    completionTokens: payload?.usage?.completion_tokens || null,
-    costUsd: Number(payload?.usage?.cost) || null,
-    remainingToday: daily.remaining,
-  });
+  console.info(
+    JSON.stringify({
+      level: "info",
+      message: "symbio chat answer generated",
+      model,
+      promptTokens: usage.promptTokens,
+      completionTokens: usage.completionTokens,
+      costUsd: usage.costKnown ? usage.costUsd : null,
+      remainingToday: daily.remaining,
+    })
+  );
 
-  res.status(200).json({ ok: true, reply, source: "model" });
+  res.status(200).json({
+    ok: true,
+    reply,
+    source: "model",
+    messageId: learningEvent?.id || "",
+  });
 }

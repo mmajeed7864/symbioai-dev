@@ -153,6 +153,8 @@ wins):
     theme: "auto", // "auto" (follow the OS) | "light" | "dark"
     leadEndpoint: "", // optional, see contracts below
     aiEndpoint: "", // optional, see contracts below
+    eventEndpoint: "", // optional; derived from aiEndpoint when omitted
+    feedbackEndpoint: "", // optional; derived from aiEndpoint when omitted
     onLead: function (lead) {
       console.log("captured", lead);
     },
@@ -248,14 +250,41 @@ success. Otherwise it shows direct contact information instead of a false succes
 
 ```
 POST <aiEndpoint>
-{ "messages": [{ "role": "user|assistant", "content": "…" }], "system": "…" }
+{ "messages": [{ "role": "user|assistant", "content": "…" }], "sessionId": "…" }
 ->
-{ "reply": "…" }
+{ "reply": "…", "source": "model|cache|privacy", "messageId": "…" }
 ```
 
 High-confidence business questions use the built-in intent engine first, so they stay instant and
 token-free. An `aiEndpoint` is only called for an unclassified question. If it is unset or fails,
 the widget uses its configured service-fit response. Lead capture is always deterministic.
+
+When `aiEndpoint` ends in `/chat`, the widget derives `/chat-event` and `/chat-feedback`
+automatically. Every answer records anonymous operational metadata (model/source, byte counts,
+tokens, and provider-reported cost where applicable). Raw conversation text is not retained by
+default. If a visitor explicitly marks an answer **Needs work**, that one question/answer pair is
+scrubbed, stored for at most 30 days, and queued for private review. Feedback never changes the
+production prompt automatically.
+
+### 4. Private chatbot metrics
+
+`GET /api/chat-metrics` returns day/month cost, token, cache, feedback, and learning-queue totals.
+`POST /api/chat-metrics` marks reviewed learning samples. Both require:
+
+```text
+Authorization: Bearer <SYMBIO_COMMAND_CENTER_TOKEN>
+```
+
+Required production environment variables:
+
+| Variable                         | Purpose                                                      |
+| -------------------------------- | ------------------------------------------------------------ |
+| `SYMBIO_COMMAND_CENTER_TOKEN`    | Dedicated server-only bearer token for the private dashboard |
+| `SYMBIO_CHAT_MONTHLY_BUDGET_USD` | Dashboard budget reference; defaults to `5`                  |
+| `UPSTASH_REDIS_REST_URL`         | Existing Upstash REST endpoint                               |
+| `UPSTASH_REDIS_REST_TOKEN`       | Existing Upstash REST token                                  |
+| `OPENROUTER_CHAT_API_KEY`        | Restricted OpenRouter key used only by the website assistant |
+| `OPENROUTER_CHAT_MODEL`          | Live chatbot model override                                  |
 
 ---
 

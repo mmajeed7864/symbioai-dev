@@ -37,6 +37,8 @@
           position: "right",          // "right" | "left"
           leadEndpoint: "",           // optional: POST {name,contact,detail,business,page,at}
           aiEndpoint: "",             // optional: POST {messages,sessionId} -> {reply}
+          eventEndpoint: "",          // optional: POST deterministic answer metadata
+          feedbackEndpoint: "",       // optional: POST Helpful / Needs work feedback
           aiSessionLimit: 8,          // optional: browser-side courtesy cap
          onLead: function (lead) {}  // optional callback
        };
@@ -86,6 +88,7 @@
     };
     const user = window.SymbioConfig || {};
     const theme = (attr("theme") || user.theme || "auto").toLowerCase();
+    const aiEndpoint = attr("ai-endpoint") || user.aiEndpoint || "";
     return {
       businessName: attr("business-name") || user.businessName || "Our Business",
       accent: attr("accent") || user.accent || "#1f6bff",
@@ -121,7 +124,15 @@
       theme: theme === "light" || theme === "dark" ? theme : "auto",
       greeting: attr("greeting") || user.greeting || "",
       leadEndpoint: attr("lead-endpoint") || user.leadEndpoint || "",
-      aiEndpoint: attr("ai-endpoint") || user.aiEndpoint || "",
+      aiEndpoint,
+      eventEndpoint:
+        attr("event-endpoint") ||
+        user.eventEndpoint ||
+        (aiEndpoint ? aiEndpoint.replace(/\/chat(?:\?.*)?$/, "/chat-event") : ""),
+      feedbackEndpoint:
+        attr("feedback-endpoint") ||
+        user.feedbackEndpoint ||
+        (aiEndpoint ? aiEndpoint.replace(/\/chat(?:\?.*)?$/, "/chat-feedback") : ""),
       aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 15000),
       aiSessionLimit: Math.max(1, Number(user.aiSessionLimit) || 8),
       leadTimeoutMs: Math.max(1000, Number(user.leadTimeoutMs) || 10000),
@@ -335,6 +346,16 @@
         background: var(--sa);
         background: linear-gradient(135deg, var(--sa), color-mix(in srgb, var(--sa), #000 16%));
         border-bottom-right-radius: 4px; }
+      .feedback { display: flex; align-items: center; gap: 5px; margin-top: 9px;
+        padding-top: 7px; border-top: 1px solid var(--border); white-space: normal; }
+      .feedback-label { color: var(--muted); font-size: 10px; margin-right: 2px; }
+      .feedback-btn { appearance: none; border: 1px solid var(--border); border-radius: 999px;
+        background: var(--bg-2); color: var(--muted); cursor: pointer; font: inherit;
+        font-size: 10px; line-height: 1; padding: 6px 8px; }
+      .feedback-btn:hover, .feedback-btn:focus-visible { border-color: var(--sa); color: var(--sa); }
+      .feedback-btn:focus-visible { outline: 2px solid var(--sa); outline-offset: 1px; }
+      .feedback-btn:disabled { cursor: default; opacity: 0.65; }
+      .feedback-status { color: var(--muted); font-size: 10px; }
       .typing { display: inline-flex; gap: 4px; align-items: center; }
       .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted);
         animation: sb-typing 1.2s infinite ease-in-out; }
@@ -453,6 +474,104 @@
     el.messages.scrollTop = el.messages.scrollHeight;
     if (!options.transient) history.push({ role: role === "user" ? "user" : "assistant", text });
     return item;
+  }
+
+  function addFeedbackControls(messageEl, details) {
+    if (!messageEl || !cfg.feedbackEndpoint || !details?.messageId) return;
+    const box = document.createElement("div");
+    box.className = "feedback";
+    const label = document.createElement("span");
+    label.className = "feedback-label";
+    label.textContent = "Was this useful?";
+    box.appendChild(label);
+
+    const choices = [
+      { value: "helpful", label: "Helpful", shareSample: false },
+      { value: "needs_work", label: "Needs work", shareSample: true },
+    ];
+    const buttons = choices.map((choice) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "feedback-btn";
+      button.textContent = choice.label;
+      button.setAttribute(
+        "aria-label",
+        choice.shareSample
+          ? "Mark as needs work and privately share this answer for improvement"
+          : "Mark this answer as helpful"
+      );
+      button.addEventListener("click", async () => {
+        buttons.forEach((item) => {
+          item.disabled = true;
+        });
+        try {
+          const response = await postJson(
+            cfg.feedbackEndpoint,
+            {
+              messageId: details.messageId,
+              sessionId: chatSessionId(),
+              feedback: choice.value,
+              shareSample: choice.shareSample,
+              ...(choice.shareSample
+                ? {
+                    question: String(details.question || "").slice(0, 1600),
+                    answer: String(details.answer || "").slice(0, 1800),
+                  }
+                : {}),
+            },
+            cfg.aiTimeoutMs
+          );
+          if (!response.ok) throw new Error("feedback " + response.status);
+          box.innerHTML =
+            '<span class="feedback-status">' +
+            (choice.shareSample
+              ? "Thanks - this scrubbed answer was queued for review."
+              : "Thanks for the feedback.") +
+            "</span>";
+        } catch (error) {
+          buttons.forEach((item) => {
+            item.disabled = false;
+          });
+          label.textContent = "Feedback could not save. Try again?";
+        }
+      });
+      box.appendChild(button);
+      return button;
+    });
+    messageEl.appendChild(box);
+    el.messages.scrollTop = el.messages.scrollHeight;
+  }
+
+  async function trackDeterministicReply(question, answer, messageEl) {
+    if (!cfg.eventEndpoint || !cfg.feedbackEndpoint) return;
+    try {
+      const response = await postJson(
+        cfg.eventEndpoint,
+        {
+          question: String(question || "").slice(0, 1600),
+          answer: String(answer || "").slice(0, 1800),
+          sessionId: chatSessionId(),
+        },
+        cfg.aiTimeoutMs
+      );
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data?.messageId) {
+        addFeedbackControls(messageEl, {
+          messageId: data.messageId,
+          question,
+          answer,
+        });
+      }
+    } catch (error) {
+      // Learning telemetry must never interrupt the visitor's chat.
+    }
+  }
+
+  function addTrackedDeterministicReply(question, answer) {
+    const messageEl = addMessage("bot", answer);
+    trackDeterministicReply(question, answer, messageEl);
+    return messageEl;
   }
 
   let typingEl = null;
@@ -1147,7 +1266,13 @@
     );
     if (!res.ok) throw new Error("chat connection " + res.status);
     const data = await res.json();
-    return data && data.reply ? String(data.reply) : null;
+    return data && data.reply
+      ? {
+          reply: String(data.reply),
+          messageId: String(data.messageId || ""),
+          source: String(data.source || ""),
+        }
+      : null;
   }
 
   /* ---- Lead capture (deterministic: name -> contact -> detail) -------- */
@@ -1305,7 +1430,7 @@
       (result.fallback ||
         (!result.highConfidence && history.length > 2 && needsContextualAnswer(text)));
     if (!shouldAskAi) {
-      addMessage("bot", result.text);
+      addTrackedDeterministicReply(text, result.text);
       if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
       else setChips(defaultChips());
       return;
@@ -1315,10 +1440,15 @@
       setComposerBusy(true);
       showTyping();
       try {
-        const reply = await aiReply();
+        const aiResult = await aiReply();
         hideTyping();
-        if (reply) {
-          addMessage("bot", reply);
+        if (aiResult?.reply) {
+          const messageEl = addMessage("bot", aiResult.reply);
+          addFeedbackControls(messageEl, {
+            messageId: aiResult.messageId,
+            question: text,
+            answer: aiResult.reply,
+          });
           setChips(defaultChips());
           return;
         }
@@ -1330,7 +1460,7 @@
       }
     }
 
-    addMessage("bot", result.text);
+    addTrackedDeterministicReply(text, result.text);
     if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
     else setChips(defaultChips());
   }
@@ -1399,6 +1529,8 @@
     "examplesMessage",
     "assistantInstructions",
     "greeting",
+    "eventEndpoint",
+    "feedbackEndpoint",
   ];
 
   function configure(partial) {
