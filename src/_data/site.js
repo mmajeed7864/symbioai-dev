@@ -220,13 +220,13 @@ export default {
       priceLabel: "Custom quote",
       typical: "Scoped to call volume and integrations",
       summary:
-        "A business-trained phone agent that answers routine calls, captures orders or requests, books next steps, and brings in a person when needed.",
+        "A business-trained phone agent that answers routine calls, captures orders or requests, routes booking requests, and brings in a person when needed.",
       bestFor:
         "Restaurants, home services, appointment-based teams, after-hours coverage, overflow calls, and missed-call recovery.",
       features: [
         "Branded call greeting",
         "Order or request intake",
-        "Booking and lead qualification",
+        "Booking request routing and lead qualification",
         "Human escalation with context",
       ],
       demoUrl: "voice-agent.html#call-preview",
@@ -256,9 +256,10 @@ export default {
       typical: "$12,000-$25,000",
       compareAt: "$50,000+ at agencies",
       summary:
-        "A connected build where the site, app, dashboard, chatbot, and automation work together instead of living as separate tools.",
-      bestFor: "Businesses that need a full lead, booking, dashboard, and follow-up system built as one experience.",
-      features: ["Public site", "Internal app", "Dashboard", "Chatbot or agent lane"],
+        "A connected build where the site, app, dashboard, chatbot, voice agent, and automation work together instead of living as separate tools.",
+      bestFor:
+        "Businesses that need a full lead, call, booking, dashboard, and follow-up system built as one experience.",
+      features: ["Public site", "Internal app", "Dashboard", "Chatbot, voice agent, or workflow lane"],
       demoUrl: "demos.html",
       cta: "Explore all demos",
     },
@@ -313,11 +314,12 @@ export default {
       name: "AI assistant install",
       price: "$690",
       cadence: "setup + monthly",
-      blurb: "Our always-on assistant on your site — answers, captures leads, books.",
+      blurb:
+        "Our always-on assistant on your site — answers approved questions, captures lead details, and routes booking requests.",
       features: [
         "One-time $690 setup & styling",
         "From $39/mo — hosting, AI & lead delivery",
-        "Every lead reaches a real person on your team",
+        "Confirmed lead delivery to a real person on your team",
       ],
       checkoutUrl: "",
       featured: false,

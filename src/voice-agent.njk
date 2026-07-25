@@ -1,16 +1,17 @@
 ---
 layout: base.njk
 pageKey: voice
+navKey: services
 title: AI Voice Agent
 permalink: voice-agent.html
-description: A customer-service voice agent designed around your business to answer routine calls, take structured orders, handle common scheduling requests, qualify leads, and hand complex calls to your team.
+description: A customer-service voice agent designed around your business to answer routine calls, take structured orders, capture or complete approved scheduling requests, qualify leads, and hand complex calls to your team.
 capabilities:
   - title: Answer and greet
     text: Opens with your brand, understands why the person called, and keeps the conversation focused.
   - title: Take orders
     text: Captures items, options, pickup or delivery details, and the information your team needs.
   - title: Book and reschedule
-    text: Handles common appointment requests and confirms the next step with the caller.
+    text: When connected to an approved calendar, offers allowed slots or completes common changes; otherwise it captures the request for your team.
   - title: Qualify leads
     text: Collects service, location, timing, budget, and contact details before your team follows up.
   - title: Escalate to a human
@@ -28,7 +29,7 @@ useCases:
     example: Construction / roofing / HVAC
   - label: Appointments
     title: Fewer scheduling interruptions
-    text: Help callers request, move, or confirm appointments without pulling a specialist away from the work.
+    text: Help callers request, move, or confirm appointments through an approved calendar connection, or capture the request for your team.
     example: Salons / auto services / consultants
   - label: General service
     title: A dependable first line
@@ -51,9 +52,12 @@ useCases:
         </p>
         <div class="btn-row mt-6">
           <a class="btn btn--primary btn--lg" href="#call-preview">Preview a call flow</a>
-          <a class="btn btn--ghost btn--lg" href="{{ site.cta.url }}">Plan my call flow</a>
+          <a class="btn btn--ghost btn--lg" href="scan.html?need=voice-agent#scan-need">Plan my call flow</a>
         </div>
-        <p class="voice-hero__note">Built around your workflow. Human handoff when it matters.</p>
+        <p class="voice-hero__note">
+          Built around your workflow. Booking and order actions depend on the systems and rules you
+          approve. Human handoff when it matters.
+        </p>
       </div>
 
       <aside class="voice-routing" aria-label="Example voice-agent routing flow">
@@ -249,9 +253,30 @@ useCases:
         the smallest useful pilot.
       </p>
       <div class="btn-row btn-row--center">
-        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Plan my call flow</a>
+        <a class="btn btn--light btn--lg" href="scan.html?need=voice-agent#scan-need">Plan my call flow</a>
+        <a class="btn btn--secondary btn--lg" href="checkout.html?offer=voice-agent">Review the voice-agent lane</a>
         <a class="btn btn--secondary btn--lg" href="services.html">Explore all services</a>
       </div>
     </div>
   </div>
 </section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Customer-service AI voice agent",
+  "serviceType": "AI voice agent and phone support automation",
+  "description": {{ description | dump | safe }},
+  "url": "{{ site.url }}/voice-agent.html",
+  "provider": {
+    "@type": "Organization",
+    "name": {{ site.name | dump | safe }},
+    "url": {{ site.url | dump | safe }}
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "United States"
+  }
+}
+</script>

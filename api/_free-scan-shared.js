@@ -52,6 +52,29 @@ function compact(value, limit = 1200) {
     .slice(0, limit);
 }
 
+async function fetchWithTimeout(url, options, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+export function isValidPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+export function hasValidLeadContact(payload) {
+  return isValidEmail(payload?.email) || isValidPhone(payload?.phone);
+}
+
 export function normalizePayload(body) {
   const payload = {
     id: compact(body?.id, 90) || `scan-${randomUUID()}`,
@@ -66,6 +89,7 @@ export function normalizePayload(body) {
     problem: compact(body?.problem, 1600),
     sourceUrl: compact(body?.sourceUrl, 700),
     status: compact(body?.status, 90) || "new",
+    _gotcha: compact(body?._gotcha, 200),
   };
   payload.idempotencyKey = createHash("sha256")
     .update(
@@ -103,6 +127,8 @@ function supabaseHeaders(key, extra = {}) {
 
 function rowFromPayload(payload, req) {
   const now = new Date().toISOString();
+  const safePayload = { ...payload };
+  delete safePayload._gotcha;
   return {
     id: payload.id,
     idempotency_key: payload.idempotencyKey,
@@ -124,7 +150,7 @@ function rowFromPayload(payload, req) {
       req.socket?.remoteAddress ||
       "",
     user_agent: req.headers["user-agent"] || "",
-    raw_payload: payload,
+    raw_payload: safePayload,
     updated_at: now,
   };
 }
@@ -240,6 +266,9 @@ async function sendSmtpEmail(payload) {
       host: config.host,
       port: config.port,
       secure: config.port === 465,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 10000,
       auth: {
         user: config.user,
         pass: config.pass,
@@ -280,7 +309,7 @@ async function sendResendEmail(payload) {
   if (!apiKey || !to.length) {
     return { configured: false, ok: false, detail: "Resend email is not configured." };
   }
-  const response = await fetch("https://api.resend.com/emails", {
+  const response = await fetchWithTimeout("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -331,7 +360,7 @@ async function sendSms(payload) {
   const results = [];
   for (const recipient of to) {
     const form = new URLSearchParams({ To: recipient, From: from, Body: body });
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
       {
         method: "POST",
@@ -371,7 +400,7 @@ async function sendTelegram(payload) {
     "",
     "This was also saved for Olympus/Atlas sync.",
   ].join("\n");
-  const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+  const response = await fetchWithTimeout(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

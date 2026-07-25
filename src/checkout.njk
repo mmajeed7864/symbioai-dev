@@ -15,6 +15,7 @@ description: Choose a Symbio AI build lane, review the deposit and turnaround wi
     turnaround: "1-3 days",
     summary: "A clean starter website, landing page, or focused redesign when the scope is simple and ready to move.",
     ongoing: "Managed website care from $79/mo starts when the site launches.",
+    websiteCare: true,
     includes: ["Homepage or landing page", "Mobile-first layout", "Contact path", "Basic launch polish"]
   },
   {
@@ -25,17 +26,28 @@ description: Choose a Symbio AI build lane, review the deposit and turnaround wi
     turnaround: "1-7 days",
     summary: "A sharper multi-page site or deeper redesign with proof, booking paths, lead capture, and post-launch tuning.",
     ongoing: "Managed website care from $79/mo starts when the site launches.",
+    websiteCare: true,
     includes: ["Multi-page build", "Conversion copy", "Booking or lead capture", "Two weeks of tuning"]
   },
   {
     key: "custom-app",
     title: "Custom app",
-    price: "$2,000+",
+    price: "$4,500+",
     deposit: "30% early deposit",
     turnaround: "3-14 days",
     summary: "A real tool for logins, dashboards, portals, uploads, quotes, staff workflows, or internal operations.",
     ongoing: "Hosting and ongoing support, if needed, are quoted before approval.",
     includes: ["Workflow map", "App screens", "Admin view", "Handoff documentation"]
+  },
+  {
+    key: "dashboard",
+    title: "Business dashboard",
+    price: "$1,500+",
+    deposit: "30% early deposit",
+    turnaround: "3-10 days",
+    summary: "A clear command center for leads, bookings, performance, follow-ups, or team activity.",
+    ongoing: "Hosting, data connectors, and ongoing support are quoted before approval when needed.",
+    includes: ["KPI and status views", "Lead or booking visibility", "Follow-up tracking", "Export-ready data"]
   },
   {
     key: "chatbot",
@@ -99,12 +111,15 @@ description: Choose a Symbio AI build lane, review the deposit and turnaround wi
         {% for offer in checkoutOffers %}
           <button class="checkout-offer{% if loop.first %} is-active{% endif %}" type="button"
             data-checkout-offer
+            data-key="{{ offer.key }}"
             data-title="{{ offer.title }}"
             data-price="{{ offer.price }}"
             data-deposit="{{ offer.deposit }}"
             data-turnaround="{{ offer.turnaround }}"
             data-summary="{{ offer.summary }}"
-            data-ongoing="{{ offer.ongoing }}">
+            data-ongoing="{{ offer.ongoing }}"
+            data-includes="{{ offer.includes | join('||') }}"
+            data-website-care="{% if offer.websiteCare %}true{% else %}false{% endif %}">
             <span>{{ offer.title }}</span>
             <strong>{{ offer.price }}</strong>
             <em>{{ offer.turnaround }}</em>
@@ -125,10 +140,19 @@ description: Choose a Symbio AI build lane, review the deposit and turnaround wi
 
         <p data-checkout-summary>{{ checkoutOffers[0].summary }}</p>
 
+        <div class="checkout-panel__includes">
+          <span>Included in this lane</span>
+          <ul class="card__list" data-checkout-includes>
+            {% for item in checkoutOffers[0].includes %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
         <div class="checkout-panel__ongoing">
           <span>Ongoing after launch</span>
           <strong data-checkout-ongoing>{{ checkoutOffers[0].ongoing }}</strong>
-          <a href="care.html">Review the website care breakdown</a>
+          <a href="care.html" data-checkout-care>Review the website care breakdown</a>
         </div>
 
         <div class="checkout-timeline">

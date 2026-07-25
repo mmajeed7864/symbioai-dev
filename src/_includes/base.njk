@@ -56,7 +56,7 @@
           "description": {{ (site.description or site.tagline) | dump | safe }},
           "email": {{ (site.businessEmail or site.leadEmail or site.founders[0].email) | dump | safe }},
           "telephone": {{ ("+1-" + site.founders[0].phone) | dump | safe }},
-          "areaServed": { "@type": "State", "name": "California" },
+          "areaServed": { "@type": "Country", "name": "United States" },
           "priceRange": "$$"
         }
       </script>
@@ -156,13 +156,29 @@
         location: "Founder-led from California and North Carolina, serving businesses across the entire US.",
         phone: {{ site.founders[0].phone | dump | safe }},
         secondaryPhone: {{ site.founders[1].phone | dump | safe }},
+        primaryContactName: {{ site.founders[0].name | dump | safe }},
+        secondaryContactName: {{ site.founders[1].name | dump | safe }},
+        contactLabel: "Talk to a founder",
         email: {{ site.businessEmail | dump | safe }},
         freeScanEndpoint: {{ site.freeScanEndpoint | dump | safe }},
-        price: "with a free scan first",
+        price:
+          "websites from $1,490 plus managed care from $79/month after launch; chatbots from $750; dashboards and workflow agents from $1,500; custom apps from $4,500; managed website assistants require a $690 setup plus a plan from $39/month; voice agents receive a custom quote based on call volume, integrations, and handoff rules",
+        pricingMessage:
+          "Websites start at $1,490, with managed care from $79/month after launch. Chatbots start at $750; dashboards and workflow agents at $1,500; custom apps at $4,500; and managed website assistants require a $690 setup plus a plan from $39/month. Customer-service voice agents are custom-quoted based on call volume, integrations, and handoff rules. The free scan helps confirm the right lane before you spend.",
+        scanMessage:
+          "The free scan is simple: send your website, Instagram, business page, or project idea. We look for the first fixes that can improve trust, mobile flow, speed, booking, calls, leads, or follow-up.",
+        voiceMessage:
+          "Yes. Our customer-service voice agent can answer routine calls, collect orders or requests, route booking and reschedule requests, qualify leads, summarize calls, and bring in a person when needed. It is custom-quoted based on call volume, integrations, and handoff rules.",
+        timelineMessage:
+          "Focused landing pages and redesigns can move fast. Bigger websites, apps, dashboards, chatbots, voice agents, and workflow systems depend on scope and integrations. Send the starting point and we will give you a realistic timeline.",
+        examplesMessage:
+          "Our product demos cover websites, apps, dashboards, chatbots, voice-agent call flows, and workflow agents. Tell me which lane you are considering and I will point you toward the right example.",
+        assistantInstructions:
+          "Symbio AI is founder-led and serves businesses across the United States. Treat premium websites, custom apps, dashboards, chatbots, customer-service voice agents, and workflow agents as standalone offers. Voice agents are custom-quoted and should only promise actions supported by the approved call flow and integrations. Encourage a free project scan or founder follow-up when useful.",
         position: "right",
         theme: "auto",
         greeting:
-          "Hey, this is Symbio AI. Send your website, app idea, dashboard need, or workflow problem, and we will point you toward the right next step.",
+          "Hey, this is Symbio AI. Send your website, app idea, dashboard need, chatbot or voice-agent plan, or workflow problem, and we will point you toward the right next step.",
       };
     </script>
     <script src="assets/js/symbio-widget.js" defer></script>

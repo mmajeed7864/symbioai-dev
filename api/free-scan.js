@@ -1,4 +1,7 @@
 import {
+  hasValidLeadContact,
+  isValidEmail,
+  isValidPhone,
   normalizePayload,
   sendNotifications,
   setCors,
@@ -18,9 +21,27 @@ export default async function handler(req, res) {
     return;
   }
 
+  const contentLength = Number(req.headers["content-length"] || 0);
+  if (contentLength > 50000) {
+    res.status(413).json({ ok: false, error: "Request is too large." });
+    return;
+  }
+
   const payload = normalizePayload(req.body || {});
-  if (!payload.name || !payload.email) {
-    res.status(400).json({ ok: false, error: "Name and email are required." });
+  if (payload._gotcha) {
+    res.status(200).json({ ok: true, message: "Request received." });
+    return;
+  }
+  if (!payload.name || !hasValidLeadContact(payload)) {
+    res.status(400).json({ ok: false, error: "Name and a valid email or phone are required." });
+    return;
+  }
+  if (payload.email && !isValidEmail(payload.email)) {
+    res.status(400).json({ ok: false, error: "Enter a valid email address." });
+    return;
+  }
+  if (payload.phone && !isValidPhone(payload.phone)) {
+    res.status(400).json({ ok: false, error: "Enter a valid phone number." });
     return;
   }
 

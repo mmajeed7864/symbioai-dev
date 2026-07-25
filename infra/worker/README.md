@@ -27,8 +27,9 @@ normal free-scan form, so nothing is broken pre-deploy.
 ## Endpoints
 
 - `POST /api/scan` `{ "url": "example.com" }` → `{ ok, reachable, score, findings: [{title, fix}] }`
-- `POST /api/lead` `{ "name", "email", "business", "need" }` → sends an instant auto-reply to the
-  lead **if** the mail secrets are set; always returns `{ ok }`.
+- `POST /api/lead` `{ "name", "email" or "phone", "business", "need" }` → notifies the team and,
+  when configured, sends an instant auto-reply. It returns `ok: true` only after a team delivery is
+  confirmed.
 
 ## Optional: speed-to-lead auto-reply
 
@@ -37,17 +38,18 @@ Set these so `/api/lead` sends an instant acknowledgment the moment a lead comes
 ```bash
 # in infra/worker/wrangler.toml [vars]: LEAD_FROM, PHYSICAL_ADDRESS, ALLOWED_ORIGIN
 npx wrangler secret put RESEND_API_KEY   # from resend.com (free tier)
-npx wrangler secret put LEAD_BCC          # optional — copies you on each reply
+npx wrangler secret put LEAD_BCC          # required for the auto-reply path; copies the team
 ```
 
 `LEAD_FROM` must be an address on a domain you've verified in Resend (use your **sending
-domain**, e.g. `ravi@trysymbioai.com` — not `symbioai.dev`). With no key set, the endpoint just
-acknowledges and your existing lead pipeline still captures the lead.
+domain**, e.g. `ravi@trysymbioai.com` — not `symbioai.dev`). Without a confirmed Telegram or
+Resend+BCC delivery, the endpoint returns a non-success status instead of claiming the lead arrived.
 
 ## Instant Telegram lead alerts (free — recommended)
 
-Get a phone buzz the moment someone does a free scan, chats with the widget, or runs an instant
-teardown. The site fires every lead event at `/api/lead`, which messages your Telegram.
+The optional `/api/lead` route can send a Telegram alert when an integration posts a lead to it.
+The production Symbio site currently sends form and chatbot leads through `/api/free-scan`; the
+Worker remains responsible for instant teardown scans unless a client integration uses this route.
 
 1. In Telegram, message **@BotFather** → `/newbot` → follow the prompts → copy the **bot token**.
 2. Create a group (or use a DM), add your bot to it, send any message, then get the **chat id**:

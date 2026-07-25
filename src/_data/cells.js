@@ -652,7 +652,9 @@ export default {
     ]
   },
   "ai-automation/home-services": {
-    "lead": "For a trade, the lead you miss is the lead your competitor books. You're under a sink or on a roof when the phone rings, and by the time you call back they've already hired someone else. An AI assistant answers instantly, around the clock — it captures the name, address, and problem, books the visit, and routes anything urgent to you, so a missed call stops meaning a missed job.",
+    "offer": "voice-agent.html",
+    "offerLabel": "Explore the voice agent",
+    "lead": "For a trade, the lead you miss is the lead your competitor books. You're under a sink or on a roof when the phone rings, and by the time you call back they've already hired someone else. A customer-service voice agent answers routine calls around the clock, captures the name, address, and problem, routes approved booking requests, and escalates anything urgent, so a missed call stops meaning a missed job.",
     "pains": [
       "Calls come in while you're on a job, and a voicemail rarely turns into a booking.",
       "After-hours emergencies go unanswered, so the work goes to whoever picks up first.",
@@ -660,7 +662,7 @@ export default {
       "Leads from your site, Google, and ads land in different places, and some never get followed up."
     ],
     "build": [
-      "An AI assistant that answers 24/7, captures name, address, and the problem, and books the visit.",
+      "A customer-service voice agent that answers routine calls 24/7, captures the name, address, and problem, and books only through an approved calendar connection or routes the request to your team.",
       "Instant routing: an urgent job texts you right away; everything else drops into one organized list.",
       "Answers to your common questions — service area, rough pricing, availability — from rules you approve.",
       "Automatic follow-up so a lead that didn't book the first time gets a nudge instead of silence."

@@ -12,9 +12,9 @@ description: Send us your website, app idea, dashboard need, chatbot, voice-agen
     <span class="eyebrow eyebrow--center">Free project scan</span>
     <h1 class="section__title">Send us the idea and start making more money.</h1>
     <p class="section__lead">
-      Tell us a bit about your business and send the site, app idea, dashboard need, chatbot idea,
-      or workflow problem. We will reply with the first useful fix or build path. Got a website
-      already? Try the <a href="teardown.html">instant teardown</a> — results in seconds.
+      Tell us a bit about your business and send the site, app idea, dashboard need, chatbot or
+      voice-agent plan, or workflow problem. We will reply with the first useful fix or build path.
+      Got a website already? Try the <a href="teardown.html">instant teardown</a> — results in seconds.
     </p>
   </div>
 </section>
@@ -88,6 +88,7 @@ description: Send us your website, app idea, dashboard need, chatbot, voice-agen
             </div>
           </div>
 
+          <input class="form-honeypot" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" />
           {# Filled with the current page URL by main.js before submit. #}
           <input type="hidden" name="sourceUrl" data-source-url value="" />
 
@@ -120,7 +121,7 @@ description: Send us your website, app idea, dashboard need, chatbot, voice-agen
 
         <h3 class="proof__title">What you will get</h3>
         <ul class="card__list">
-          <li>A quick read on where the site, app, dashboard, or workflow is losing value</li>
+          <li>A quick read on where the site, app, dashboard, chatbot, call flow, or workflow is losing value</li>
           <li>The first fix or build path we would choose if it were our business</li>
           <li>A rough, honest price range with no obligation</li>
           <li>{{ site.poweredBy }}</li>

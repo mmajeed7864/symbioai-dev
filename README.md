@@ -50,7 +50,7 @@ src/
   portfolio.njk         # Portfolio — honest, early-stage work
   reviews.njk           # Reviews — proof, not fluff (no fabricated testimonials)
   scan.njk              # Free scan / Contact — the conversion form + contact cards
-  chatbot-demo.html     # Self-contained, shareable full-page chatbot demo (passthrough)
+  chatbot-demo.html     # Shareable full-page demo using the production widget source
   assets/
     css/styles.css      # the single design system (CSS custom properties, sectioned)
     js/main.js          # theme toggle, mobile menu, reveals, living hero, scan form
@@ -175,9 +175,10 @@ Quick setup via attributes:
 ### Behavior & API
 
 - Built-in **intent engine** (hours, location, pricing, services, contact) and a deterministic
-  **lead-capture flow** (name → contact → detail) that works with **zero backend**.
-- Every captured lead fires a `window` **`symbio:lead`** event (`event.detail` is the lead) and
-  calls `config.onLead(lead)`.
+  **lead-intake flow** (name → contact → detail) that needs no AI backend. Confirmed delivery
+  still requires a `leadEndpoint`, `onLead`, or `symbio:lead` responder.
+- Every captured lead fires a `window` **`symbio:lead`** event. The event detail contains the lead
+  plus `respond(resultOrPromise)`, which lets the host report whether delivery succeeded.
 - **Theme:** `auto` follows the visitor’s OS; pass `light`/`dark` (or call `configure({ theme })`)
   to pin it — that’s how the site keeps the widget in sync with its toggle. A theme change never
   resets the conversation; a branding change (name/accent/services/…) re-greets.
@@ -190,9 +191,8 @@ Quick setup via attributes:
   window.SymbioWidget.configure({ businessName, accent, services, theme /* … */ }); // live update
   ```
 
-> The minified build is produced with `npm run minify:widget`. The full-page demo at
-> `chatbot-demo.html` inlines a copy of the widget so it stays shareable as a single file —
-> keep that copy in sync with `src/assets/js/symbio-widget.js` if you change the widget.
+> The minified build is produced with `npm run minify:widget`. The full-page demo loads
+> `src/assets/js/symbio-widget.js` directly, so production and demo behavior cannot drift.
 
 ---
 
@@ -264,7 +264,7 @@ intent engine. Lead capture is always deterministic and does not depend on the A
 | `npm run format`        | Prettier write (CSS / JS / JSON / MD)                    |
 | `npm run minify:widget` | Regenerate `symbio-widget.min.js` with Terser            |
 
-Nunjucks templates and the self-contained `chatbot-demo.html` are excluded from Prettier
+Nunjucks templates and `chatbot-demo.html` are excluded from Prettier
 (its HTML parser rewrites `{% %}`/`{{ }}` tags) — they are hand-formatted and validated by
 HTMLHint instead. Run `npm run build` before `npm run lint`, since HTMLHint lints the built
 HTML in `dist/`.
