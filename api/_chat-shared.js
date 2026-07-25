@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 export const DEFAULT_CHAT_MODEL = "qwen/qwen3.5-flash-02-23";
+export const CHAT_PROMPT_VERSION = "2026-07-25.2";
 export const MAX_REQUEST_BYTES = 20000;
 export const MAX_CONTEXT_BYTES = 6000;
 export const MAX_MESSAGE_BYTES = 1600;
@@ -34,6 +35,22 @@ const EMAIL_PATTERN = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const PHONE_PATTERN = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/;
 const EMAIL_REDACT_PATTERN = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE_REDACT_PATTERN = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/g;
+const PAYMENT_NUMBER_PATTERN = /\b(?:\d[ -]*?){13,19}\b/;
+const PAYMENT_NUMBER_REDACT_PATTERN = /\b(?:\d[ -]*?){13,19}\b/g;
+const INTERNATIONAL_PHONE_PATTERN = /\+\d(?:[\s().-]*\d){7,14}\b/;
+const INTERNATIONAL_PHONE_REDACT_PATTERN = /\+\d(?:[\s().-]*\d){7,14}\b/g;
+const SSN_PATTERN =
+  /(?:\b\d{3}[-\s]\d{2}[-\s]\d{4}\b|\b(?:ssn|social security(?: number)?)\s*(?:is\s*)?[:=]?\s*\d{9}\b)/i;
+const SSN_REDACT_PATTERN =
+  /(?:\b\d{3}[-\s]\d{2}[-\s]\d{4}\b|\b(?:ssn|social security(?: number)?)\s*(?:is\s*)?[:=]?\s*\d{9}\b)/gi;
+const ADDRESS_PATTERN =
+  /\b\d{1,6}\s+(?:[a-z0-9.'-]+\s+){0,6}(?:street|st|road|rd|avenue|ave|lane|ln|drive|dr|boulevard|blvd|court|ct|circle|cir|way|terrace|ter|parkway|pkwy|place|pl|trail|trl|highway|hwy|square|sq)\b\.?(?:\s*,?\s*(?:apt|apartment|unit|suite|ste|#)\s*[a-z0-9-]+)?(?:\s*,?\s*[a-z .'-]+,\s*[a-z]{2}\s+\d{5}(?:-\d{4})?)?/i;
+const ADDRESS_REDACT_PATTERN =
+  /\b\d{1,6}\s+(?:[a-z0-9.'-]+\s+){0,6}(?:street|st|road|rd|avenue|ave|lane|ln|drive|dr|boulevard|blvd|court|ct|circle|cir|way|terrace|ter|parkway|pkwy|place|pl|trail|trl|highway|hwy|square|sq)\b\.?(?:\s*,?\s*(?:apt|apartment|unit|suite|ste|#)\s*[a-z0-9-]+)?(?:\s*,?\s*[a-z .'-]+,\s*[a-z]{2}\s+\d{5}(?:-\d{4})?)?/gi;
+const CREDENTIAL_PATTERN =
+  /\b(?:(?:api[_ -]?key|password|secret|token)\s*(?:is|[:=])\s*(?:bearer\s+)?(?:sk-[a-z0-9_-]{6,}|[a-z0-9][a-z0-9._~+/=-]{5,})|api[_ -]?key\s+(?:sk-[a-z0-9_-]{6,}|[a-z0-9][a-z0-9._~+/=-]{15,})|bearer\s+(?:sk-)?[a-z0-9._~+/=-]{8,})/i;
+const CREDENTIAL_REDACT_PATTERN =
+  /\b(?:(?:api[_ -]?key|password|secret|token)\s*(?:is|[:=])\s*(?:bearer\s+)?(?:sk-[a-z0-9_-]{6,}|[a-z0-9][a-z0-9._~+/=-]{5,})|api[_ -]?key\s+(?:sk-[a-z0-9_-]{6,}|[a-z0-9][a-z0-9._~+/=-]{15,})|bearer\s+(?:sk-)?[a-z0-9._~+/=-]{8,})/gi;
 const BUSINESS_URL_PATTERN =
   /\b(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+\.(?:com|net|org|io|ai|dev|co)\b/i;
 
@@ -99,8 +116,12 @@ export function truncateUtf8(value, maxBytes) {
 }
 
 function compactMessage(value) {
+  const raw = String(value || "");
+  const safeValue = sensitiveTypesInText(raw).length
+    ? "[sensitive details removed]"
+    : redactSensitiveText(raw);
   return truncateUtf8(
-    String(value || "")
+    safeValue
       .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
       .replace(/\s+/g, " ")
       .trim(),
@@ -144,16 +165,38 @@ export function safeSessionId(value) {
 }
 
 export function containsSensitiveInput(messages) {
-  return messages.some(({ content }) => EMAIL_PATTERN.test(content) || PHONE_PATTERN.test(content));
+  return messages.some(({ content }) => sensitiveTypesInText(content).length > 0);
+}
+
+export function sensitiveTypesInText(value) {
+  const content = String(value || "");
+  return [
+    EMAIL_PATTERN.test(content) ? "email" : "",
+    PHONE_PATTERN.test(content) ? "us_phone" : "",
+    INTERNATIONAL_PHONE_PATTERN.test(content) ? "international_phone" : "",
+    SSN_PATTERN.test(content) ? "ssn" : "",
+    PAYMENT_NUMBER_PATTERN.test(content) ? "payment_number" : "",
+    ADDRESS_PATTERN.test(content) ? "address" : "",
+    CREDENTIAL_PATTERN.test(content) ? "credential" : "",
+  ].filter(Boolean);
+}
+
+export function redactSensitiveText(value) {
+  return String(value || "")
+    .replace(EMAIL_REDACT_PATTERN, "[email removed]")
+    .replace(SSN_REDACT_PATTERN, "[sensitive number removed]")
+    .replace(PAYMENT_NUMBER_REDACT_PATTERN, "[sensitive number removed]")
+    .replace(PHONE_REDACT_PATTERN, "[phone removed]")
+    .replace(INTERNATIONAL_PHONE_REDACT_PATTERN, "[phone removed]")
+    .replace(ADDRESS_REDACT_PATTERN, "[address removed]")
+    .replace(CREDENTIAL_REDACT_PATTERN, "[credential removed]");
 }
 
 export function scrubSensitiveMessages(messages) {
   if (!Array.isArray(messages)) return [];
   return messages.map(({ role, content }) => ({
     role,
-    content: String(content || "")
-      .replace(EMAIL_REDACT_PATTERN, "[email removed]")
-      .replace(PHONE_REDACT_PATTERN, "[phone removed]"),
+    content: redactSensitiveText(content),
   }));
 }
 
@@ -204,18 +247,21 @@ export function cacheKeyForMessages(messages) {
 }
 
 export function cleanModelReply(value) {
-  return truncateUtf8(
-    String(value || "")
-      .replace(/<[^>]*>/g, "")
-      .replace(/\*\*([^*]+)\*\*/g, "$1")
-      .replace(/__([^_]+)__/g, "$1")
-      .replace(/^\s{0,3}#{1,6}\s+/gm, "")
-      .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
-      .replace(/[ \t]+\n/g, "\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim(),
-    1400
-  );
+  const cleaned = String(value || "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if (sensitiveTypesInText(cleaned).length) {
+    return "For privacy, I left out personal or sensitive details. Please use Talk to a founder for a direct follow-up.";
+  }
+  const scrubbed = redactSensitiveText(cleaned);
+  if (sensitiveTypesInText(scrubbed).length) return "";
+  return truncateUtf8(scrubbed, 1400);
 }
 
 export function buildOpenRouterBody(messages, model = DEFAULT_CHAT_MODEL) {
