@@ -1,9 +1,10 @@
 /* =========================================================================
    Symbio Widget - an embeddable chat + lead-capture assistant.
 
-   Drop onto ANY website with a single tag. No framework, no build step,
-   no backend required. Renders inside a Shadow DOM so the host page's CSS
-   can't break it and its styles can't leak out.
+   Drop onto ANY website with a single tag. No framework or build step.
+   The fallback answers need no AI backend; confirmed lead delivery requires
+   a leadEndpoint, onLead callback, or symbio:lead responder. Renders inside a
+   Shadow DOM so the host page's CSS can't break it and its styles can't leak out.
 
    Setup (either works; data-* wins over window.SymbioConfig):
      <script>
@@ -13,11 +14,20 @@
          services: ["Haircut", "Color", "Beard trim"],
          hours: "Tue-Sat, 9am-6pm",
          location: "Oakland, CA",
-         phone: "510-555-0100",
-         price: "From $35",
-         position: "right",          // "right" | "left"
-         leadEndpoint: "",           // optional: POST {name,contact,detail,business,page,at}
-         aiEndpoint: "",             // optional: POST {messages,system} -> {reply}
+          phone: "510-555-0100",
+          price: "From $35",
+          contactLabel: "Contact the team",
+          primaryContactName: "",
+          secondaryContactName: "",
+          scanMessage: "",            // optional: enables a "Free scan" quick action
+          voiceMessage: "",           // optional: enables a "Voice agent" quick action
+          pricingMessage: "",         // optional: overrides the derived pricing answer
+          timelineMessage: "",        // optional: custom timing answer
+          examplesMessage: "",        // optional: custom portfolio/demo answer
+          assistantInstructions: "",  // optional: extra facts for an AI endpoint
+          position: "right",          // "right" | "left"
+          leadEndpoint: "",           // optional: POST {name,contact,detail,business,page,at}
+          aiEndpoint: "",             // optional: POST {messages,system} -> {reply}
          onLead: function (lead) {}  // optional callback
        };
      </script>
@@ -77,6 +87,18 @@
       secondaryPhone: attr("secondary-phone") || user.secondaryPhone || "",
       email: attr("email") || user.email || "",
       price: attr("price") || user.price || "",
+      contactLabel: attr("contact-label") || user.contactLabel || "Contact the team",
+      primaryContactName:
+        attr("primary-contact-name") || user.primaryContactName || "",
+      secondaryContactName:
+        attr("secondary-contact-name") || user.secondaryContactName || "",
+      scanMessage: attr("scan-message") || user.scanMessage || "",
+      voiceMessage: attr("voice-message") || user.voiceMessage || "",
+      pricingMessage: attr("pricing-message") || user.pricingMessage || "",
+      timelineMessage: attr("timeline-message") || user.timelineMessage || "",
+      examplesMessage: attr("examples-message") || user.examplesMessage || "",
+      assistantInstructions:
+        attr("assistant-instructions") || user.assistantInstructions || "",
       position:
         (attr("position") || user.position || "right").toLowerCase() === "left" ? "left" : "right",
       // "auto" follows the visitor's OS; "light" / "dark" force the widget theme.
@@ -84,6 +106,9 @@
       greeting: attr("greeting") || user.greeting || "",
       leadEndpoint: attr("lead-endpoint") || user.leadEndpoint || "",
       aiEndpoint: attr("ai-endpoint") || user.aiEndpoint || "",
+      aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 12000),
+      leadTimeoutMs: Math.max(1000, Number(user.leadTimeoutMs) || 10000),
+      maxInputLength: Math.max(100, Number(user.maxInputLength) || 600),
       onLead: typeof user.onLead === "function" ? user.onLead : null,
     };
   }
@@ -113,18 +138,28 @@
 
   function contactLine() {
     const phones = [];
-    if (cfg.phone) phones.push(cfg.secondaryPhone || cfg.email ? "Mohammed at " + cfg.phone : cfg.phone);
-    if (cfg.secondaryPhone) phones.push("Ravi at " + cfg.secondaryPhone);
+    if (cfg.phone) {
+      phones.push((cfg.primaryContactName ? cfg.primaryContactName + " at " : "") + cfg.phone);
+    }
+    if (cfg.secondaryPhone) {
+      phones.push(
+        (cfg.secondaryContactName ? cfg.secondaryContactName + " at " : "") + cfg.secondaryPhone
+      );
+    }
     const phoneLine = phones.length ? "Call or text " + phones.join(" or ") + "." : "";
     const emailLine = cfg.email ? "Email " + cfg.email + "." : "";
     return [phoneLine, emailLine].filter(Boolean).join(" ") || "Leave your details here and we will follow up.";
   }
 
   function serviceAreaLine() {
-    return (
-      cfg.location ||
-      "Founder-led from California and North Carolina, serving businesses across the entire US."
-    );
+    return cfg.location ? "Service area: " + cfg.location : "Ask the team about the service area.";
+  }
+
+  function listServices() {
+    const items = cfg.services.filter(Boolean);
+    if (!items.length) return "general enquiries";
+    if (items.length === 1) return items[0];
+    return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
   }
 
   function looksLikeContact(text) {
@@ -139,8 +174,23 @@
       cfg.greeting ||
       "Hey, this is " +
         cfg.businessName +
-        ". Send your website or tell us what you want redesigned, and I will point you toward the right next step."
+        ". How can we help today?"
     );
+  }
+
+  async function postJson(url, body, timeoutMs) {
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const timeout = window.setTimeout(() => controller?.abort(), timeoutMs);
+    try {
+      return await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        ...(controller ? { signal: controller.signal } : {}),
+      });
+    } finally {
+      window.clearTimeout(timeout);
+    }
   }
 
   /* ---- Shadow DOM styles ---------------------------------------------- */
@@ -157,8 +207,8 @@
         --border: rgba(12,19,34,0.12);
         --shadow: 0 24px 60px -18px rgba(12,19,34,0.35);
         position: fixed;
-        bottom: 20px;
-        ${cfg.position}: 20px;
+        bottom: max(20px, env(safe-area-inset-bottom));
+        ${cfg.position}: max(20px, env(safe-area-inset-${cfg.position}));
         z-index: 2147483000;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica,
           Arial, sans-serif;
@@ -213,6 +263,7 @@
         max-width: calc(100vw - 32px);
         height: 560px;
         max-height: calc(100vh - 40px);
+        max-height: calc(100dvh - 40px);
         background: var(--bg);
         border: 1px solid var(--border);
         border-radius: 20px;
@@ -294,6 +345,7 @@
         background: var(--bg-2); color: var(--text);
       }
       .input:focus { outline: none; border-color: var(--sa); }
+      .input:disabled, .send:disabled { cursor: wait; opacity: 0.62; }
       .send {
         appearance: none; border: 0; cursor: pointer; flex: none;
         width: 44px; height: 44px; border-radius: 50%; color: #fff;
@@ -313,10 +365,14 @@
         .launcher, .panel, .typing span { transition: none; animation: none; }
       }
       @media (max-width: 480px) {
-        .root { bottom: 12px; ${cfg.position}: 12px; }
+        .root {
+          bottom: max(12px, env(safe-area-inset-bottom));
+          ${cfg.position}: max(12px, env(safe-area-inset-${cfg.position}));
+        }
         .launcher { width: 48px; height: 48px; }
         .launcher svg { width: 22px; height: 22px; }
         .panel { height: calc(100vh - 32px); }
+        .panel { height: calc(100dvh - 32px); }
       }
     `;
   }
@@ -326,7 +382,8 @@
     const initial = (cfg.businessName || "S").trim().charAt(0).toUpperCase();
     return `
       <div class="root" data-theme="${cfg.theme}">
-        <button class="launcher" type="button" part="launcher" aria-label="Open chat with ${escapeHtml(
+        <button class="launcher" type="button" part="launcher" aria-expanded="false"
+                aria-controls="symbio-chat-panel" aria-label="Open chat with ${escapeHtml(
           cfg.businessName
         )}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -335,8 +392,8 @@
           </svg>
         </button>
 
-        <section class="panel" role="dialog" aria-modal="false"
-                 aria-label="Chat with ${escapeHtml(cfg.businessName)}">
+        <section class="panel" id="symbio-chat-panel" role="dialog" aria-modal="false"
+                 aria-hidden="true" inert aria-label="Chat with ${escapeHtml(cfg.businessName)}">
           <header class="header">
             <span class="avatar" aria-hidden="true">${escapeHtml(initial)}</span>
             <span class="htext">
@@ -354,7 +411,8 @@
 
           <form class="composer" data-form>
             <input class="input" data-input type="text" autocomplete="off"
-                   placeholder="Type your message..." aria-label="Type your message" />
+                   maxlength="${cfg.maxInputLength}" placeholder="Type your message..."
+                   aria-label="Type your message" />
             <button class="send" type="submit" aria-label="Send message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -409,9 +467,18 @@
   }
 
   function defaultChips() {
-    const chips = ["Services", "Pricing", "Free scan", "Hours"];
+    const chips = ["Services"];
+    if (
+      cfg.voiceMessage ||
+      cfg.services.some((service) => /voice|phone agent|call answering/i.test(service))
+    ) {
+      chips.push("Voice agent");
+    }
+    chips.push("Pricing");
+    if (cfg.scanMessage) chips.push("Free scan");
+    chips.push("Hours");
     if (cfg.location) chips.push("Location");
-    chips.push("Talk to founder");
+    chips.push(cfg.contactLabel);
     return chips;
   }
 
@@ -433,6 +500,7 @@
       "call me",
       "reach me",
       "talk to founder",
+      "talk to a founder",
       "leave my details",
       "leave details",
       "interested",
@@ -457,16 +525,37 @@
     }
     if (has(text, ["where", "location", "address", "find you"])) {
       return {
+        text: serviceAreaLine() + " " + contactLine(),
+      };
+    }
+    if (
+      has(text, [
+        "voice agent",
+        "phone agent",
+        "ai caller",
+        "answer calls",
+        "answering service",
+        "call answering",
+        "phone support",
+        "take orders",
+        "missed calls",
+      ])
+    ) {
+      return {
         text:
-          serviceAreaLine() +
-          " Most work is remote, so we can help whether you are local or out of state. " +
-          contactLine(),
+          cfg.voiceMessage ||
+          "We can help with a phone-based customer-service agent. Tell me what calls it should handle, and the team can scope the right workflow.",
+        offerLead: true,
       };
     }
     if (has(text, ["price", "cost", "how much", "pricing", "rates", "fee"])) {
       return {
         text:
-          "Website work starts at $1,490 (small agencies charge $5,000-$9,000 for similar). Chatbots and lead intake start at $750, dashboards and automation around $1,500, and custom apps at $4,500 — all well below typical agency rates. Prefer a fully managed AI assistant? It's a $690 one-time setup plus plans from $39/mo (most pick $89/mo). The free scan tells you which lane actually makes sense before you spend anything. " +
+          (cfg.pricingMessage ||
+            (cfg.price
+              ? "Pricing: " + cfg.price + "."
+              : "Pricing depends on the service and scope. Tell me what you need and the team can confirm the right next step.")) +
+          " " +
           contactLine(),
         offerLead: true,
       };
@@ -474,14 +563,14 @@
     if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
       return {
         text:
-          "The free scan is simple: send your website, Instagram, or business page. We look for the first fixes that can improve trust, mobile flow, speed, booking, leads, or follow-up.",
+          cfg.scanMessage ||
+          "Tell me what you need help with, and I can capture the details for the team.",
         offerLead: true,
       };
     }
     if (has(text, ["service", "what do you", "offer", "do you do", "help with"])) {
       return {
-        text:
-          "Our main focus is website design and redesign: cleaner pages, better mobile flow, stronger copy, and clearer calls to action. We can also add booking systems, lead capture, custom apps, dashboards, and AI chatbots when the site needs more.",
+        text: cfg.businessName + " can help with " + listServices() + ". What are you trying to improve?",
       };
     }
     if (has(text, ["phone", "number", "call", "email", "contact", "human", "founder"])) {
@@ -493,26 +582,30 @@
     if (has(text, ["time", "timeline", "how long", "launch", "build time"])) {
       return {
         text:
-          "Simple landing pages and focused redesigns can move fast. Bigger websites, apps, dashboards, or automation depend on scope. Send the link and we will give you a realistic next step after the free scan.",
+          cfg.timelineMessage ||
+          "Timing depends on the service and scope. Leave the details here and the team can confirm the next available step.",
         offerLead: true,
       };
     }
     if (has(text, ["example", "portfolio", "proof", "demo", "work"])) {
       return {
         text:
-          "The live demo shows how a clean site can guide visitors, answer common questions, and route leads somewhere useful. If you want, send your site and we will show what we would improve first.",
+          cfg.examplesMessage ||
+          "Tell me which service you are considering and the team can point you to the most relevant example.",
         offerLead: true,
       };
     }
     if (has(text, ["thank", "thanks", "cheers", "appreciate"])) {
-      return { text: "You got it. Send a link or idea whenever you are ready and we can take a look." };
+      return { text: "You got it. Send the details whenever you are ready." };
     }
     if (has(text, ["hi", "hello", "hey", "yo "]) || text === "hi" || text === "hello") {
-      return { text: "Hey. What are you trying to build, fix, or improve?" };
+      return { text: "Hey. What can we help you with today?" };
     }
     return {
       text:
-        "I can help with website redesigns, pricing, timelines, examples, apps, chatbots, or a free scan. Send your site or tell me what feels broken.",
+        "I can help with " +
+        listServices() +
+        ", pricing, timing, or a follow-up request. What would you like to know?",
     };
   }
 
@@ -529,19 +622,23 @@
     if (cfg.email) parts.push("Email: " + cfg.email + ".");
     if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
     parts.push(
-        "Use clear, human language. Position website design and redesign as a core offer, while treating apps, chatbots, dashboards, and AI agents as standalone products when the customer asks for them. The company is founder-led, available for 24/7 intake, and serves clients across the US. Encourage a free project scan or founder follow-up when useful."
+      "Use clear, human language. Only use facts in this prompt. Never invent pricing, availability, policies, integrations, or capabilities. If a request needs a person, offer to capture a follow-up request."
     );
+    if (cfg.assistantInstructions) parts.push(cfg.assistantInstructions);
     return parts.join(" ");
   }
 
   async function aiReply() {
-    const messages = history.map((m) => ({ role: m.role, content: m.text }));
-    const res = await fetch(cfg.aiEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages, system: systemPrompt() }),
-    });
-      if (!res.ok) throw new Error("chat connection " + res.status);
+    const messages = history.slice(-16).map((m) => ({
+      role: m.role,
+      content: String(m.text || "").slice(0, 1200),
+    }));
+    const res = await postJson(
+      cfg.aiEndpoint,
+      { messages, system: systemPrompt() },
+      cfg.aiTimeoutMs
+    );
+    if (!res.ok) throw new Error("chat connection " + res.status);
     const data = await res.json();
     return data && data.reply ? String(data.reply) : null;
   }
@@ -552,11 +649,11 @@
     setChips([]);
     addMessage(
       "bot",
-      "Absolutely. First, what is your name? Then I will grab the best contact and what you want redesigned or built."
+      "Absolutely. First, what is your name? Then I will grab the best contact and what you need help with."
     );
   }
 
-  function advanceLead(text) {
+  async function advanceLead(text) {
     if (lead.step === "name") {
       lead.name = text;
       lead.step = "contact";
@@ -573,16 +670,16 @@
       lead.step = "detail";
       addMessage(
         "bot",
-        "Got it. Send your website, Instagram, business page, or a short description of what you want redesigned or built."
+        "Got it. Tell me what you need help with, plus any useful link or details."
       );
     } else if (lead.step === "detail") {
       lead.detail = text;
       lead.step = null;
-      finishLead();
+      await finishLead();
     }
   }
 
-  function finishLead() {
+  async function finishLead() {
     const record = {
       name: lead.name,
       contact: lead.contact,
@@ -591,57 +688,99 @@
       page: window.location.href,
       at: new Date().toISOString(),
     };
-    const followUpOwner = cfg.secondaryPhone || cfg.email ? "A Symbio founder" : "The team";
-    addMessage(
-      "bot",
-      "Perfect, " +
-        firstName(record.name) +
-        ". We saved your request. " +
-        followUpOwner +
-        " will review it and follow up. " +
-        contactLine()
-    );
-    deliverLead(record);
+    setComposerBusy(true);
+    showTyping();
+    const delivery = await deliverLead(record);
+    hideTyping();
+    setComposerBusy(false);
+
+    if (delivery.confirmed) {
+      addMessage(
+        "bot",
+        "Perfect, " +
+          firstName(record.name) +
+          ". Your request was delivered. The team will review it and follow up. " +
+          contactLine()
+      );
+    } else if (delivery.attempted) {
+      addMessage(
+        "bot",
+        "I captured the details, but I could not confirm delivery. Please use this direct contact so nothing gets missed: " +
+          contactLine()
+      );
+    } else {
+      addMessage(
+        "bot",
+        "Thanks, " +
+          firstName(record.name) +
+          ". I captured the details in this chat. For a confirmed follow-up, please use this direct contact: " +
+          contactLine()
+      );
+    }
     setChips(defaultChips());
   }
 
-  function deliverLead(record) {
+  async function deliverLead(record) {
+    const deliveries = [];
+    const respond = (result) => {
+      deliveries.push(
+        Promise.resolve(result)
+          .then((value) => value !== false)
+          .catch(() => false)
+      );
+    };
+    const eventRecord = { ...record, respond };
+
     try {
-      window.dispatchEvent(new CustomEvent("symbio:lead", { detail: record }));
+      window.dispatchEvent(new CustomEvent("symbio:lead", { detail: eventRecord }));
     } catch (e) {
       /* CustomEvent unsupported - ignore */
     }
     if (cfg.onLead) {
       try {
-        cfg.onLead(record);
+        respond(cfg.onLead(record));
       } catch (e) {
-        /* host callback threw - ignore */
+        respond(false);
       }
     }
     if (cfg.leadEndpoint) {
       try {
-        fetch(cfg.leadEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(record),
-        }).catch(function () {
-          /* delivery is best-effort; the event/callback already fired */
-        });
+        respond(
+          postJson(cfg.leadEndpoint, record, cfg.leadTimeoutMs).then(async (response) => {
+            if (!response.ok) return false;
+            const data = await response.json().catch(() => null);
+            return data ? data.ok === true : true;
+          })
+        );
       } catch (e) {
-        /* ignore */
+        respond(false);
       }
     }
+
+    if (!deliveries.length) return { attempted: false, confirmed: false };
+    const results = await Promise.all(deliveries);
+    return { attempted: true, confirmed: results.some(Boolean) };
   }
 
   /* ---- Message orchestration ------------------------------------------ */
+  let responsePending = false;
+
+  function setComposerBusy(busy) {
+    responsePending = busy;
+    if (!el.form) return;
+    el.form.setAttribute("aria-busy", String(busy));
+    el.input.disabled = busy;
+    if (el.send) el.send.disabled = busy;
+  }
+
   async function handleUserText(raw) {
-    const text = String(raw).trim();
-    if (!text) return;
+    const text = String(raw).trim().slice(0, cfg.maxInputLength);
+    if (!text || responsePending) return;
     addMessage("user", text);
     el.input.value = "";
 
     if (lead.step) {
-      advanceLead(text);
+      await advanceLead(text);
       return;
     }
 
@@ -651,6 +790,7 @@
     }
 
     if (cfg.aiEndpoint) {
+      setComposerBusy(true);
       showTyping();
       try {
         const reply = await aiReply();
@@ -663,6 +803,8 @@
       } catch (e) {
         hideTyping();
         /* fall through to the built-in engine */
+      } finally {
+        setComposerBusy(false);
       }
     }
 
@@ -676,6 +818,9 @@
   function openPanel() {
     if (!mounted) mount();
     isOpen = true;
+    el.panel.removeAttribute("inert");
+    el.panel.setAttribute("aria-hidden", "false");
+    el.launcher.tabIndex = -1;
     el.root.classList.add("is-open");
     el.launcher.setAttribute("aria-expanded", "true");
     if (!history.length) {
@@ -689,7 +834,10 @@
     isOpen = false;
     if (el.root) {
       el.root.classList.remove("is-open");
+      el.panel.setAttribute("inert", "");
+      el.panel.setAttribute("aria-hidden", "true");
       el.launcher.setAttribute("aria-expanded", "false");
+      el.launcher.tabIndex = 0;
       el.launcher.focus();
     }
   }
@@ -711,6 +859,15 @@
     "secondaryPhone",
     "email",
     "price",
+    "contactLabel",
+    "primaryContactName",
+    "secondaryContactName",
+    "scanMessage",
+    "voiceMessage",
+    "pricingMessage",
+    "timelineMessage",
+    "examplesMessage",
+    "assistantInstructions",
     "greeting",
   ];
 
@@ -758,10 +915,12 @@
 
     el.root = shadow.querySelector(".root");
     el.launcher = shadow.querySelector(".launcher");
+    el.panel = shadow.querySelector(".panel");
     el.messages = shadow.querySelector("[data-messages]");
     el.chips = shadow.querySelector("[data-chips]");
     el.input = shadow.querySelector("[data-input]");
     el.form = shadow.querySelector("[data-form]");
+    el.send = shadow.querySelector(".send");
     el.name = shadow.querySelector("[data-name]");
 
     el.launcher.addEventListener("click", togglePanel);

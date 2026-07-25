@@ -3,7 +3,7 @@ layout: base.njk
 pageKey: demos
 title: Product Demos
 permalink: demos.html
-description: Explore interactive Symbio AI demos for premium websites, custom apps, dashboards, chatbots, and AI workflow agents.
+description: Explore interactive Symbio AI demos for premium websites, custom apps, dashboards, chatbots, customer-service voice agents, and AI workflow agents.
 ---
 
 {# ===== Demo hero ======================================================= #}
@@ -14,7 +14,8 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
     <h1 class="section__title">See how your idea turns into something people can use</h1>
     <p class="section__lead">
       Pick the lane that matches the problem: a premium website, a custom app, a dashboard, a
-      chatbot, or an AI workflow agent. The demos are here so you can judge the work before a call.
+      chatbot, a customer-service voice agent, or an AI workflow agent. The demos are here so you
+      can judge the work before a call.
     </p>
     <div class="btn-row btn-row--center mt-6">
       <a class="btn btn--primary btn--lg" href="#redesign-lab">Start with the demos</a>
@@ -32,6 +33,7 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
       <a href="#pulse-dashboard" data-demo-link><span>03</span> Dashboards</a>
       <a href="#concierge-studio" data-demo-link><span>04</span> Chatbots</a>
       <a href="#workflow-theater" data-demo-link><span>05</span> AI agents</a>
+      <a href="#voice-agent-bridge" data-demo-link><span>06</span> Voice agents</a>
     </div>
   </div>
 </div>
@@ -317,6 +319,42 @@ description: Explore interactive Symbio AI demos for premium websites, custom ap
             <li>CRM updated</li>
             <li>Founder approves</li>
           </ol>
+        </div>
+      </article>
+
+      <article class="demo-product" id="voice-agent-bridge" data-reveal>
+        <div class="demo-product__copy">
+          <span class="eyebrow">Demo 06 - Voice agents</span>
+          <h3 class="card__title">Call-flow Preview</h3>
+          <p class="card__text">
+            Walk through a restaurant order, estimate request, or appointment change and see how a
+            routine call becomes structured details, a next action, and a clear human handoff.
+          </p>
+          <ul class="demo-points">
+            <li>Product sold: customer-service voice agent</li>
+            <li>Aha moment: routine calls stop interrupting the team</li>
+            <li>Best for: restaurants, home services, appointment teams, and after-hours intake</li>
+          </ul>
+          <div class="btn-row mt-6">
+            <a class="btn btn--primary" href="voice-agent.html#call-preview">Open the interactive call preview</a>
+            <a class="btn btn--ghost" href="checkout.html?offer=voice-agent">Review the voice-agent lane</a>
+          </div>
+        </div>
+        <div class="voice-routing" aria-label="Example customer-service voice-agent flow">
+          <div class="voice-routing__top">
+            <span><i class="voice-routing__live" aria-hidden="true"></i>Incoming customer call</span>
+            <span class="voice-routing__time">00:42</span>
+          </div>
+          <ol class="voice-routing__steps">
+            <li class="is-complete"><span>01</span>Greet with the business brand</li>
+            <li class="is-complete"><span>02</span>Understand the request</li>
+            <li class="is-active"><span>03</span>Capture the approved next step</li>
+            <li><span>04</span>Confirm or hand off with context</li>
+          </ol>
+          <div class="voice-routing__result">
+            <span>Example outcome</span>
+            <strong>Request details ready for the team</strong>
+          </div>
         </div>
       </article>
     </div>

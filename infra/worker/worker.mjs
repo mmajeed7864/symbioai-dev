@@ -10,7 +10,8 @@
  *
  *   POST /api/lead  { "name", "email", "business", "need" }
  *     → sends an instant auto-reply to the lead (speed-to-lead) IF the
- *       RESEND_API_KEY + LEAD_FROM secrets are set; always returns { ok }.
+ *       mail and team-delivery settings are present; returns ok only when
+ *       the team notification is confirmed.
  *
  * Deploy: see infra/worker/README.md. Set the deployed URL in site.js `scanApi`.
  */
@@ -19,7 +20,7 @@ import { normalizeUrl, fetchSite, findings } from "../../tools/lib/scan-core.mjs
 
 function corsHeaders(env) {
   return {
-    "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "*",
+    "Access-Control-Allow-Origin": env.ALLOWED_ORIGIN || "https://symbioai.dev",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
@@ -37,6 +38,16 @@ async function readJson(req) {
     return await req.json();
   } catch {
     return {};
+  }
+}
+
+async function fetchWithTimeout(url, options, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -78,11 +89,18 @@ async function sendTelegram(env, lead) {
     c(lead.sourceUrl) && `📍 ${c(lead.sourceUrl)}`,
   ].filter(Boolean);
   try {
-    const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: lines.join("\n"), disable_web_page_preview: true }),
-    });
+    const res = await fetchWithTimeout(
+      `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: lines.join("\n"),
+          disable_web_page_preview: true,
+        }),
+      }
+    );
     return res.ok;
   } catch {
     return false;
@@ -90,25 +108,41 @@ async function sendTelegram(env, lead) {
 }
 
 async function handleLead(req, env) {
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (contentLength > 50000) {
+    return json({ ok: false, error: "Request is too large." }, 413, env);
+  }
   const lead = await readJson(req);
-  const email = (lead.email || "").trim();
-  const first = (lead.name || "there").trim().split(/\s+/)[0] || "there";
-  const biz = (lead.business || "your business").trim();
+  const name = String(lead.name || "").trim().slice(0, 180);
+  const email = String(lead.email || "").trim().toLowerCase().slice(0, 220);
+  const phone = String(lead.phone || "").trim().slice(0, 80);
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const phoneDigits = phone.replace(/\D/g, "");
+  const validPhone = phoneDigits.length >= 7 && phoneDigits.length <= 15;
+  if (!name || (!validEmail && !validPhone)) {
+    return json({ ok: false, error: "Name and a valid email or phone are required." }, 400, env);
+  }
+
+  const safeLead = { ...lead, name, email: validEmail ? email : "", phone: validPhone ? phone : "" };
+  const first = name.split(/\s+/)[0] || "there";
+  const biz = String(lead.business || "your business").trim().slice(0, 220);
 
   // 1) Instant Telegram ping to the team (independent of email/auto-reply).
   let telegram = false;
-  if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) telegram = await sendTelegram(env, lead);
+  if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+    telegram = await sendTelegram(env, safeLead);
+  }
 
   // 2) Speed-to-lead auto-reply to the lead, if a mail provider is configured.
   let sent = false;
-  if (env.RESEND_API_KEY && env.LEAD_FROM && email) {
+  if (env.RESEND_API_KEY && env.LEAD_FROM && env.LEAD_BCC && validEmail) {
     const address = env.PHYSICAL_ADDRESS || "";
     const body =
       `Hi ${first},\n\nThanks for reaching out about ${biz} — got it. A real person will reply ` +
       `within one business day. In the meantime, reply here with anything you want us to look at first.\n\n` +
       `— Symbio AI\nhttps://symbioai.dev` + (address ? `\n\n${address}` : "");
     try {
-      const res = await fetch("https://api.resend.com/emails", {
+      const res = await fetchWithTimeout("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -125,7 +159,17 @@ async function handleLead(req, env) {
     }
   }
 
-  return json({ ok: true, telegram, sent }, 200, env);
+  const delivered = telegram || sent;
+  return json(
+    {
+      ok: delivered,
+      telegram,
+      sent,
+      ...(delivered ? {} : { error: "No team notification could be confirmed." }),
+    },
+    delivered ? 200 : 503,
+    env
+  );
 }
 
 export default {

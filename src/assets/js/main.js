@@ -365,6 +365,7 @@
     "goal",
     "problem",
     "sourceUrl",
+    "_gotcha",
   ];
   const LEAD_EMAIL = "freescan@symbioai.dev";
   const LEAD_EMAIL_CC = "mohammed@symbioai.dev,ravi@symbioai.dev";
@@ -411,6 +412,20 @@
     const submitBtn = form.querySelector("[data-scan-submit]");
     const sourceUrlInput = form.querySelector("[data-source-url]");
     if (sourceUrlInput) sourceUrlInput.value = window.location.href;
+    const needSelect = form.querySelector('select[name="need"]');
+    const requestedNeed = new URLSearchParams(window.location.search).get("need");
+    const needLabels = {
+      "voice-agent": "AI voice agent / phone support",
+      chatbot: "AI chatbot",
+      app: "Custom app",
+      dashboard: "Dashboard",
+      automation: "AI agent / automation",
+      website: "Website",
+      redesign: "Redesign",
+    };
+    if (needSelect && requestedNeed && needLabels[requestedNeed]) {
+      needSelect.value = needLabels[requestedNeed];
+    }
 
     function setStatus(kind, message) {
       if (!statusEl) return;
@@ -503,7 +518,7 @@
       email: isEmail ? contact : "",
       phone: isEmail ? "" : contact,
       link: "",
-      need: "Chat assistant enquiry",
+      need: "AI chatbot / website assistant enquiry",
       budget: "",
       goal: "",
       problem: lead.detail || "",
@@ -516,9 +531,12 @@
       const lead = event.detail;
       if (!lead) return;
       track("WidgetLead");
-      submitScan(mapWidgetLead(lead)).catch(() => {
-        /* best-effort; nothing else to do on the marketing pages */
-      });
+      const delivery = submitScan(mapWidgetLead(lead));
+      if (typeof lead.respond === "function") {
+        lead.respond(delivery);
+      } else {
+        delivery.catch(() => false);
+      }
     });
   }
 
@@ -1203,6 +1221,8 @@
     const turnaround = checkout.querySelector("[data-checkout-turnaround]");
     const summary = checkout.querySelector("[data-checkout-summary]");
     const ongoing = checkout.querySelector("[data-checkout-ongoing]");
+    const includes = checkout.querySelector("[data-checkout-includes]");
+    const careLink = checkout.querySelector("[data-checkout-care]");
     const checkoutLink = checkout.querySelector(".checkout-actions .btn--primary");
     if (!offers.length) return;
 
@@ -1214,21 +1234,55 @@
       return `mailto:contact@symbioai.dev?subject=${subject}&body=${body}`;
     }
 
+    function renderIncludes(value) {
+      if (!includes) return;
+      includes.textContent = "";
+      String(value || "")
+        .split("||")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          includes.appendChild(li);
+        });
+    }
+
+    function activateOffer(offer, updateUrl) {
+      offers.forEach((item) => item.classList.toggle("is-active", item === offer));
+      const data = offer.dataset;
+      if (title) title.textContent = data.title || "";
+      if (price) price.textContent = data.price || "";
+      if (deposit) deposit.textContent = data.deposit || "";
+      if (turnaround) turnaround.textContent = data.turnaround || "";
+      if (summary) summary.textContent = data.summary || "";
+      if (ongoing) ongoing.textContent = data.ongoing || "No recurring cost listed.";
+      renderIncludes(data.includes);
+      if (careLink) careLink.hidden = data.websiteCare !== "true";
+      if (checkoutLink) {
+        checkoutLink.href = mailtoFor(data.title || "Symbio AI build", data.ongoing);
+      }
+      checkout.classList.remove("is-checkout-changing");
+      window.requestAnimationFrame(() => checkout.classList.add("is-checkout-changing"));
+
+      if (updateUrl && data.key && window.history?.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("offer", data.key);
+        window.history.replaceState({}, "", url);
+      }
+    }
+
     offers.forEach((offer) => {
       offer.addEventListener("click", () => {
-        offers.forEach((item) => item.classList.toggle("is-active", item === offer));
-        const data = offer.dataset;
-        if (title) title.textContent = data.title || "";
-        if (price) price.textContent = data.price || "";
-        if (deposit) deposit.textContent = data.deposit || "";
-        if (turnaround) turnaround.textContent = data.turnaround || "";
-        if (summary) summary.textContent = data.summary || "";
-        if (ongoing) ongoing.textContent = data.ongoing || "No recurring cost listed.";
-        if (checkoutLink) checkoutLink.href = mailtoFor(data.title || "Symbio AI build", data.ongoing);
-        checkout.classList.remove("is-checkout-changing");
-        window.requestAnimationFrame(() => checkout.classList.add("is-checkout-changing"));
+        activateOffer(offer, true);
       });
     });
+
+    const requestedKey = new URLSearchParams(window.location.search).get("offer");
+    const requestedOffer = requestedKey
+      ? Array.from(offers).find((offer) => offer.dataset.key === requestedKey)
+      : null;
+    activateOffer(requestedOffer || offers[0], false);
   }
 
   // On buy.html, package buttons without a Stripe checkout link point at the

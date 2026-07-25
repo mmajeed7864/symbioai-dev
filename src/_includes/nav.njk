@@ -11,7 +11,7 @@
             <a
               class="site-nav__link"
               href="{{ item.url }}"
-              {% if item.key == pageKey %}aria-current="page"{% endif %}
+              {% if item.key == (navKey or pageKey) %}aria-current="page"{% endif %}
               >{{ item.label }}</a
             >
           </li>

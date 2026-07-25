@@ -3,7 +3,7 @@ layout: base.njk
 pageKey: widget
 title: "AI assistant for your website"
 permalink: widget.html
-description: An always-on AI assistant for your website — answers questions, captures leads, and books, 24/7. One line of code, styled to your brand. Plans from $39/mo after a one-time setup. Try the live demo.
+description: An always-on AI assistant for your website — answers approved questions, captures lead details, and routes booking requests, 24/7. One line of code, styled to your brand. Plans from $39/mo after a one-time setup. Try the live demo.
 ---
 
 {# ===== Hero =========================================================== #}
@@ -13,9 +13,9 @@ description: An always-on AI assistant for your website — answers questions, c
     <span class="eyebrow eyebrow--center">AI assistant</span>
     <h1 class="section__title">An always-on assistant on your site — from $39/mo</h1>
     <p class="section__lead">
-      It answers questions, captures the visitor’s name and contact, and books — all in one
-      chat, 24/7. One line of code, styled to your brand, and every lead reaches a real person
-      on your team. {{ site.widgetSetup }}, then a simple monthly plan.
+      It answers approved questions, captures the visitor’s name and contact, and routes booking
+      requests — all in one chat, 24/7. One line of code, styled to your brand, with confirmed lead
+      delivery to your team. {{ site.widgetSetup }}, then a simple monthly plan.
     </p>
     <div class="btn-row btn-row--center mt-6">
       <a class="btn btn--primary btn--lg" href="{{ site.links.demo }}">Try the live demo</a>
@@ -37,12 +37,12 @@ description: An always-on AI assistant for your website — answers questions, c
         <p class="card__text">Hours, pricing, services, “do you take my insurance?” — answered from rules you approve, in seconds.</p>
       </article>
       <article class="card" data-reveal data-reveal-delay="1">
-        <h3 class="card__title">Captures every lead</h3>
-        <p class="card__text">Name → contact → detail, then it lands in your inbox. Nothing slips away after hours.</p>
+        <h3 class="card__title">Captures qualified details</h3>
+        <p class="card__text">Name → contact → detail, then confirmed delivery to your inbox gives after-hours visitors a clear next step.</p>
       </article>
       <article class="card" data-reveal data-reveal-delay="2">
-        <h3 class="card__title">Books the next step</h3>
-        <p class="card__text">Hands off to your booking flow so an interested visitor becomes a held appointment.</p>
+        <h3 class="card__title">Routes the next step</h3>
+        <p class="card__text">Hands off to your booking flow; a connected calendar can complete only the actions and slots you approve.</p>
       </article>
       <article class="card" data-reveal data-reveal-delay="3">
         <h3 class="card__title">Drops in anywhere</h3>
@@ -120,7 +120,7 @@ description: An always-on AI assistant for your website — answers questions, c
     </article>
     <article class="card mt-6" data-reveal>
       <h3 class="card__title">Where do the leads go?</h3>
-      <p class="card__text">Straight to your inbox the moment they’re captured, and on the Pro plan into your CRM. Every lead reaches a real person on your team.</p>
+      <p class="card__text">Confirmed delivery goes to your inbox, and the Pro plan can route it into your CRM. If delivery cannot be confirmed, the visitor sees your direct contact instead of a false success message.</p>
     </article>
     <article class="card mt-6" data-reveal>
       <h3 class="card__title">Can I cancel?</h3>
@@ -155,7 +155,7 @@ description: An always-on AI assistant for your website — answers questions, c
   "name": "AI assistant for websites",
   "serviceType": "AI chat assistant",
   "provider": { "@type": "Organization", "name": "Symbio AI", "url": "{{ site.url }}" },
-  "areaServed": { "@type": "State", "name": "California" },
+  "areaServed": { "@type": "Country", "name": "United States" },
   "offers": {
     "@type": "AggregateOffer",
     "priceCurrency": "USD",
