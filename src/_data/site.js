@@ -29,9 +29,9 @@ export default {
   // `hermes review`. In GBP: "Get more reviews" -> copy link.
   googleReviewUrl: "",
   positioning:
-    "We build premium websites, apps, dashboards, chatbots, and AI agents that help businesses look credible and turn attention into action.",
+    "We build premium websites, apps, dashboards, chatbots, voice agents, and AI systems that help businesses look credible and turn attention into action.",
   description:
-    "Symbio AI builds premium websites, redesigns, custom apps, dashboards, AI chatbots, and workflow agents for local businesses, nonprofits, schools, creators, and growing teams.",
+    "Symbio AI builds premium websites, custom apps, dashboards, AI chatbots, customer-service voice agents, and workflow systems for growing businesses and teams.",
 
   whoWeHelp: ["Local businesses", "Nonprofits", "Schools", "Creators", "Small teams"],
 
@@ -83,6 +83,7 @@ export default {
     portfolio: "portfolio.html",
     demo: "chatbot-demo.html",
     demos: "demos.html",
+    voice: "voice-agent.html",
     weddings: "weddings/",
   },
 
@@ -209,6 +210,27 @@ export default {
       features: ["Lead capture", "Service FAQs", "Founder handoff", "Embeddable widget"],
       demoUrl: "demos.html#concierge-studio",
       cta: "See chatbot demo",
+    },
+    {
+      key: "voice",
+      eyebrow: "Customer-service voice agents",
+      title: "AI voice agent",
+      shortTitle: "Voice agent",
+      startsAt: "Custom quote",
+      priceLabel: "Custom quote",
+      typical: "Scoped to call volume and integrations",
+      summary:
+        "A business-trained phone agent that answers routine calls, captures orders or requests, books next steps, and brings in a person when needed.",
+      bestFor:
+        "Restaurants, home services, appointment-based teams, after-hours coverage, overflow calls, and missed-call recovery.",
+      features: [
+        "Branded call greeting",
+        "Order or request intake",
+        "Booking and lead qualification",
+        "Human escalation with context",
+      ],
+      demoUrl: "voice-agent.html#call-preview",
+      cta: "Preview a call flow",
     },
     {
       key: "agent",

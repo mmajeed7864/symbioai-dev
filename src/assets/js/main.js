@@ -8,6 +8,7 @@
      5. Hero: rotating word
      6. Hero: live lead inbox
      7. Free-scan form (POST JSON, mailto fallback)
+     8. Product demos, checkout, teardown, tracking, and voice preview
    Each feature is guarded by element checks, so the file is safe on any page.
    ========================================================================= */
 (function () {
@@ -1330,7 +1331,227 @@
     });
   }
 
-  /* ---- 12. Conversion tracking --------------------------------------- */
+  /* ---- 12. Scripted voice-agent preview ------------------------------ */
+  const VOICE_SCENARIOS = {
+    restaurant: {
+      title: "Restaurant order",
+      outcome: "Order ready for confirmation",
+      detail:
+        "The business receives the items, pickup timing, customer name, contact, and a clear confirmation step.",
+      facts: ["Order intent identified", "Items and timing structured", "Staff confirmation assigned"],
+      steps: [
+        {
+          speaker: "Caller",
+          text: "Can I place a pickup order for tonight?",
+          status: "Caller request",
+        },
+        {
+          speaker: "Voice agent",
+          text: "Absolutely. I will collect the order and pickup details, then confirm the next step.",
+          status: "Intent understood",
+        },
+        {
+          speaker: "Caller",
+          text: "One large pepperoni pizza and garlic knots, under Maya.",
+          status: "Details captured",
+        },
+        {
+          speaker: "Voice agent",
+          text: "I have the items and name. What pickup time and callback number should I use?",
+          status: "Confirmation requested",
+        },
+        {
+          speaker: "System",
+          text: "Order details structured and sent to the restaurant for confirmation.",
+          status: "Call complete",
+        },
+      ],
+    },
+    construction: {
+      title: "Estimate request",
+      outcome: "Urgent estimate lead routed",
+      detail:
+        "The team receives the job type, location, urgency, caller details, and the reason it needs priority follow-up.",
+      facts: ["Job and location captured", "Urgency identified", "Priority callback assigned"],
+      steps: [
+        {
+          speaker: "Caller",
+          text: "I need someone to look at my roof in south Charlotte.",
+          status: "Caller request",
+        },
+        {
+          speaker: "Voice agent",
+          text: "I can help with the estimate request. Is there active damage or a leak right now?",
+          status: "Lead qualification",
+        },
+        {
+          speaker: "Caller",
+          text: "There is a leak near the upstairs window after last night's storm.",
+          status: "Urgency detected",
+        },
+        {
+          speaker: "Voice agent",
+          text: "I will flag this for priority follow-up. May I collect the address and callback number?",
+          status: "Handoff prepared",
+        },
+        {
+          speaker: "System",
+          text: "Urgent estimate summary routed to the team with the caller's context.",
+          status: "Call complete",
+        },
+      ],
+    },
+    appointment: {
+      title: "Appointment change",
+      outcome: "Reschedule request prepared",
+      detail:
+        "The business receives the original appointment, requested window, caller contact, and the confirmation still needed.",
+      facts: ["Appointment identified", "New window captured", "Confirmation step assigned"],
+      steps: [
+        {
+          speaker: "Caller",
+          text: "I need to move my appointment tomorrow afternoon.",
+          status: "Caller request",
+        },
+        {
+          speaker: "Voice agent",
+          text: "I can collect the change request. What name is the appointment under?",
+          status: "Appointment lookup",
+        },
+        {
+          speaker: "Caller",
+          text: "Jordan Lee. Friday morning would work better if anything is available.",
+          status: "Preference captured",
+        },
+        {
+          speaker: "Voice agent",
+          text: "I will send the Friday-morning preference to the scheduling team for confirmation.",
+          status: "Next step explained",
+        },
+        {
+          speaker: "System",
+          text: "Reschedule request summarized and assigned to scheduling.",
+          status: "Call complete",
+        },
+      ],
+    },
+  };
+
+  function initVoicePreview() {
+    const preview = document.querySelector("[data-voice-preview]");
+    if (!preview) return;
+
+    const timeline = preview.querySelector("[data-voice-timeline]");
+    const title = preview.querySelector("[data-voice-title]");
+    const status = preview.querySelector("[data-voice-status]");
+    const next = preview.querySelector("[data-voice-next]");
+    const restart = preview.querySelector("[data-voice-restart]");
+    const outcome = preview.querySelector("[data-voice-outcome]");
+    const outcomeDetail = preview.querySelector("[data-voice-outcome-detail]");
+    const facts = preview.querySelector("[data-voice-facts]");
+    const scenarioButtons = preview.querySelectorAll("[data-voice-scenario]");
+
+    if (
+      !timeline ||
+      !title ||
+      !status ||
+      !next ||
+      !restart ||
+      !outcome ||
+      !outcomeDetail ||
+      !facts ||
+      !scenarioButtons.length
+    ) {
+      return;
+    }
+
+    let scenarioKey = "restaurant";
+    let stepIndex = 0;
+
+    function buildStep(step, index, activeIndex) {
+      const item = document.createElement("li");
+      item.className =
+        "voice-timeline__step " +
+        (index < activeIndex ? "is-complete" : index === activeIndex ? "is-active" : "");
+
+      const marker = document.createElement("span");
+      marker.className = "voice-timeline__marker";
+      marker.textContent = String(index + 1).padStart(2, "0");
+
+      const body = document.createElement("div");
+      const speaker = document.createElement("span");
+      speaker.className = "voice-timeline__speaker";
+      speaker.textContent = step.speaker;
+
+      const stepText = document.createElement("p");
+      stepText.textContent = step.text;
+
+      body.append(speaker, stepText);
+      item.append(marker, body);
+      return item;
+    }
+
+    function renderFacts(items) {
+      facts.textContent = "";
+      items.forEach((fact) => {
+        const item = document.createElement("li");
+        item.textContent = fact;
+        facts.appendChild(item);
+      });
+    }
+
+    function render() {
+      const scenario = VOICE_SCENARIOS[scenarioKey];
+      const complete = stepIndex === scenario.steps.length - 1;
+
+      title.textContent = scenario.title;
+      status.textContent = scenario.steps[stepIndex].status;
+      timeline.textContent = "";
+      scenario.steps.slice(0, stepIndex + 1).forEach((step, index) => {
+        timeline.appendChild(buildStep(step, index, stepIndex));
+      });
+
+      outcome.textContent = complete ? scenario.outcome : "Waiting for the call flow";
+      outcomeDetail.textContent = complete
+        ? scenario.detail
+        : "Advance the preview to see what the business receives.";
+      renderFacts(scenario.facts);
+
+      next.disabled = complete;
+      next.textContent = complete ? "Flow complete" : "Next call step";
+
+      scenarioButtons.forEach((button) => {
+        const active = button.getAttribute("data-voice-scenario") === scenarioKey;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+    }
+
+    scenarioButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextScenario = button.getAttribute("data-voice-scenario");
+        if (!VOICE_SCENARIOS[nextScenario]) return;
+        scenarioKey = nextScenario;
+        stepIndex = 0;
+        render();
+      });
+    });
+
+    next.addEventListener("click", () => {
+      const lastIndex = VOICE_SCENARIOS[scenarioKey].steps.length - 1;
+      stepIndex = Math.min(stepIndex + 1, lastIndex);
+      render();
+    });
+
+    restart.addEventListener("click", () => {
+      stepIndex = 0;
+      render();
+    });
+
+    render();
+  }
+
+  /* ---- 13. Conversion tracking --------------------------------------- */
   // One delegated listener turns checkout/package clicks into analytics events.
   // Works with whatever analytics is loaded (Plausible if configured); silent otherwise.
   function initTracking() {
@@ -1361,6 +1582,7 @@
     initCheckoutPage();
     initBuyButtons();
     initTeardown();
+    initVoicePreview();
     initTracking();
     // Tell the pre-paint safety net that we ran, so it won't unhide reveals.
     window.__symbioReady = true;

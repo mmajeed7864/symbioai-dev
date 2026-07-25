@@ -1,0 +1,257 @@
+---
+layout: base.njk
+pageKey: voice
+title: AI Voice Agent
+permalink: voice-agent.html
+description: A customer-service voice agent designed around your business to answer routine calls, take structured orders, handle common scheduling requests, qualify leads, and hand complex calls to your team.
+capabilities:
+  - title: Answer and greet
+    text: Opens with your brand, understands why the person called, and keeps the conversation focused.
+  - title: Take orders
+    text: Captures items, options, pickup or delivery details, and the information your team needs.
+  - title: Book and reschedule
+    text: Handles common appointment requests and confirms the next step with the caller.
+  - title: Qualify leads
+    text: Collects service, location, timing, budget, and contact details before your team follows up.
+  - title: Escalate to a human
+    text: Routes urgent, sensitive, or complex calls with the context already gathered.
+  - title: Summarize and follow up
+    text: Turns each handled call into a clean summary, structured details, and a clear next action.
+useCases:
+  - label: Restaurants
+    title: Orders without tying up the counter
+    text: Handle menu questions, pickup orders, common requests, and large-order enquiries while staff serves customers.
+    example: Pizza shops / takeout / catering
+  - label: Home services
+    title: Better estimate requests
+    text: Ask the right intake questions, capture job details, and separate urgent calls from routine quotes.
+    example: Construction / roofing / HVAC
+  - label: Appointments
+    title: Fewer scheduling interruptions
+    text: Help callers request, move, or confirm appointments without pulling a specialist away from the work.
+    example: Salons / auto services / consultants
+  - label: General service
+    title: A dependable first line
+    text: Answer approved repeat questions, collect messages, route departments, and leave your team with a useful summary.
+    example: Local teams / offices / franchises
+---
+
+{# ===== Product hero ================================================== #}
+<section class="section section--tight voice-hero has-aurora">
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="container">
+    <div class="voice-hero__grid">
+      <div class="voice-hero__copy">
+        <span class="eyebrow">AI voice agent</span>
+        <h1 class="voice-hero__title">Your business, answered - even when your team is busy.</h1>
+        <p class="voice-hero__lead">
+          A customer-service phone agent designed around your menu, schedule, services, approved
+          answers, and rules. It handles routine calls, takes structured action, and brings in a
+          person when the conversation needs one.
+        </p>
+        <div class="btn-row mt-6">
+          <a class="btn btn--primary btn--lg" href="#call-preview">Preview a call flow</a>
+          <a class="btn btn--ghost btn--lg" href="{{ site.cta.url }}">Plan my call flow</a>
+        </div>
+        <p class="voice-hero__note">Built around your workflow. Human handoff when it matters.</p>
+      </div>
+
+      <aside class="voice-routing" aria-label="Example voice-agent routing flow">
+        <div class="voice-routing__top">
+          <span><i class="voice-routing__live" aria-hidden="true"></i>Incoming customer call</span>
+          <span class="voice-routing__time">00:42</span>
+        </div>
+        <div class="voice-routing__signal" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <ol class="voice-routing__steps">
+          <li class="is-complete"><span>01</span>Greet with your brand</li>
+          <li class="is-complete"><span>02</span>Understand the request</li>
+          <li class="is-active"><span>03</span>Take the right action</li>
+          <li><span>04</span>Summarize or hand off</li>
+        </ol>
+        <div class="voice-routing__result">
+          <span>Next action</span>
+          <strong>Order details ready for confirmation</strong>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{# ===== Capabilities ================================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">What it can handle</span>
+      <h2 class="section__title">Routine calls become structured next steps</h2>
+      <p class="section__lead">
+        We shape the agent around what callers actually ask and what your team needs to happen next.
+      </p>
+    </div>
+
+    <div class="voice-capabilities">
+      {% for capability in capabilities %}
+        <article class="voice-capability" data-reveal>
+          <span class="voice-capability__num">0{{ loop.index }}</span>
+          <h3>{{ capability.title }}</h3>
+          <p>{{ capability.text }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Honest scripted preview ====================================== #}
+<section class="section section--tint" id="call-preview">
+  <div class="container">
+    <div class="section__head" data-reveal>
+      <span class="eyebrow">Call-flow preview</span>
+      <h2 class="section__title">See how it would handle the call</h2>
+      <p class="section__lead">
+        Pick a business scenario, then walk through the conversation one decision at a time.
+      </p>
+    </div>
+
+    <div class="voice-preview" data-voice-preview data-reveal>
+      <div class="voice-preview__controls">
+        <div>
+          <span class="voice-preview__label">Choose a call type</span>
+          <div class="voice-preview__scenarios" role="group" aria-label="Choose a call scenario">
+            <button
+              class="voice-scenario is-active"
+              type="button"
+              data-voice-scenario="restaurant"
+              aria-pressed="true"
+            >
+              Restaurant order
+            </button>
+            <button
+              class="voice-scenario"
+              type="button"
+              data-voice-scenario="construction"
+              aria-pressed="false"
+            >
+              Estimate request
+            </button>
+            <button
+              class="voice-scenario"
+              type="button"
+              data-voice-scenario="appointment"
+              aria-pressed="false"
+            >
+              Appointment change
+            </button>
+          </div>
+        </div>
+        <span class="voice-preview__disclosure">Illustrative - scripted demo</span>
+      </div>
+
+      <div class="voice-preview__stage">
+        <div class="voice-preview__call">
+          <div class="voice-preview__callbar">
+            <span>
+              <i class="voice-routing__live" aria-hidden="true"></i>
+              <strong data-voice-title>Restaurant order</strong>
+            </span>
+            <span data-voice-status>Incoming call</span>
+          </div>
+
+          <ol
+            class="voice-timeline"
+            data-voice-timeline
+            aria-live="polite"
+            aria-label="Scripted call timeline"
+          >
+            <li class="voice-timeline__step is-active">
+              <span class="voice-timeline__marker">01</span>
+              <div>
+                <span class="voice-timeline__speaker">Caller</span>
+                <p>&ldquo;Can I place a pickup order for tonight?&rdquo;</p>
+              </div>
+            </li>
+          </ol>
+
+          <div class="voice-preview__actions">
+            <button class="btn btn--primary" type="button" data-voice-next>Next call step</button>
+            <button class="btn btn--ghost" type="button" data-voice-restart>Restart</button>
+          </div>
+        </div>
+
+        <aside class="voice-summary" aria-live="polite">
+          <span class="voice-summary__label">Call outcome</span>
+          <strong data-voice-outcome>Waiting for the call flow</strong>
+          <p data-voice-outcome-detail>Advance the preview to see what the business receives.</p>
+          <ul class="voice-summary__facts" data-voice-facts>
+            <li>Intent identified</li>
+            <li>Details structured</li>
+            <li>Next action assigned</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== Industry playbooks =========================================== #}
+<section class="section">
+  <div class="container">
+    <div class="section__head section__head--center" data-reveal>
+      <span class="eyebrow eyebrow--center">One system, different playbooks</span>
+      <h2 class="section__title">Designed around the calls your business receives</h2>
+      <p class="section__lead">
+        The conversation, actions, and escalation rules change with the business. The goal stays
+        the same: help the caller and leave the team with clarity.
+      </p>
+    </div>
+
+    <div class="voice-use-cases">
+      {% for useCase in useCases %}
+        <article class="voice-use-case" data-reveal>
+          <span class="voice-use-case__label">{{ useCase.label }}</span>
+          <h3>{{ useCase.title }}</h3>
+          <p>{{ useCase.text }}</p>
+          <span class="voice-use-case__example">{{ useCase.example }}</span>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ===== Trust and handoff ============================================ #}
+<section class="section section--tight">
+  <div class="container">
+    <div class="voice-guardrail" data-reveal>
+      <div>
+        <span class="eyebrow">Human when it matters</span>
+        <h2 class="section__title">Automation with a clear line back to your team</h2>
+        <p class="section__lead">
+          You define what the agent may handle, what needs confirmation, and when a caller should
+          reach a person. Urgent or complex calls are routed with the context already gathered.
+        </p>
+      </div>
+      <ul class="voice-guardrail__list">
+        <li><strong>Your rules</strong><span>Business-specific answers, actions, and boundaries</span></li>
+        <li><strong>Clean handoff</strong><span>Caller intent and details travel with the transfer</span></li>
+        <li><strong>Reviewable outcome</strong><span>Your team receives a useful summary and next action</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{# ===== Closing CTA ================================================== #}
+<section class="section">
+  <div class="container">
+    <div class="cta-band" data-reveal>
+      <h2 class="cta-band__title">What should your phone agent handle first?</h2>
+      <p class="cta-band__text">
+        Show us the calls that interrupt your day. We will map the routine ones, the handoffs, and
+        the smallest useful pilot.
+      </p>
+      <div class="btn-row btn-row--center">
+        <a class="btn btn--light btn--lg" href="{{ site.cta.url }}">Plan my call flow</a>
+        <a class="btn btn--secondary btn--lg" href="services.html">Explore all services</a>
+      </div>
+    </div>
+  </div>
+</section>

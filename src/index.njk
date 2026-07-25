@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 pageKey: home
-description: Symbio AI builds premium websites, redesigns, custom apps, dashboards, AI chatbots, and workflow agents for businesses that want better digital systems.
+description: Symbio AI builds premium websites, custom apps, dashboards, AI chatbots, customer-service voice agents, and workflow systems for businesses that want better digital operations.
 extraScripts:
   - src: assets/js/symbio-intro-3d.js?v=20260714-cinematic
     type: module
@@ -47,7 +47,7 @@ extraScripts:
       <div class="hero__content">
         <span class="hero__pill">
           <span class="hero__pill-dot" aria-hidden="true"></span>
-          Premium websites, apps, dashboards, chatbots, and AI agents
+          Premium websites, apps, dashboards, chatbots, voice agents, and AI systems
         </span>
 
         <h1 class="hero__title">
@@ -204,6 +204,52 @@ extraScripts:
   </div>
 </section>
 
+{# ===== Voice-agent product spotlight ================================== #}
+<section class="section section--tight">
+  <div class="container">
+    <article class="voice-feature-card" data-reveal>
+      <div class="voice-feature-card__copy">
+        <span class="eyebrow">New: AI customer service by phone</span>
+        <h2 class="section__title">Your business, answered - even when your team is busy.</h2>
+        <p class="section__lead">
+          Give routine callers a fast, natural first response. The voice agent can collect an
+          order, qualify a request, help with scheduling, answer approved questions, or bring in
+          a real person with the context already gathered.
+        </p>
+        <ul class="voice-feature-card__chips" aria-label="Voice agent capabilities">
+          <li>Order intake</li>
+          <li>Appointments</li>
+          <li>Lead qualification</li>
+          <li>Human handoff</li>
+        </ul>
+        <div class="btn-row mt-6">
+          <a class="btn btn--primary" href="{{ site.links.voice }}">See the voice agent</a>
+          <a class="btn btn--ghost" href="{{ site.cta.url }}">Map my call flow</a>
+        </div>
+      </div>
+
+      <div class="voice-feature-card__console" aria-label="Example incoming-call workflow">
+        <div class="voice-console__bar">
+          <span><i aria-hidden="true"></i> Incoming customer call</span>
+          <strong>00:42</strong>
+        </div>
+        <div class="voice-console__wave" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <ol class="voice-console__steps">
+          <li class="is-complete"><span>01</span>Understand the caller</li>
+          <li class="is-active"><span>02</span>Take the right action</li>
+          <li><span>03</span>Confirm or hand off</li>
+        </ol>
+        <div class="voice-console__outcome">
+          <span>Call outcome</span>
+          <strong>Order details ready for confirmation</strong>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
 {# ===== Product studio positioning ===================================== #}
 <section class="section">
   <div class="container container--narrow center">
@@ -273,9 +319,8 @@ extraScripts:
       <span class="eyebrow">What we build</span>
       <h2 class="section__title">Clear product lanes. Buy one by itself, or connect them later.</h2>
       <p class="section__lead">
-        Start with a premium website, a redesign, a custom app, a dashboard, a chatbot, or an
-        AI agent. Each lane has its own price anchor, demo, and scope — and every one is priced
-        well below typical agency rates.
+        Start with a premium website, redesign, custom app, dashboard, chatbot, voice agent, or
+        workflow agent. Each lane has a clear scope, useful demo, and honest next step.
       </p>
     </div>
 
@@ -284,7 +329,7 @@ extraScripts:
         <article class="product-card product-card--{{ lane.key }}{% if loop.first %} product-card--primary{% endif %}" data-reveal data-reveal-delay="{{ loop.index0 % 3 }}">
           <div class="product-card__topline">
             <span class="eyebrow">{{ lane.eyebrow }}</span>
-            <span class="product-card__price">Starts at {{ lane.startsAt }}</span>
+            <span class="product-card__price">{{ lane.priceLabel or ("Starts at " + lane.startsAt) }}</span>
             {% if lane.compareAt %}<span class="product-card__compare">{{ lane.compareAt }}</span>{% endif %}
           </div>
           <h3 class="product-card__title">{{ lane.title }}</h3>
@@ -296,7 +341,7 @@ extraScripts:
           </ul>
           <div class="product-card__actions">
             <a class="card__link" href="{{ lane.demoUrl }}">{{ lane.cta }}</a>
-            <span class="product-card__typical">Typical: {{ lane.typical }}</span>
+            <span class="product-card__typical">{% if lane.key == "voice" %}{{ lane.typical }}{% else %}Typical: {{ lane.typical }}{% endif %}</span>
           </div>
         </article>
       {% endfor %}
