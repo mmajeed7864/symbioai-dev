@@ -1,4 +1,12 @@
-import { DEFAULT_CHAT_MODEL, MAX_REQUEST_BYTES, isAllowedOrigin } from "./_chat-shared.js";
+import { Ratelimit } from "@upstash/ratelimit";
+
+import {
+  DEFAULT_CHAT_MODEL,
+  MAX_REQUEST_BYTES,
+  hashValue,
+  isAllowedOrigin,
+  safeSessionId,
+} from "./_chat-shared.js";
 import {
   getChatRedis,
   recordChatMetric,
@@ -6,9 +14,40 @@ import {
   storeLearningEvent,
 } from "./_chat-telemetry.js";
 
+let eventLimiters;
+
 function hasAllowedOrigin(req) {
   const origin = String(req.headers.origin || "");
   return Boolean(origin) && isAllowedOrigin(origin);
+}
+
+function requestIp(req) {
+  return (
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.headers["x-real-ip"] ||
+    req.socket?.remoteAddress ||
+    "unknown"
+  );
+}
+
+function getEventLimiters(redis) {
+  if (!eventLimiters) {
+    eventLimiters = {
+      ip: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(30, "10 m"),
+        prefix: "symbio:chat:event-ip",
+        analytics: false,
+      }),
+      session: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(20, "10 m"),
+        prefix: "symbio:chat:event-session",
+        analytics: false,
+      }),
+    };
+  }
+  return eventLimiters;
 }
 
 export default async function handler(req, res) {
@@ -51,6 +90,25 @@ export default async function handler(req, res) {
 
   const model = String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim();
   try {
+    const limiters = getEventLimiters(redis);
+    const normalizedSession = safeSessionId(sessionId) || "invalid-session";
+    const [ipLimit, sessionLimit] = await Promise.all([
+      limiters.ip.limit(hashValue(requestIp(req)).slice(0, 24)),
+      limiters.session.limit(hashValue(normalizedSession).slice(0, 24)),
+    ]);
+    if (!ipLimit.success || !sessionLimit.success) {
+      const resetAt = Math.max(
+        Number(ipLimit.reset) || Date.now() + 60000,
+        Number(sessionLimit.reset) || Date.now() + 60000
+      );
+      res.setHeader(
+        "Retry-After",
+        String(Math.max(1, Math.ceil((resetAt - Date.now()) / 1000)))
+      );
+      res.status(429).json({ ok: false, error: "Please wait before sending more chat events." });
+      return;
+    }
+
     const [event] = await Promise.all([
       storeLearningEvent(redis, {
         question,

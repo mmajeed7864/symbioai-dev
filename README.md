@@ -263,7 +263,8 @@ When `aiEndpoint` ends in `/chat`, the widget derives `/chat-event` and `/chat-f
 automatically. Every answer records anonymous operational metadata (model/source, byte counts,
 tokens, and provider-reported cost where applicable). Raw conversation text is not retained by
 default. If a visitor explicitly marks an answer **Needs work**, that one question/answer pair is
-scrubbed, stored for at most 30 days, and queued for private review. Feedback never changes the
+scrubbed, hash-matched to the original answer, stored for at most 30 days, and queued for private
+review. Feedback must be submitted within 24 hours, is rate-limited, and never changes the
 production prompt automatically.
 
 ### 4. Private chatbot metrics
@@ -280,7 +281,8 @@ Required production environment variables:
 | Variable                         | Purpose                                                      |
 | -------------------------------- | ------------------------------------------------------------ |
 | `SYMBIO_COMMAND_CENTER_TOKEN`    | Dedicated server-only bearer token for the private dashboard |
-| `SYMBIO_CHAT_MONTHLY_BUDGET_USD` | Dashboard budget reference; defaults to `5`                  |
+| `SYMBIO_CHAT_MONTHLY_BUDGET_USD` | Enforced monthly model budget; defaults to `5`                |
+| `SYMBIO_CHAT_MAX_CALL_USD`        | Conservative pre-call reservation; defaults to `0.01`        |
 | `UPSTASH_REDIS_REST_URL`         | Existing Upstash REST endpoint                               |
 | `UPSTASH_REDIS_REST_TOKEN`       | Existing Upstash REST token                                  |
 | `OPENROUTER_CHAT_API_KEY`        | Restricted OpenRouter key used only by the website assistant |
@@ -298,6 +300,19 @@ Required production environment variables:
 | `npm run lint`          | Stylelint + ESLint + HTMLHint (HTMLHint runs on `dist/`) |
 | `npm run format`        | Prettier write (CSS / JS / JSON / MD)                    |
 | `npm run minify:widget` | Regenerate `symbio-widget.min.js` with Terser            |
+| `npm run eval:chat-model` | Run versioned quality, PII-output, token, and cost gates |
+
+The model path atomically reserves budget in Redis before calling OpenRouter. Each reservation has
+a unique five-minute lease and is settled once; an expired dispatched lease is conservatively
+charged instead of silently released. The dashboard reads that same local guard ledger. At the
+local cap, the widget falls back to a no-token response; an unavailable budget ledger fails
+closed. The dedicated OpenRouter key's provider-side monthly limit is the final hard stop if an
+actual provider charge exceeds the conservative per-call reservation. Provider-reported cost is
+stored with model, prompt version, token counts, and an effective price snapshot. The private
+metrics endpoint reconciles the local ledger against that key's monthly usage on a month-scoped
+15-minute cache. Prompt changes stay review-only
+until the golden regression, PII, and per-turn cost gates pass; Git/Vercel retain the prior
+production version for one-step rollback.
 
 Nunjucks templates and `chatbot-demo.html` are excluded from Prettier
 (its HTML parser rewrites `{% %}`/`{{ }}` tags) — they are hand-formatted and validated by

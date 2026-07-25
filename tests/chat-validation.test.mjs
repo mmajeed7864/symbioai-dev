@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CHAT_PROMPT_VERSION,
   CHAT_SYSTEM_PROMPT,
   MAX_CONTEXT_BYTES,
   buildOpenRouterBody,
@@ -13,6 +14,7 @@ import {
   isContextDependentFollowup,
   normalizeMessages,
   safeSessionId,
+  sensitiveTypesInText,
   scrubSensitiveMessages,
 } from "../api/_chat-shared.js";
 
@@ -41,6 +43,17 @@ test("rejects context without a final user message", () => {
   assert.deepEqual(normalizeMessages([{ role: "assistant", content: "What do you need?" }]), []);
 });
 
+test("scrubs sensitive values before message truncation", () => {
+  const [message] = normalizeMessages([
+    {
+      role: "user",
+      content: `${"x".repeat(1589)} 4111 1111 1111 1111`,
+    },
+  ]);
+  assert.equal(message.content.includes("4111"), false);
+  assert.equal(sensitiveTypesInText(message.content).length, 0);
+});
+
 test("detects contact details before model routing", () => {
   assert.equal(
     containsSensitiveInput([{ role: "user", content: "Email me at owner@example.com" }]),
@@ -58,6 +71,33 @@ test("detects contact details before model routing", () => {
     containsSensitiveInput([{ role: "user", content: "Please review boxingclt.com" }]),
     false
   );
+  assert.equal(
+    containsSensitiveInput([{ role: "user", content: "Card 4111 1111 1111 1111" }]),
+    true
+  );
+  assert.equal(
+    containsSensitiveInput([{ role: "user", content: "My SSN is 123-45-6789" }]),
+    true
+  );
+  assert.equal(
+    containsSensitiveInput([{ role: "user", content: "api_key=do-not-share-this" }]),
+    true
+  );
+  assert.equal(
+    containsSensitiveInput([{ role: "user", content: "Meet at 15011 Milo Ln" }]),
+    true
+  );
+  for (const sensitive of [
+    "My SSN is 123 45 6789",
+    "My SSN is 123456789",
+    "my password is hunter2",
+    "Bearer sk-or-v1-abcdef",
+    "api key sk-or-v1-abcdef",
+    "Meet me at 10 Oak Terrace, Unit 4, Charlotte, NC 28278",
+  ]) {
+    assert.equal(containsSensitiveInput([{ role: "user", content: sensitive }]), true);
+    assert.equal(containsSensitiveInput(scrubSensitiveMessages([{ role: "user", content: sensitive }])), false);
+  }
 });
 
 test("redacts stale sensitive history while preserving business context", () => {
@@ -130,6 +170,7 @@ test("builds a fixed, non-reasoning OpenRouter request", () => {
   assert.equal(body.messages[0].role, "system");
   assert.equal(body.messages[0].content, CHAT_SYSTEM_PROMPT);
   assert.equal(body.tools, undefined);
+  assert.match(CHAT_PROMPT_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
 });
 
 test("origin, session, cache, and reply helpers are deterministic", () => {
@@ -148,4 +189,14 @@ test("origin, session, cache, and reply helpers are deterministic", () => {
     cleanModelReply("## Recommendation\n\nUse a **booking page**.\n\n\nNext step"),
     "Recommendation\n\nUse a booking page.\n\nNext step"
   );
+  const cleanedLeak = cleanModelReply(
+    "Call 704-555-0123, use 4111 1111 1111 1111, or api_key=bad-secret"
+  );
+  assert.equal(sensitiveTypesInText(cleanedLeak).length, 0);
+  assert.equal(cleanedLeak.includes("bad-secret"), false);
+  const boundaryLeak = cleanModelReply(
+    `${"x".repeat(1389)} 4111 1111 1111 1111 should never cross the output boundary`
+  );
+  assert.equal(boundaryLeak.includes("4111"), false);
+  assert.equal(sensitiveTypesInText(boundaryLeak).length, 0);
 });

@@ -522,9 +522,11 @@
             cfg.aiTimeoutMs
           );
           if (!response.ok) throw new Error("feedback " + response.status);
+          const result = await response.json().catch(() => null);
+          const queuedForReview = choice.shareSample && result?.sampleAccepted === true;
           box.innerHTML =
             '<span class="feedback-status">' +
-            (choice.shareSample
+            (queuedForReview
               ? "Thanks - this scrubbed answer was queued for review."
               : "Thanks for the feedback.") +
             "</span>";
