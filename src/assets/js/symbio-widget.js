@@ -36,7 +36,8 @@
           assistantInstructions: "",  // optional: extra facts for an AI endpoint
           position: "right",          // "right" | "left"
           leadEndpoint: "",           // optional: POST {name,contact,detail,business,page,at}
-          aiEndpoint: "",             // optional: POST {messages,system} -> {reply}
+          aiEndpoint: "",             // optional: POST {messages,sessionId} -> {reply}
+          aiSessionLimit: 8,          // optional: browser-side courtesy cap
          onLead: function (lead) {}  // optional callback
        };
      </script>
@@ -97,29 +98,23 @@
       email: attr("email") || user.email || "",
       price: attr("price") || user.price || "",
       contactLabel: attr("contact-label") || user.contactLabel || "Contact the team",
-      primaryContactName:
-        attr("primary-contact-name") || user.primaryContactName || "",
-      secondaryContactName:
-        attr("secondary-contact-name") || user.secondaryContactName || "",
+      primaryContactName: attr("primary-contact-name") || user.primaryContactName || "",
+      secondaryContactName: attr("secondary-contact-name") || user.secondaryContactName || "",
       scanMessage: attr("scan-message") || user.scanMessage || "",
       voiceMessage: attr("voice-message") || user.voiceMessage || "",
       chatbotMessage: attr("chatbot-message") || user.chatbotMessage || "",
-      leadGenerationMessage:
-        attr("lead-generation-message") || user.leadGenerationMessage || "",
+      leadGenerationMessage: attr("lead-generation-message") || user.leadGenerationMessage || "",
       websiteMessage: attr("website-message") || user.websiteMessage || "",
       appMessage: attr("app-message") || user.appMessage || "",
       dashboardMessage: attr("dashboard-message") || user.dashboardMessage || "",
       automationMessage: attr("automation-message") || user.automationMessage || "",
-      maintenanceMessage:
-        attr("maintenance-message") || user.maintenanceMessage || "",
+      maintenanceMessage: attr("maintenance-message") || user.maintenanceMessage || "",
       guaranteeMessage: attr("guarantee-message") || user.guaranteeMessage || "",
-      recommendationMessage:
-        attr("recommendation-message") || user.recommendationMessage || "",
+      recommendationMessage: attr("recommendation-message") || user.recommendationMessage || "",
       pricingMessage: attr("pricing-message") || user.pricingMessage || "",
       timelineMessage: attr("timeline-message") || user.timelineMessage || "",
       examplesMessage: attr("examples-message") || user.examplesMessage || "",
-      assistantInstructions:
-        attr("assistant-instructions") || user.assistantInstructions || "",
+      assistantInstructions: attr("assistant-instructions") || user.assistantInstructions || "",
       position:
         (attr("position") || user.position || "right").toLowerCase() === "left" ? "left" : "right",
       // "auto" follows the visitor's OS; "light" / "dark" force the widget theme.
@@ -127,7 +122,8 @@
       greeting: attr("greeting") || user.greeting || "",
       leadEndpoint: attr("lead-endpoint") || user.leadEndpoint || "",
       aiEndpoint: attr("ai-endpoint") || user.aiEndpoint || "",
-      aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 12000),
+      aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 15000),
+      aiSessionLimit: Math.max(1, Number(user.aiSessionLimit) || 8),
       leadTimeoutMs: Math.max(1000, Number(user.leadTimeoutMs) || 10000),
       maxInputLength: Math.max(100, Number(user.maxInputLength) || 600),
       onLead: typeof user.onLead === "function" ? user.onLead : null,
@@ -142,6 +138,7 @@
   let shadow = null;
   const el = {};
   const history = [];
+  let aiCalls = 0;
   let lead = { step: null, name: "", contact: "", detail: "" };
 
   /* ---- Small helpers --------------------------------------------------- */
@@ -169,7 +166,10 @@
     }
     const phoneLine = phones.length ? "Call or text " + phones.join(" or ") + "." : "";
     const emailLine = cfg.email ? "Email " + cfg.email + "." : "";
-    return [phoneLine, emailLine].filter(Boolean).join(" ") || "Leave your details here and we will follow up.";
+    return (
+      [phoneLine, emailLine].filter(Boolean).join(" ") ||
+      "Leave your details here and we will follow up."
+    );
   }
 
   function serviceAreaLine() {
@@ -191,12 +191,7 @@
   }
 
   function defaultGreeting() {
-    return (
-      cfg.greeting ||
-      "Hey, this is " +
-        cfg.businessName +
-        ". How can we help today?"
-    );
+    return cfg.greeting || "Hey, this is " + cfg.businessName + ". How can we help today?";
   }
 
   async function postJson(url, body, timeoutMs) {
@@ -405,8 +400,8 @@
       <div class="root" data-theme="${cfg.theme}">
         <button class="launcher" type="button" part="launcher" aria-expanded="false"
                 aria-controls="symbio-chat-panel" aria-label="Open chat with ${escapeHtml(
-          cfg.businessName
-        )}">
+                  cfg.businessName
+                )}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8 8.38 8.38 0 0 1 8.5-8.5 8.38 8.38 0 0 1 8.5 8.5Z"/>
@@ -528,6 +523,34 @@
       .slice(-(limit || 4))
       .map((message) => message.text)
       .join(" ");
+  }
+
+  function chatSessionId() {
+    const storageKey = "symbio-ai-chat-session";
+    try {
+      const existing = window.sessionStorage.getItem(storageKey);
+      if (existing) return existing;
+      const created =
+        window.crypto && typeof window.crypto.randomUUID === "function"
+          ? window.crypto.randomUUID()
+          : "chat_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+      window.sessionStorage.setItem(storageKey, created);
+      return created;
+    } catch (error) {
+      return "chat_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+  }
+
+  function needsContextualAnswer(text) {
+    const normalized = normalizeIntentText(text);
+    return (
+      /\b(that|this|it|one|ones|those|these|they|them|same|above|earlier|option|plan)\b/.test(
+        normalized
+      ) ||
+      /^(and|but|also|okay|ok|so|then|what about|how about|would that|can it|does it)\b/.test(
+        normalized
+      )
+    );
   }
 
   const INTENT_GOALS = [
@@ -759,9 +782,7 @@
   function verticalReply(slots) {
     if (!slots.industry) return null;
     const priority = ["seller_lead_gen", "custom_app", "voice_agent", "chatbot", "lead_generation"];
-    const goal = priority.find(
-      (key) => slots.goals.includes(key) && slots.industry.responses[key]
-    );
+    const goal = priority.find((key) => slots.goals.includes(key) && slots.industry.responses[key]);
     if (!goal) return null;
     return { text: slots.industry.responses[goal], offerLead: true };
   }
@@ -798,8 +819,7 @@
 
     if (voiceIntent && chatbotIntent) {
       return {
-        text:
-          "Yes. A website chatbot handles visitors on your site, while a voice agent handles phone calls. They can work separately or share one approved knowledge base and handoff process. The best choice depends on where customers currently contact you most. Do you want help with website messages, phone calls, or both?",
+        text: "Yes. A website chatbot handles visitors on your site, while a voice agent handles phone calls. They can work separately or share one approved knowledge base and handoff process. The best choice depends on where customers currently contact you most. Do you want help with website messages, phone calls, or both?",
         offerLead: true,
       };
     }
@@ -988,7 +1008,11 @@
       ])
     ) {
       return {
-        text: cfg.businessName + " can help with " + listServices() + ". What are you trying to improve?",
+        text:
+          cfg.businessName +
+          " can help with " +
+          listServices() +
+          ". What are you trying to improve?",
       };
     }
     if (has(text, ["hour", "hours", "open", "close", "when are you"])) {
@@ -1011,7 +1035,9 @@
     }
     if (has(text, ["phone", "number", "call", "email", "contact", "human", "founder"])) {
       return {
-        text: contactLine() + " You can also leave your name and what you need here, and we will route it.",
+        text:
+          contactLine() +
+          " You can also leave your name and what you need here, and we will route it.",
         offerLead: true,
       };
     }
@@ -1047,46 +1073,16 @@
   }
 
   /* ---- Live chat connection (optional) -------------------------------- */
-  function systemPrompt() {
-    const parts = [
-      "You are the friendly assistant for " + cfg.businessName + ".",
-      "Services: " + cfg.services.join(", ") + ".",
-      "Hours: " + cfg.hours + ".",
-    ];
-    if (cfg.location) parts.push("Location: " + cfg.location + ".");
-    if (cfg.phone) parts.push("Phone: " + cfg.phone + ".");
-    if (cfg.secondaryPhone) parts.push("Second founder phone: " + cfg.secondaryPhone + ".");
-    if (cfg.email) parts.push("Email: " + cfg.email + ".");
-    if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
-    [
-      ["Website guidance", cfg.websiteMessage],
-      ["Chatbot guidance", cfg.chatbotMessage],
-      ["Voice-agent guidance", cfg.voiceMessage],
-      ["Lead-generation guidance", cfg.leadGenerationMessage],
-      ["App guidance", cfg.appMessage],
-      ["Dashboard guidance", cfg.dashboardMessage],
-      ["Automation guidance", cfg.automationMessage],
-      ["Maintenance guidance", cfg.maintenanceMessage],
-      ["Results guidance", cfg.guaranteeMessage],
-      ["Service-fit guidance", cfg.recommendationMessage],
-    ].forEach(([label, value]) => {
-      if (value) parts.push(label + ": " + value);
-    });
-    parts.push(
-      "Use clear, human language. Only use facts in this prompt. Never invent pricing, availability, policies, integrations, or capabilities. If a request needs a person, offer to capture a follow-up request."
-    );
-    if (cfg.assistantInstructions) parts.push(cfg.assistantInstructions);
-    return parts.join(" ");
-  }
-
   async function aiReply() {
-    const messages = history.slice(-16).map((m) => ({
+    if (aiCalls >= cfg.aiSessionLimit) return null;
+    aiCalls += 1;
+    const messages = history.slice(-6).map((m) => ({
       role: m.role,
       content: String(m.text || "").slice(0, 1200),
     }));
     const res = await postJson(
       cfg.aiEndpoint,
-      { messages, system: systemPrompt() },
+      { messages, sessionId: chatSessionId() },
       cfg.aiTimeoutMs
     );
     if (!res.ok) throw new Error("chat connection " + res.status);
@@ -1240,17 +1236,21 @@
       return;
     }
 
-    // High-confidence business questions stay instant and token-free. An optional
-    // AI endpoint is only used when the built-in knowledge cannot classify the ask.
+    // High-confidence business questions stay instant and token-free. The optional
+    // AI endpoint handles unknown asks and context-dependent follow-up questions.
     const result = intentReply(text);
-    if (!result.fallback) {
+    const shouldAskAi =
+      cfg.aiEndpoint &&
+      aiCalls < cfg.aiSessionLimit &&
+      (result.fallback || (history.length > 2 && needsContextualAnswer(text)));
+    if (!shouldAskAi) {
       addMessage("bot", result.text);
       if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
       else setChips(defaultChips());
       return;
     }
 
-    if (cfg.aiEndpoint) {
+    if (shouldAskAi) {
       setComposerBusy(true);
       showTyping();
       try {
