@@ -522,6 +522,250 @@
     });
   }
 
+  function recentUserContext(limit) {
+    return history
+      .filter((message) => message.role === "user")
+      .slice(-(limit || 4))
+      .map((message) => message.text)
+      .join(" ");
+  }
+
+  const INTENT_GOALS = [
+    {
+      key: "seller_lead_gen",
+      terms: [
+        "seller lead",
+        "seller leads",
+        "find sellers",
+        "find home sellers",
+        "find homeowners",
+        "people selling houses",
+        "people selling homes",
+        "homeowners selling",
+        "owners selling",
+        "houses for sale",
+        "homes for sale",
+        "list their house",
+        "list their home",
+        "selling their house",
+        "selling their home",
+        "off market sellers",
+        "off market homes",
+      ],
+    },
+    {
+      key: "custom_app",
+      terms: [
+        "app",
+        "custom app",
+        "custom apps",
+        "mobile app",
+        "mobile apps",
+        "web app",
+        "web apps",
+        "apps",
+        "client portal",
+        "customer portal",
+        "staff portal",
+        "internal tool",
+        "custom software",
+      ],
+    },
+    {
+      key: "voice_agent",
+      terms: [
+        "voice agent",
+        "voice agents",
+        "phone agent",
+        "phone agents",
+        "ai caller",
+        "ai phone",
+        "answer calls",
+        "answer my calls",
+        "answer phone calls",
+        "answering service",
+        "call answering",
+        "handle calls",
+        "pick up calls",
+        "phone support",
+        "take orders",
+        "take phone orders",
+        "phone orders",
+        "miss phone orders",
+        "missing phone orders",
+        "missed phone orders",
+        "miss calls",
+        "missing calls",
+        "missed calls",
+        "voice bot",
+      ],
+    },
+    {
+      key: "chatbot",
+      terms: [
+        "chatbot",
+        "chatbots",
+        "chat bot",
+        "chat bots",
+        "website assistant",
+        "web assistant",
+        "site assistant",
+        "website bot",
+        "chat widget",
+        "ai chat",
+        "live chat",
+      ],
+    },
+    {
+      key: "lead_generation",
+      terms: [
+        "lead",
+        "leads",
+        "find clients",
+        "find customers",
+        "get clients",
+        "get customers",
+        "more clients",
+        "more customers",
+        "new customers",
+        "more listings",
+        "listing appointments",
+        "grow my business",
+        "sales pipeline",
+        "book more",
+        "more bookings",
+        "more calls",
+        "generate business",
+      ],
+    },
+  ];
+
+  const INDUSTRY_PROFILES = [
+    {
+      key: "real_estate",
+      terms: [
+        "real estate",
+        "realtor",
+        "realtors",
+        "realty",
+        "property agent",
+        "property agents",
+        "real estate agent",
+        "real estate agents",
+        "brokerage",
+        "listing agent",
+      ],
+      responses: {
+        seller_lead_gen:
+          "That is a seller-lead problem, and we can build around it. A strong first version is a seller-focused landing page or home-value offer, a short intake that qualifies the homeowner, and immediate routing into your follow-up system so interested sellers do not go cold. If you already have a website or CRM, we can connect the flow instead of replacing everything. Do sellers reach you mostly by referral today, or do you want new inbound leads from search and ads?",
+        lead_generation:
+          "Yes. For a real-estate business, we can build a measurable lead path around buyer enquiries, seller opportunities, or both: focused landing pages, qualification, CRM routing, and fast follow-up. The right first build depends on which side matters most. Are you trying to win more listings, find more buyers, or both?",
+        custom_app:
+          "Yes. A real-estate app could be a seller pipeline, listing and showing manager, transaction tracker, client-update portal, or internal team dashboard. We would start with the one workflow that creates the clearest return instead of packing everything into version one. Which matters most right now: leads, listings, transactions, client updates, or team operations?",
+        voice_agent:
+          "Yes. For a real-estate business, a voice agent can answer routine property questions, qualify buyer or seller enquiries, collect showing or valuation requests, and route urgent calls to an agent. It should not invent property facts or commitments. Are missed inbound calls, lead qualification, or appointment requests the biggest problem?",
+        chatbot:
+          "Yes. A real-estate chatbot can answer approved listing questions, qualify buyers and sellers, collect valuation or showing requests, and route each lead to the right agent. Is your first priority seller leads, buyer enquiries, or support for active clients?",
+      },
+    },
+    {
+      key: "restaurant",
+      terms: [
+        "restaurant",
+        "restaurants",
+        "pizza shop",
+        "pizza restaurant",
+        "cafe",
+        "coffee shop",
+        "takeout",
+        "food truck",
+        "chinese restaurant",
+      ],
+      responses: {
+        voice_agent:
+          "Yes. A restaurant voice agent can answer approved menu and hours questions, collect order or reservation details, and bring in a person for allergies, complaints, large orders, or anything outside the rules. Is the biggest need phone orders, reservations, or routine questions?",
+        chatbot:
+          "Yes. A restaurant chatbot can answer approved menu and hours questions, collect catering or reservation requests, and send customers to the correct ordering path. Should it focus first on orders, reservations, catering, or basic questions?",
+        custom_app:
+          "Yes. A restaurant app could handle direct ordering, loyalty, catering requests, reservations, or an internal order dashboard. The best first version is the one that removes the most friction without replacing tools that already work. Which workflow costs you the most time today?",
+        lead_generation:
+          "For a restaurant, we would focus on measurable demand such as direct orders, reservations, catering enquiries, or repeat visits. That usually means a clear local landing page, strong offer, fast mobile path, and follow-up for people who opt in. Which result matters most?",
+      },
+    },
+    {
+      key: "auto_services",
+      terms: [
+        "auto shop",
+        "auto detailing",
+        "car detailing",
+        "detail shop",
+        "body shop",
+        "mechanic",
+        "repair shop",
+        "tint shop",
+        "car shop",
+        "auto custom",
+      ],
+      responses: {
+        voice_agent:
+          "Yes. For an auto-service business, a voice agent can collect the vehicle, requested service, timing, and photos or follow-up details, answer approved questions, and route urgent or unusual calls to a person. Is the first priority missed calls, quote requests, or appointment intake?",
+        chatbot:
+          "Yes. An auto-service chatbot can collect vehicle and service details, answer approved questions, qualify quote requests, and send the customer toward booking or a human reply. Which service should it handle first?",
+        custom_app:
+          "Yes. An auto-service app could manage quote intake, vehicle photos, job status, customer approvals, appointments, or technician workflow. Who should use the first version: customers, the front desk, or technicians?",
+        lead_generation:
+          "For an auto-service business, the smallest useful lead system is usually a strong service page, proof gallery, vehicle-and-service intake, and fast quote follow-up. Which service brings the best customers today?",
+      },
+    },
+    {
+      key: "home_services",
+      terms: [
+        "contractor",
+        "construction company",
+        "construction business",
+        "home services",
+        "roofer",
+        "roofing",
+        "plumber",
+        "plumbing",
+        "electrician",
+        "electrical company",
+        "hvac",
+        "landscaping",
+        "remodeling",
+      ],
+      responses: {
+        voice_agent:
+          "Yes. For a home-service company, a voice agent can collect the job type, location, urgency, and preferred time, answer approved questions, and route emergencies or high-value calls to a person. Is the main issue missed calls, estimate requests, or scheduling?",
+        chatbot:
+          "Yes. A home-service chatbot can collect job details and photos, answer approved service-area questions, qualify estimate requests, and route urgent work correctly. Which service should it qualify first?",
+        custom_app:
+          "Yes. A home-service app could manage estimates, job photos, schedules, customer updates, approvals, or crew workflows. Who needs the biggest improvement first: customers, the office, or field crews?",
+        lead_generation:
+          "For a home-service company, we would start with the highest-value service and build a local landing page, trust proof, estimate intake, and immediate follow-up around it. Which job type do you most want more of?",
+      },
+    },
+  ];
+
+  function extractIntentSlots(text, context) {
+    const goals = INTENT_GOALS.filter((goal) => has(text, goal.terms)).map((goal) => goal.key);
+    const industry =
+      INDUSTRY_PROFILES.find((profile) => has(text, profile.terms)) ||
+      INDUSTRY_PROFILES.find((profile) => has(context, profile.terms)) ||
+      null;
+    return { goals, industry };
+  }
+
+  function verticalReply(slots) {
+    if (!slots.industry) return null;
+    const priority = ["seller_lead_gen", "custom_app", "voice_agent", "chatbot", "lead_generation"];
+    const goal = priority.find(
+      (key) => slots.goals.includes(key) && slots.industry.responses[key]
+    );
+    if (!goal) return null;
+    return { text: slots.industry.responses[goal], offerLead: true };
+  }
+
   function isLeadTrigger(text) {
     return has(text, [
       "yes contact me",
@@ -546,39 +790,11 @@
 
   function intentReply(raw) {
     const text = normalizeIntentText(raw);
-    const voiceIntent = has(text, [
-      "voice agent",
-      "voice agents",
-      "phone agent",
-      "phone agents",
-      "ai caller",
-      "ai phone",
-      "answer calls",
-      "answer my calls",
-      "answer phone calls",
-      "answering service",
-      "call answering",
-      "handle calls",
-      "pick up calls",
-      "phone support",
-      "take orders",
-      "take phone orders",
-      "missed calls",
-      "voice bot",
-    ]);
-    const chatbotIntent = has(text, [
-      "chatbot",
-      "chatbots",
-      "chat bot",
-      "chat bots",
-      "website assistant",
-      "web assistant",
-      "site assistant",
-      "website bot",
-      "chat widget",
-      "ai chat",
-      "live chat",
-    ]);
+    const context = normalizeIntentText(recentUserContext(4) || text);
+    const slots = extractIntentSlots(text, context);
+    const voiceIntent = slots.goals.includes("voice_agent");
+    const chatbotIntent = slots.goals.includes("chatbot");
+    const appIntent = slots.goals.includes("custom_app");
 
     if (voiceIntent && chatbotIntent) {
       return {
@@ -587,6 +803,8 @@
         offerLead: true,
       };
     }
+    const specificVerticalReply = verticalReply(slots);
+    if (specificVerticalReply) return specificVerticalReply;
     if (voiceIntent) {
       return {
         text:
@@ -654,22 +872,7 @@
         offerLead: true,
       };
     }
-    if (
-      has(text, [
-        "custom app",
-        "custom apps",
-        "mobile app",
-        "mobile apps",
-        "web app",
-        "web apps",
-        "apps",
-        "client portal",
-        "customer portal",
-        "staff portal",
-        "internal tool",
-        "custom software",
-      ])
-    ) {
+    if (appIntent) {
       return {
         text:
           cfg.appMessage ||
