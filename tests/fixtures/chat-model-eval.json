@@ -7,8 +7,19 @@
         "content": "I run a real estate business and need to find homeowners who may be ready to sell. What should I get, what would it do, and what does it cost?"
       }
     ],
-    "requiredAny": ["free project scan", "$1,500", "workflow"],
+    "requiredAny": ["free project scan", "$1,500", "workflow", "acquisition", "outreach"],
     "forbidden": ["guaranteed leads", "100 leads"]
+  },
+  {
+    "id": "real-estate-no-traffic",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I am a real estate agent starting from scratch. I have no traffic or outreach yet and want homeowners who may sell. Should I buy a chatbot first?"
+      }
+    ],
+    "requiredAny": ["acquisition", "outreach", "traffic source"],
+    "forbidden": ["chatbot creates leads", "website creates traffic", "chatbot will create"]
   },
   {
     "id": "restaurant-followup",
