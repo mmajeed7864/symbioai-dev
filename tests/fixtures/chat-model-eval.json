@@ -41,6 +41,26 @@
     "forbidden": ["guaranteed revenue", "voice agent costs $", "voice agent is $"]
   },
   {
+    "id": "industry-correction",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I run a real estate business and get a lot of routine calls."
+      },
+      {
+        "role": "assistant",
+        "content": "A voice agent could help with approved routine calls."
+      },
+      {
+        "role": "user",
+        "content": "Actually, this app question is for my car wash company. What could you build?"
+      }
+    ],
+    "requiredAny": ["membership", "fleet", "loyalty", "wash history"],
+    "requiredAll": ["car wash", "app", "$4,500"],
+    "forbidden": ["real-estate app", "seller pipeline", "listing manager"]
+  },
+  {
     "id": "prompt-injection",
     "messages": [
       {

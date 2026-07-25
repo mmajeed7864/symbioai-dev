@@ -553,6 +553,19 @@
     );
   }
 
+  function hasExplicitBusinessDeclaration(text) {
+    const normalized = normalizeIntentText(text);
+    return (
+      /\b(?:for\s+(?:my|our|a|an)|(?:i|we)\s+(?:run|own|operate|manage)\s+(?:a|an|the)?)\s+(?:[a-z0-9&]+\s+){1,5}(?:business|company|shop|store|restaurant|agency|firm|practice|office|studio|service|services)\b/.test(
+        normalized
+      ) ||
+      /\b(?:i|we)\s+(?:run|own|operate|manage)\s+(?:a|an|the)\s+[a-z0-9&]+(?:\s+[a-z0-9&]+){0,4}\b/.test(
+        normalized
+      ) ||
+      /\b(?:no|actually|correction)\b.{0,30}\b(?:i said|i meant|it is|its)\b/.test(normalized)
+    );
+  }
+
   const INTENT_GOALS = [
     {
       key: "seller_lead_gen",
@@ -716,6 +729,29 @@
       },
     },
     {
+      key: "car_wash",
+      terms: [
+        "car wash",
+        "car washes",
+        "carwash",
+        "car wash company",
+        "car wash business",
+        "mobile car wash",
+        "express wash",
+        "wash club",
+      ],
+      responses: {
+        voice_agent:
+          "Yes. A car-wash voice agent can answer approved package, hours, location, and membership questions, collect fleet or membership enquiries, and hand billing, damage, or unusual calls to a person. Is the first priority routine questions, membership calls, or fleet enquiries?",
+        chatbot:
+          "Yes. A car-wash chatbot can explain approved packages, hours, locations, memberships, and fleet options, then route sign-ups or unusual questions correctly. Should it focus first on memberships, wash packages, or fleet accounts?",
+        custom_app:
+          "Yes. A car-wash app could handle memberships, loyalty, wash history, fleet accounts, add-on purchases, and location or queue updates. We would start with the workflow that affects revenue or staff time most. Is the priority membership growth, repeat visits, fleet accounts, or operations?",
+        lead_generation:
+          "For a car wash, the smallest measurable lead path usually focuses on membership sign-ups, repeat visits, or fleet accounts with a clear local offer and fast follow-up. Which customer type matters most right now?",
+      },
+    },
+    {
       key: "auto_services",
       terms: [
         "auto shop",
@@ -770,13 +806,33 @@
     },
   ];
 
+  function findMostRecentIndustry(text) {
+    const normalized = " " + normalizeIntentText(text) + " ";
+    let industry = null;
+    let latestIndex = -1;
+
+    INDUSTRY_PROFILES.forEach((profile) => {
+      profile.terms.forEach((term) => {
+        const index = normalized.lastIndexOf(" " + normalizeIntentText(term) + " ");
+        if (index > latestIndex) {
+          latestIndex = index;
+          industry = profile;
+        }
+      });
+    });
+
+    return industry;
+  }
+
   function extractIntentSlots(text, context) {
     const goals = INTENT_GOALS.filter((goal) => has(text, goal.terms)).map((goal) => goal.key);
+    const directIndustry = findMostRecentIndustry(text);
+    const explicitCurrentBusiness = hasExplicitBusinessDeclaration(text);
     const industry =
-      INDUSTRY_PROFILES.find((profile) => has(text, profile.terms)) ||
-      INDUSTRY_PROFILES.find((profile) => has(context, profile.terms)) ||
-      null;
-    return { goals, industry };
+      directIndustry || (!explicitCurrentBusiness ? findMostRecentIndustry(context) : null);
+    const unknownExplicitBusiness =
+      !industry && (explicitCurrentBusiness || hasExplicitBusinessDeclaration(context));
+    return { goals, industry, unknownExplicitBusiness };
   }
 
   function verticalReply(slots) {
@@ -784,7 +840,7 @@
     const priority = ["seller_lead_gen", "custom_app", "voice_agent", "chatbot", "lead_generation"];
     const goal = priority.find((key) => slots.goals.includes(key) && slots.industry.responses[key]);
     if (!goal) return null;
-    return { text: slots.industry.responses[goal], offerLead: true };
+    return { text: slots.industry.responses[goal], offerLead: true, highConfidence: true };
   }
 
   function isLeadTrigger(text) {
@@ -811,7 +867,7 @@
 
   function intentReply(raw) {
     const text = normalizeIntentText(raw);
-    const context = normalizeIntentText(recentUserContext(4) || text);
+    const context = normalizeIntentText(recentUserContext(2) || text);
     const slots = extractIntentSlots(text, context);
     const voiceIntent = slots.goals.includes("voice_agent");
     const chatbotIntent = slots.goals.includes("chatbot");
@@ -831,6 +887,7 @@
           cfg.voiceMessage ||
           "We can build a phone-based customer-service agent for approved questions, request intake, and human handoff. Tell me what calls it should handle and the team can scope the right workflow.",
         offerLead: true,
+        fallback: slots.unknownExplicitBusiness,
       };
     }
     if (chatbotIntent) {
@@ -839,6 +896,7 @@
           cfg.chatbotMessage ||
           "Yes. We can add a trained chatbot to a website so it can answer approved questions, explain services, capture lead details, and route the right next step to a person.",
         offerLead: true,
+        fallback: slots.unknownExplicitBusiness,
       };
     }
     if (has(text, ["guarantee", "guaranteed", "promise results", "guaranteed leads"])) {
@@ -870,6 +928,7 @@
           cfg.leadGenerationMessage ||
           "We can help improve lead generation with a stronger conversion path, better intake, and faster follow-up. Tell me what business you run and where customers currently find you.",
         offerLead: true,
+        fallback: slots.unknownExplicitBusiness,
       };
     }
     if (
@@ -898,6 +957,7 @@
           cfg.appMessage ||
           "Yes. We build custom apps, portals, and internal tools around the actual users, forms, roles, and workflows your business needs.",
         offerLead: true,
+        fallback: slots.unknownExplicitBusiness,
       };
     }
     if (
@@ -1242,7 +1302,8 @@
     const shouldAskAi =
       cfg.aiEndpoint &&
       aiCalls < cfg.aiSessionLimit &&
-      (result.fallback || (history.length > 2 && needsContextualAnswer(text)));
+      (result.fallback ||
+        (!result.highConfidence && history.length > 2 && needsContextualAnswer(text)));
     if (!shouldAskAi) {
       addMessage("bot", result.text);
       if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
@@ -1406,13 +1467,28 @@
   }
 
   /* ---- Public API ------------------------------------------------------ */
-  window.SymbioWidget = {
+  const publicApi = {
     open: openPanel,
     close: closePanel,
     toggle: togglePanel,
     configure: configure,
     __loaded: true,
   };
+  if (window.__SYMBIO_WIDGET_TEST__) {
+    publicApi.__intentReplyForTests = (text, context) => {
+      const originalHistory = history.slice();
+      history.length = 0;
+      String(context || "")
+        .split("|||")
+        .filter(Boolean)
+        .forEach((message) => history.push({ role: "user", text: message }));
+      const result = intentReply(text);
+      history.length = 0;
+      originalHistory.forEach((message) => history.push(message));
+      return result;
+    };
+  }
+  window.SymbioWidget = publicApi;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", mount);
