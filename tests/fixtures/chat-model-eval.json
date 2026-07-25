@@ -58,7 +58,19 @@
     ],
     "requiredAny": ["membership", "fleet", "loyalty", "wash history"],
     "requiredAll": ["car wash", "app", "$4,500"],
-    "forbidden": ["real-estate app", "seller pipeline", "listing manager"]
+    "forbidden": ["real-estate app", "seller pipeline", "listing manager", "class"]
+  },
+  {
+    "id": "boxing-gym-booking-fit",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I run a boxing gym. I want clients to book and reserve classes easily. What should I use?"
+      }
+    ],
+    "requiredAny": ["booking", "schedule", "reservation"],
+    "requiredAll": ["boxing gym"],
+    "forbidden": ["$4,500", "fleet account", "queue update", "tell me three things", "**", "##"]
   },
   {
     "id": "prompt-injection",

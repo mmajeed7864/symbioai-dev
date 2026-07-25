@@ -13,6 +13,7 @@ import {
   isContextDependentFollowup,
   normalizeMessages,
   safeSessionId,
+  scrubSensitiveMessages,
 } from "../api/_chat-shared.js";
 
 test("normalizes only bounded user and assistant context", () => {
@@ -53,6 +54,32 @@ test("detects contact details before model routing", () => {
     containsSensitiveInput([{ role: "user", content: "I need a voice agent for my restaurant" }]),
     false
   );
+  assert.equal(
+    containsSensitiveInput([{ role: "user", content: "Please review boxingclt.com" }]),
+    false
+  );
+});
+
+test("redacts stale sensitive history while preserving business context", () => {
+  const messages = [
+    { role: "user", content: "I run a boxing gym." },
+    { role: "assistant", content: "What should clients do more easily?" },
+    { role: "user", content: "My website is example.com" },
+    { role: "assistant", content: "Call me at 704-555-0123." },
+    {
+      role: "user",
+      content: "Can clients book classes?",
+    },
+  ];
+
+  assert.equal(containsSensitiveInput(messages), true);
+  assert.equal(containsSensitiveInput([messages.at(-1)]), false);
+  const scrubbed = scrubSensitiveMessages(messages);
+  assert.equal(containsSensitiveInput(scrubbed), false);
+  assert.equal(scrubbed[0].content, "I run a boxing gym.");
+  assert.equal(scrubbed[2].content, "My website is example.com");
+  assert.equal(scrubbed[3].content, "Call me at [phone removed].");
+  assert.equal(isBusinessConversation(scrubbed), true);
 });
 
 test("keeps model use inside business-service scope", () => {
@@ -63,6 +90,24 @@ test("keeps model use inside business-service scope", () => {
   assert.equal(
     isBusinessConversation([{ role: "user", content: "Write my history homework" }]),
     false
+  );
+  assert.equal(
+    isBusinessConversation([
+      {
+        role: "user",
+        content:
+          "I run a boxing gym, I want clients to be able to book and reserve classes easily.",
+      },
+    ]),
+    true
+  );
+  assert.equal(
+    isBusinessConversation([{ role: "user", content: "We operate a mobile dog grooming van." }]),
+    true
+  );
+  assert.equal(
+    isBusinessConversation([{ role: "user", content: "Our site is boxingclt.com" }]),
+    true
   );
 });
 
@@ -99,5 +144,8 @@ test("origin, session, cache, and reply helpers are deterministic", () => {
     cacheKeyForMessages(messages),
     cacheKeyForMessages([{ role: "user", content: "website pricing" }])
   );
-  assert.equal(cleanModelReply("<b>Hello</b>\n\n\nWorld"), "Hello\n\nWorld");
+  assert.equal(
+    cleanModelReply("## Recommendation\n\nUse a **booking page**.\n\n\nNext step"),
+    "Recommendation\n\nUse a booking page.\n\nNext step"
+  );
 });

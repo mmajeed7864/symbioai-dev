@@ -3,12 +3,17 @@ import { readFile } from "node:fs/promises";
 import { DEFAULT_CHAT_MODEL, buildOpenRouterBody } from "../api/_chat-shared.js";
 
 const fixtureUrl = new URL("../tests/fixtures/chat-model-eval.json", import.meta.url);
-const cases = JSON.parse(await readFile(fixtureUrl, "utf8"));
+const allCases = JSON.parse(await readFile(fixtureUrl, "utf8"));
+const requestedCase = String(process.env.CHAT_EVAL_CASE || "").trim();
+const cases = requestedCase ? allCases.filter(({ id }) => id === requestedCase) : allCases;
 const apiKey = process.env.OPENROUTER_CHAT_API_KEY || process.env.OPENROUTER_API_KEY;
 const model = process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL;
 
 if (!apiKey) {
   throw new Error("Set OPENROUTER_CHAT_API_KEY or OPENROUTER_API_KEY before running this eval.");
+}
+if (!cases.length) {
+  throw new Error(`No chat model eval case matched CHAT_EVAL_CASE=${requestedCase}.`);
 }
 
 let totalCost = 0;

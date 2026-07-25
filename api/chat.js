@@ -10,9 +10,9 @@ import {
   containsSensitiveInput,
   hashValue,
   isAllowedOrigin,
-  isBusinessConversation,
   normalizeMessages,
   safeSessionId,
+  scrubSensitiveMessages,
 } from "./_chat-shared.js";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -169,23 +169,17 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (containsSensitiveInput(messages)) {
-    res.status(422).json({
-      ok: false,
-      error: "Please use the secure Free scan form for links or contact details.",
+  if (containsSensitiveInput([messages.at(-1)])) {
+    res.status(200).json({
+      ok: true,
+      reply:
+        "For your privacy, I did not send that email address or phone number to the AI assistant. Please use Free scan or Talk to a founder when you want to share contact details. You can keep asking general business questions here without personal contact information.",
+      source: "privacy",
     });
     return;
   }
 
-  if (!isBusinessConversation(messages)) {
-    res.status(200).json({
-      ok: true,
-      reply:
-        "I can help with Symbio AI websites, apps, dashboards, chatbots, voice agents, automations, pricing, or lead flow. What are you trying to improve in your business?",
-      source: "scope",
-    });
-    return;
-  }
+  const modelMessages = scrubSensitiveMessages(messages);
 
   const ipId = hashValue(requestIp(req)).slice(0, 24);
   const sessionId =
@@ -214,7 +208,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const answerKey = cacheKeyForMessages(messages);
+  const answerKey = cacheKeyForMessages(modelMessages);
   try {
     const cached = await state.redis.get(answerKey);
     if (typeof cached === "string" && cached) {
@@ -242,7 +236,7 @@ export default async function handler(req, res) {
   const model = String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim();
   let providerResponse;
   try {
-    providerResponse = await fetchOpenRouter(buildOpenRouterBody(messages, model), apiKey);
+    providerResponse = await fetchOpenRouter(buildOpenRouterBody(modelMessages, model), apiKey);
   } catch {
     res.status(502).json({ ok: false, error: "The assistant could not answer right now." });
     return;
