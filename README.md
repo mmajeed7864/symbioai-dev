@@ -146,6 +146,9 @@ wins):
     location: "Oakland, CA",
     phone: "510-555-0100",
     price: "From $35",
+    chatbotMessage: "We can add a trained chatbot to your site.",
+    voiceMessage: "We can answer approved routine calls and hand off to your team.",
+    leadGenerationMessage: "We can improve lead capture, qualification, and follow-up.",
     position: "right", // "right" | "left"
     theme: "auto", // "auto" (follow the OS) | "light" | "dark"
     leadEndpoint: "", // optional, see contracts below
@@ -174,9 +177,10 @@ Quick setup via attributes:
 
 ### Behavior & API
 
-- Built-in **intent engine** (hours, location, pricing, services, contact) and a deterministic
-  **lead-intake flow** (name → contact → detail) that needs no AI backend. Confirmed delivery
-  still requires a `leadEndpoint`, `onLead`, or `symbio:lead` responder.
+- Built-in **zero-token intent engine** for products, lead-generation goals, pricing, timelines,
+  support fees, guarantees, hours, location, examples, and contact questions, plus a deterministic
+  **lead-intake flow** (name → contact → detail). Confirmed delivery still requires a
+  `leadEndpoint`, `onLead`, or `symbio:lead` responder.
 - Every captured lead fires a `window` **`symbio:lead`** event. The event detail contains the lead
   plus `respond(resultOrPromise)`, which lets the host report whether delivery succeeded.
 - **Theme:** `auto` follows the visitor’s OS; pass `light`/`dark` (or call `configure({ theme })`)
@@ -237,7 +241,8 @@ POST <leadEndpoint>
 { "name", "contact", "detail", "business", "page", "at" }   ->   HTTP 200
 ```
 
-Best-effort; the `symbio:lead` event and `onLead` callback fire regardless of delivery.
+The widget only says a request was delivered after at least one configured delivery path confirms
+success. Otherwise it shows direct contact information instead of a false success message.
 
 ### 3. Widget AI replies — `aiEndpoint` (optional)
 
@@ -248,8 +253,9 @@ POST <aiEndpoint>
 { "reply": "…" }
 ```
 
-If `aiEndpoint` is unset or the request fails, the widget gracefully falls back to the built-in
-intent engine. Lead capture is always deterministic and does not depend on the AI.
+High-confidence business questions use the built-in intent engine first, so they stay instant and
+token-free. An `aiEndpoint` is only called for an unclassified question. If it is unset or fails,
+the widget uses its configured service-fit response. Lead capture is always deterministic.
 
 ---
 

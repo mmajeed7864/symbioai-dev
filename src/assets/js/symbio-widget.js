@@ -21,6 +21,15 @@
           secondaryContactName: "",
           scanMessage: "",            // optional: enables a "Free scan" quick action
           voiceMessage: "",           // optional: enables a "Voice agent" quick action
+          chatbotMessage: "",         // optional: answer for chatbot buying questions
+          leadGenerationMessage: "",  // optional: answer for leads / customer growth questions
+          websiteMessage: "",         // optional: answer for website buying questions
+          appMessage: "",             // optional: answer for app / portal questions
+          dashboardMessage: "",       // optional: answer for dashboard questions
+          automationMessage: "",      // optional: answer for automation / agent questions
+          maintenanceMessage: "",     // optional: answer for recurring support questions
+          guaranteeMessage: "",       // optional: answer for guarantee / results questions
+          recommendationMessage: "",  // optional: service-fit and unknown-question response
           pricingMessage: "",         // optional: overrides the derived pricing answer
           timelineMessage: "",        // optional: custom timing answer
           examplesMessage: "",        // optional: custom portfolio/demo answer
@@ -94,6 +103,18 @@
         attr("secondary-contact-name") || user.secondaryContactName || "",
       scanMessage: attr("scan-message") || user.scanMessage || "",
       voiceMessage: attr("voice-message") || user.voiceMessage || "",
+      chatbotMessage: attr("chatbot-message") || user.chatbotMessage || "",
+      leadGenerationMessage:
+        attr("lead-generation-message") || user.leadGenerationMessage || "",
+      websiteMessage: attr("website-message") || user.websiteMessage || "",
+      appMessage: attr("app-message") || user.appMessage || "",
+      dashboardMessage: attr("dashboard-message") || user.dashboardMessage || "",
+      automationMessage: attr("automation-message") || user.automationMessage || "",
+      maintenanceMessage:
+        attr("maintenance-message") || user.maintenanceMessage || "",
+      guaranteeMessage: attr("guarantee-message") || user.guaranteeMessage || "",
+      recommendationMessage:
+        attr("recommendation-message") || user.recommendationMessage || "",
       pricingMessage: attr("pricing-message") || user.pricingMessage || "",
       timelineMessage: attr("timeline-message") || user.timelineMessage || "",
       examplesMessage: attr("examples-message") || user.examplesMessage || "",
@@ -468,6 +489,7 @@
 
   function defaultChips() {
     const chips = ["Services"];
+    if (cfg.leadGenerationMessage) chips.push("Get more leads");
     if (
       cfg.voiceMessage ||
       cfg.services.some((service) => /voice|phone agent|call answering/i.test(service))
@@ -483,68 +505,233 @@
   }
 
   /* ---- Intent engine (zero-backend fallback) -------------------------- */
+  function normalizeIntentText(value) {
+    return String(value)
+      .toLowerCase()
+      .replace(/[’']/g, "")
+      .replace(/[^a-z0-9$@.+/\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function has(text, words) {
-    return words.some((w) => text.indexOf(w) !== -1);
+    const haystack = " " + normalizeIntentText(text) + " ";
+    return words.some((word) => {
+      const needle = normalizeIntentText(word);
+      return needle ? haystack.indexOf(" " + needle + " ") !== -1 : false;
+    });
   }
 
   function isLeadTrigger(text) {
     return has(text, [
-      "book",
-      "appointment",
-      "schedule",
-      "quote",
-      "sign up",
-      "signup",
-      "get started",
-      "contact",
+      "yes contact me",
+      "contact me",
       "call me",
+      "have someone call me",
       "reach me",
       "talk to founder",
       "talk to a founder",
       "leave my details",
       "leave details",
-      "interested",
+      "request a quote",
+      "get a quote",
+      "book a consult",
+      "schedule a call",
+      "start a project",
+      "sign up",
+      "signup",
+      "get started",
     ]);
   }
 
   function intentReply(raw) {
-    const text = raw.toLowerCase();
+    const text = normalizeIntentText(raw);
+    const voiceIntent = has(text, [
+      "voice agent",
+      "voice agents",
+      "phone agent",
+      "phone agents",
+      "ai caller",
+      "ai phone",
+      "answer calls",
+      "answer my calls",
+      "answer phone calls",
+      "answering service",
+      "call answering",
+      "handle calls",
+      "pick up calls",
+      "phone support",
+      "take orders",
+      "take phone orders",
+      "missed calls",
+      "voice bot",
+    ]);
+    const chatbotIntent = has(text, [
+      "chatbot",
+      "chatbots",
+      "chat bot",
+      "chat bots",
+      "website assistant",
+      "web assistant",
+      "site assistant",
+      "website bot",
+      "chat widget",
+      "ai chat",
+      "live chat",
+    ]);
 
-    if (has(text, ["hour", "open", "close", "when are you"])) {
-      const allDay = /24\/7|open 24/i.test(cfg.hours);
+    if (voiceIntent && chatbotIntent) {
       return {
         text:
-          "Availability: " +
-          cfg.hours +
-          ". " +
-          (allDay
-            ? "If we are with a client or building, leave the details here and one of the founders will follow up. "
-            : "If you message outside those hours, leave your details and the team will follow up. ") +
-          contactLine(),
+          "Yes. A website chatbot handles visitors on your site, while a voice agent handles phone calls. They can work separately or share one approved knowledge base and handoff process. The best choice depends on where customers currently contact you most. Do you want help with website messages, phone calls, or both?",
+        offerLead: true,
       };
     }
-    if (has(text, ["where", "location", "address", "find you"])) {
+    if (voiceIntent) {
       return {
-        text: serviceAreaLine() + " " + contactLine(),
+        text:
+          cfg.voiceMessage ||
+          "We can build a phone-based customer-service agent for approved questions, request intake, and human handoff. Tell me what calls it should handle and the team can scope the right workflow.",
+        offerLead: true,
+      };
+    }
+    if (chatbotIntent) {
+      return {
+        text:
+          cfg.chatbotMessage ||
+          "Yes. We can add a trained chatbot to a website so it can answer approved questions, explain services, capture lead details, and route the right next step to a person.",
+        offerLead: true,
+      };
+    }
+    if (has(text, ["guarantee", "guaranteed", "promise results", "guaranteed leads"])) {
+      return {
+        text:
+          cfg.guaranteeMessage ||
+          "No honest provider can guarantee a specific number of leads or sales. We can improve how your business attracts, captures, qualifies, and follows up with potential customers, then measure what is working.",
       };
     }
     if (
       has(text, [
-        "voice agent",
-        "phone agent",
-        "ai caller",
-        "answer calls",
-        "answering service",
-        "call answering",
-        "phone support",
-        "take orders",
-        "missed calls",
+        "lead",
+        "leads",
+        "find customers",
+        "get customers",
+        "more customers",
+        "new customers",
+        "grow my business",
+        "marketing",
+        "sales pipeline",
+        "book more",
+        "more bookings",
+        "more calls",
+        "generate business",
       ])
     ) {
       return {
         text:
-          cfg.voiceMessage ||
-          "We can help with a phone-based customer-service agent. Tell me what calls it should handle, and the team can scope the right workflow.",
+          cfg.leadGenerationMessage ||
+          "We can help improve lead generation with a stronger conversion path, better intake, and faster follow-up. Tell me what business you run and where customers currently find you.",
+        offerLead: true,
+      };
+    }
+    if (
+      has(text, [
+        "website",
+        "websites",
+        "web site",
+        "landing page",
+        "landing pages",
+        "redesign",
+        "site redesign",
+        "build me a site",
+        "new site",
+      ])
+    ) {
+      return {
+        text:
+          cfg.websiteMessage ||
+          "Yes. We build and redesign business websites around credibility, clear offers, mobile usability, and a direct path to calls, bookings, or enquiries.",
+        offerLead: true,
+      };
+    }
+    if (
+      has(text, [
+        "custom app",
+        "custom apps",
+        "mobile app",
+        "mobile apps",
+        "web app",
+        "web apps",
+        "apps",
+        "client portal",
+        "customer portal",
+        "staff portal",
+        "internal tool",
+        "custom software",
+      ])
+    ) {
+      return {
+        text:
+          cfg.appMessage ||
+          "Yes. We build custom apps, portals, and internal tools around the actual users, forms, roles, and workflows your business needs.",
+        offerLead: true,
+      };
+    }
+    if (
+      has(text, [
+        "dashboard",
+        "dashboards",
+        "analytics dashboard",
+        "reporting portal",
+        "kpi",
+        "kpis",
+        "metrics",
+      ])
+    ) {
+      return {
+        text:
+          cfg.dashboardMessage ||
+          "Yes. We build business dashboards for leads, bookings, performance, follow-up status, and the metrics an owner or team actually needs to see.",
+        offerLead: true,
+      };
+    }
+    if (
+      has(text, [
+        "automation",
+        "automations",
+        "automate",
+        "workflow",
+        "workflows",
+        "ai agent",
+        "ai agents",
+        "manual work",
+        "repetitive work",
+        "follow up automatically",
+        "follow-up automatically",
+      ])
+    ) {
+      return {
+        text:
+          cfg.automationMessage ||
+          "Yes. We build controlled automations and AI-agent workflows that handle repeat work, keep humans in charge of important decisions, and record what happened.",
+        offerLead: true,
+      };
+    }
+    if (
+      has(text, [
+        "maintenance",
+        "monthly fee",
+        "monthly fees",
+        "monthly cost",
+        "ongoing cost",
+        "support plan",
+        "after launch",
+      ])
+    ) {
+      return {
+        text:
+          cfg.maintenanceMessage ||
+          "Ongoing costs depend on hosting, support, usage, and integrations. The team shows every recurring line item before you approve the build.",
         offerLead: true,
       };
     }
@@ -560,6 +747,24 @@
         offerLead: true,
       };
     }
+    if (
+      has(text, [
+        "which service",
+        "what should i get",
+        "what do i need",
+        "not sure",
+        "best option",
+        "recommend",
+        "right for me",
+      ])
+    ) {
+      return {
+        text:
+          cfg.recommendationMessage ||
+          "Tell me the business, the main bottleneck, and what you already use. I will point you toward the smallest useful service instead of pushing a bigger build.",
+        offerLead: true,
+      };
+    }
     if (has(text, ["free scan", "scan", "audit", "review my site", "fix my site"])) {
       return {
         text:
@@ -568,9 +773,37 @@
         offerLead: true,
       };
     }
-    if (has(text, ["service", "what do you", "offer", "do you do", "help with"])) {
+    if (
+      has(text, [
+        "service",
+        "services",
+        "what do you",
+        "what can you do",
+        "offer",
+        "do you do",
+        "help with",
+      ])
+    ) {
       return {
         text: cfg.businessName + " can help with " + listServices() + ". What are you trying to improve?",
+      };
+    }
+    if (has(text, ["hour", "hours", "open", "close", "when are you"])) {
+      const allDay = /24\/7|open 24/i.test(cfg.hours);
+      return {
+        text:
+          "Availability: " +
+          cfg.hours +
+          ". " +
+          (allDay
+            ? "If we are with a client or building, leave the details here and one of the founders will follow up. "
+            : "If you message outside those hours, leave your details and the team will follow up. ") +
+          contactLine(),
+      };
+    }
+    if (has(text, ["where", "location", "address", "find you"])) {
+      return {
+        text: serviceAreaLine() + " " + contactLine(),
       };
     }
     if (has(text, ["phone", "number", "call", "email", "contact", "human", "founder"])) {
@@ -603,9 +836,10 @@
     }
     return {
       text:
-        "I can help with " +
-        listServices() +
-        ", pricing, timing, or a follow-up request. What would you like to know?",
+        cfg.recommendationMessage ||
+        "Tell me what you want to improve: more leads, fewer missed calls, a better website, a chatbot, an app or dashboard, or less manual work. I will point you toward the most useful next step.",
+      offerLead: true,
+      fallback: true,
     };
   }
 
@@ -621,6 +855,20 @@
     if (cfg.secondaryPhone) parts.push("Second founder phone: " + cfg.secondaryPhone + ".");
     if (cfg.email) parts.push("Email: " + cfg.email + ".");
     if (cfg.price) parts.push("Pricing: " + cfg.price + ".");
+    [
+      ["Website guidance", cfg.websiteMessage],
+      ["Chatbot guidance", cfg.chatbotMessage],
+      ["Voice-agent guidance", cfg.voiceMessage],
+      ["Lead-generation guidance", cfg.leadGenerationMessage],
+      ["App guidance", cfg.appMessage],
+      ["Dashboard guidance", cfg.dashboardMessage],
+      ["Automation guidance", cfg.automationMessage],
+      ["Maintenance guidance", cfg.maintenanceMessage],
+      ["Results guidance", cfg.guaranteeMessage],
+      ["Service-fit guidance", cfg.recommendationMessage],
+    ].forEach(([label, value]) => {
+      if (value) parts.push(label + ": " + value);
+    });
     parts.push(
       "Use clear, human language. Only use facts in this prompt. Never invent pricing, availability, policies, integrations, or capabilities. If a request needs a person, offer to capture a follow-up request."
     );
@@ -789,6 +1037,16 @@
       return;
     }
 
+    // High-confidence business questions stay instant and token-free. An optional
+    // AI endpoint is only used when the built-in knowledge cannot classify the ask.
+    const result = intentReply(text);
+    if (!result.fallback) {
+      addMessage("bot", result.text);
+      if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
+      else setChips(defaultChips());
+      return;
+    }
+
     if (cfg.aiEndpoint) {
       setComposerBusy(true);
       showTyping();
@@ -808,7 +1066,6 @@
       }
     }
 
-    const result = intentReply(text);
     addMessage("bot", result.text);
     if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
     else setChips(defaultChips());
@@ -864,6 +1121,15 @@
     "secondaryContactName",
     "scanMessage",
     "voiceMessage",
+    "chatbotMessage",
+    "leadGenerationMessage",
+    "websiteMessage",
+    "appMessage",
+    "dashboardMessage",
+    "automationMessage",
+    "maintenanceMessage",
+    "guaranteeMessage",
+    "recommendationMessage",
     "pricingMessage",
     "timelineMessage",
     "examplesMessage",
