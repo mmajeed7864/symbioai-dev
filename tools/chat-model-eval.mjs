@@ -31,8 +31,11 @@ for (const item of cases) {
   const answer = String(payload?.choices?.[0]?.message?.content || "").trim();
   const normalized = answer.toLowerCase();
   const requiredPass = item.requiredAny.some((term) => normalized.includes(term.toLowerCase()));
+  const requiredAllPass = (item.requiredAll || []).every((term) =>
+    normalized.includes(term.toLowerCase())
+  );
   const forbiddenPass = item.forbidden.every((term) => !normalized.includes(term.toLowerCase()));
-  const passed = response.ok && answer && requiredPass && forbiddenPass;
+  const passed = response.ok && answer && requiredPass && requiredAllPass && forbiddenPass;
   const cost = Number(payload?.usage?.cost) || 0;
   totalCost += cost;
   if (passed) passedCount += 1;
