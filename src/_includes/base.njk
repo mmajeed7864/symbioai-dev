@@ -161,6 +161,9 @@
         contactLabel: "Talk to a founder",
         email: {{ site.businessEmail | dump | safe }},
         freeScanEndpoint: {{ site.freeScanEndpoint | dump | safe }},
+        aiEndpoint: "/api/chat",
+        aiTimeoutMs: 15000,
+        aiSessionLimit: 8,
         price:
           "websites from $1,490 plus managed care from $79/month after launch; chatbots from $750; dashboards and workflow agents from $1,500; custom apps from $4,500; managed website assistants require a $690 setup plus a plan from $39/month; voice agents receive a custom quote based on call volume, integrations, and handoff rules",
         pricingMessage:

@@ -38,3 +38,4 @@ clients-out/
 # Sourced prospect lists (contain PII)
 /leads.csv
 *.leads.csv
+.vercel
