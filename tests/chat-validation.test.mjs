@@ -78,18 +78,12 @@ test("detects contact details before model routing", () => {
     containsSensitiveInput([{ role: "user", content: "Card 4111 1111 1111 1111" }]),
     true
   );
-  assert.equal(
-    containsSensitiveInput([{ role: "user", content: "My SSN is 123-45-6789" }]),
-    true
-  );
+  assert.equal(containsSensitiveInput([{ role: "user", content: "My SSN is 123-45-6789" }]), true);
   assert.equal(
     containsSensitiveInput([{ role: "user", content: "api_key=do-not-share-this" }]),
     true
   );
-  assert.equal(
-    containsSensitiveInput([{ role: "user", content: "Meet at 15011 Milo Ln" }]),
-    true
-  );
+  assert.equal(containsSensitiveInput([{ role: "user", content: "Meet at 15011 Milo Ln" }]), true);
   for (const sensitive of [
     "My SSN is 123 45 6789",
     "My SSN is 123456789",
@@ -99,7 +93,10 @@ test("detects contact details before model routing", () => {
     "Meet me at 10 Oak Terrace, Unit 4, Charlotte, NC 28278",
   ]) {
     assert.equal(containsSensitiveInput([{ role: "user", content: sensitive }]), true);
-    assert.equal(containsSensitiveInput(scrubSensitiveMessages([{ role: "user", content: sensitive }])), false);
+    assert.equal(
+      containsSensitiveInput(scrubSensitiveMessages([{ role: "user", content: sensitive }])),
+      false
+    );
   }
 });
 
@@ -180,7 +177,7 @@ test("builds fixed, non-reasoning provider requests", () => {
   );
   assert.equal(deepSeekBody.model, "deepseek-v4-flash");
   assert.equal(deepSeekBody.thinking.type, "disabled");
-  assert.equal(deepSeekBody.max_tokens, 220);
+  assert.equal(deepSeekBody.max_tokens, 320);
   assert.equal(deepSeekBody.max_completion_tokens, undefined);
   assert.equal(deepSeekBody.provider, undefined);
   assert.deepEqual(
@@ -197,17 +194,11 @@ test("builds fixed, non-reasoning provider requests", () => {
   );
   assert.equal(deepSeekProBody.thinking.type, "enabled");
   assert.equal(deepSeekProBody.reasoning_effort, "high");
-  assert.equal(deepSeekProBody.max_tokens, 1200);
+  assert.equal(deepSeekProBody.max_tokens, 1800);
   assert.equal(deepSeekProBody.temperature, undefined);
 
-  assert.equal(
-    shouldEnforceChatBudget("deepseek", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }),
-    false
-  );
-  assert.equal(
-    shouldEnforceChatBudget("openrouter", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }),
-    true
-  );
+  assert.equal(shouldEnforceChatBudget("deepseek", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }), false);
+  assert.equal(shouldEnforceChatBudget("openrouter", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }), true);
   assert.match(CHAT_PROMPT_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
 });
 
@@ -222,6 +213,10 @@ test("origin, session, cache, and reply helpers are deterministic", () => {
   assert.equal(
     cacheKeyForMessages(messages),
     cacheKeyForMessages([{ role: "user", content: "website pricing" }])
+  );
+  assert.notEqual(
+    cacheKeyForMessages(messages, "deepseek:deepseek-v4-pro:prompt-a"),
+    cacheKeyForMessages(messages, "deepseek:deepseek-v4-pro:prompt-b")
   );
   assert.equal(
     cleanModelReply("## Recommendation\n\nUse a **booking page**.\n\n\nNext step"),

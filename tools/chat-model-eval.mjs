@@ -28,7 +28,7 @@ const providerUrl =
     ? "https://api.deepseek.com/chat/completions"
     : "https://openrouter.ai/api/v1/chat/completions";
 const maxPromptTokens = Number(process.env.CHAT_EVAL_MAX_PROMPT_TOKENS || 2500);
-const maxCompletionTokens = Number(process.env.CHAT_EVAL_MAX_COMPLETION_TOKENS || 220);
+const maxCompletionTokens = Number(process.env.CHAT_EVAL_MAX_COMPLETION_TOKENS || 1800);
 const maxTurnCostUsd = Number(process.env.CHAT_EVAL_MAX_TURN_COST_USD || 0.01);
 
 if (!apiKey) {

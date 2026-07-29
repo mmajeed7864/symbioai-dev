@@ -57,13 +57,13 @@ function getRedisState() {
     redis,
     ipLimiter: new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(10, "10 m"),
+      limiter: Ratelimit.slidingWindow(30, "10 m"),
       prefix: "symbio:chat:ip",
       analytics: false,
     }),
     sessionLimiter: new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(8, "10 m"),
+      limiter: Ratelimit.slidingWindow(20, "10 m"),
       prefix: "symbio:chat:session",
       analytics: false,
     }),
@@ -149,7 +149,7 @@ function providerApiKey(provider) {
 
 async function fetchProvider(provider, body, apiKey) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 14000);
+  const timeout = setTimeout(() => controller.abort(), 28000);
   const openRouterHeaders =
     provider === "openrouter"
       ? {
@@ -228,9 +228,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const provider = normalizeChatProvider(
-    process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER
-  );
+  const provider = normalizeChatProvider(process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER);
   if (!provider) {
     res.status(503).json({ ok: false, error: "Assistant provider is not configured." });
     return;
@@ -249,9 +247,7 @@ export default async function handler(req, res) {
   }
 
   const rawMessages = Array.isArray(req.body?.messages) ? req.body.messages : [];
-  const rawLatestUserMessage = rawMessages
-    .filter((message) => message?.role === "user")
-    .at(-1);
+  const rawLatestUserMessage = rawMessages.filter((message) => message?.role === "user").at(-1);
   if (
     rawLatestUserMessage &&
     containsSensitiveInput([{ content: String(rawLatestUserMessage.content || "") }])
@@ -345,7 +341,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const answerKey = cacheKeyForMessages(modelMessages);
+  const answerKey = cacheKeyForMessages(
+    modelMessages,
+    `${provider}:${model}:${CHAT_PROMPT_VERSION}`
+  );
   try {
     const cached = await state.redis.get(answerKey);
     if (typeof cached === "string" && cached) {

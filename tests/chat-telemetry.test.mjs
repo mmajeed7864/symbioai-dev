@@ -92,7 +92,7 @@ test("learning metadata contains no raw conversation or contact data", () => {
   assert.equal(serialized.includes("example.com"), false);
   assert.equal(event.questionBytes > 0, true);
   assert.equal(event.answerBytes > 0, true);
-  assert.equal(event.promptVersion, "2026-07-29.3");
+  assert.equal(event.promptVersion, "2026-07-29.5");
   assert.equal(event.pricingSnapshot.basis, "provider-reported");
   assert.equal(event.pricingSnapshot.costMicroUsd, 3);
 });
@@ -183,10 +183,7 @@ test("monthly budget reservation uses the same UTC ledger as dashboard metrics",
     "symbio:chat:metrics:month:2026-07",
     "symbio:chat:metrics:budget:2026-07:reservations",
   ]);
-  assert.equal(
-    await markBudgetReservationDispatched(redis, reservation, { at }),
-    true
-  );
+  assert.equal(await markBudgetReservationDispatched(redis, reservation, { at }), true);
   assert.equal(calls[1][1][0], "symbio:chat:metrics:budget:2026-07");
   assert.equal(calls[1][2][0], reservation.reservationId);
 

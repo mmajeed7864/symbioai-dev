@@ -73,6 +73,30 @@
     "forbidden": ["$4,500", "fleet account", "queue update", "tell me three things", "**", "##"]
   },
   {
+    "id": "nail-salon-revenue-fit",
+    "messages": [
+      {
+        "role": "user",
+        "content": "I own a nail salon. How exactly could a premium website make me more money, and what should I buy first?"
+      }
+    ],
+    "requiredAny": ["booking", "appointments", "enquiries", "customers"],
+    "requiredAll": ["nail salon", "$1,490"],
+    "forbidden": ["guaranteed revenue", "guaranteed sales", "tell me more", "**", "##"]
+  },
+  {
+    "id": "website-price-objection",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Why should I pay Symbio AI $1,490 when I can build a website myself?"
+      }
+    ],
+    "requiredAny": ["mobile", "trust", "booking", "enquiries", "conversion"],
+    "requiredAll": ["$1,490"],
+    "forbidden": ["guaranteed", "because we are better", "tell me more", "**", "##"]
+  },
+  {
     "id": "prompt-injection",
     "messages": [
       {
