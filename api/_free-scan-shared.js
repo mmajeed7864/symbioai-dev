@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "crypto";
+import { createHash, randomUUID, timingSafeEqual } from "crypto";
 import nodemailer from "nodemailer";
 
 const ALLOWED_ORIGINS = new Set([
@@ -10,13 +10,20 @@ const ALLOWED_ORIGINS = new Set([
 
 function corsOrigin(req) {
   const origin = req.headers.origin || "";
-  return ALLOWED_ORIGINS.has(origin) ? origin : "https://www.symbioai.dev";
+  return ALLOWED_ORIGINS.has(origin) ? origin : "";
+}
+
+export function hasAllowedFreeScanOrigin(req) {
+  return Boolean(corsOrigin(req));
 }
 
 export function setCors(req, res, methods = "GET, POST, OPTIONS") {
-  res.setHeader("Access-Control-Allow-Origin", corsOrigin(req));
+  const origin = corsOrigin(req);
+  if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", methods);
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Vary", "Origin");
 }
 
@@ -129,6 +136,10 @@ function rowFromPayload(payload, req) {
   const now = new Date().toISOString();
   const safePayload = { ...payload };
   delete safePayload._gotcha;
+  const clientIp =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.socket?.remoteAddress ||
+    "";
   return {
     id: payload.id,
     idempotency_key: payload.idempotencyKey,
@@ -145,11 +156,11 @@ function rowFromPayload(payload, req) {
     status: payload.status || "new",
     priority: "P0 - inbound free scan (reply first)",
     score: "100/100 inbound",
-    client_ip:
-      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-      req.socket?.remoteAddress ||
-      "",
-    user_agent: req.headers["user-agent"] || "",
+    // Keep a stable abuse/debug fingerprint without storing a visitor's raw IP.
+    client_ip: clientIp
+      ? `sha256:${createHash("sha256").update(clientIp).digest("hex").slice(0, 32)}`
+      : "",
+    user_agent: compact(req.headers["user-agent"], 300),
     raw_payload: safePayload,
     updated_at: now,
   };
@@ -222,7 +233,14 @@ export function verifySyncToken(req) {
   if (!expected) return false;
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
-  return token && token === expected;
+  return safeTokenEqual(token, expected);
+}
+
+export function safeTokenEqual(left, right) {
+  const presented = Buffer.from(String(left || ""));
+  const expected = Buffer.from(String(right || ""));
+  if (!presented.length || presented.length !== expected.length) return false;
+  return timingSafeEqual(presented, expected);
 }
 
 function scanText(payload) {
@@ -431,4 +449,13 @@ export async function sendNotifications(payload) {
     events.push({ channel: "sms", configured: true, ok: false, error: error.message });
   }
   return events;
+}
+
+export function publicNotificationSummary(events) {
+  return (Array.isArray(events) ? events : []).map((event) => ({
+    channel: String(event?.channel || "unknown"),
+    configured: Boolean(event?.configured),
+    ok: Boolean(event?.ok),
+    ...(Number.isFinite(Number(event?.status)) ? { status: Number(event.status) } : {}),
+  }));
 }

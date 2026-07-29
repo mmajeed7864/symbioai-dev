@@ -325,18 +325,70 @@ function nonNegativeInteger(value) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 }
 
-export function normalizeProviderUsage(payload) {
+const DEEPSEEK_PRICING_USD_PER_MILLION = Object.freeze({
+  "deepseek-v4-flash": {
+    promptCacheHit: 0.0028,
+    promptCacheMiss: 0.14,
+    completion: 0.28,
+  },
+  "deepseek-v4-pro": {
+    promptCacheHit: 0.003625,
+    promptCacheMiss: 0.435,
+    completion: 0.87,
+  },
+});
+
+function estimateDeepSeekCostMicroUsd(usage, model) {
+  const rates = DEEPSEEK_PRICING_USD_PER_MILLION[String(model || "").trim()];
+  if (!rates || !usage || typeof usage !== "object") return null;
+
+  const hasTokenUsage = [
+    "prompt_tokens",
+    "completion_tokens",
+    "prompt_cache_hit_tokens",
+    "prompt_cache_miss_tokens",
+  ].some((field) => usage[field] !== null && usage[field] !== undefined);
+  if (!hasTokenUsage) return null;
+
+  const promptTokens = nonNegativeInteger(usage.prompt_tokens);
+  const completionTokens = nonNegativeInteger(usage.completion_tokens);
+  const cacheHitTokens = nonNegativeInteger(usage.prompt_cache_hit_tokens);
+  const reportedCacheMissTokens = nonNegativeInteger(usage.prompt_cache_miss_tokens);
+  const cacheMissTokens =
+    usage.prompt_cache_miss_tokens !== null &&
+    usage.prompt_cache_miss_tokens !== undefined
+      ? reportedCacheMissTokens
+      : Math.max(0, promptTokens - cacheHitTokens);
+  const estimatedMicroUsd =
+    cacheHitTokens * rates.promptCacheHit +
+    cacheMissTokens * rates.promptCacheMiss +
+    completionTokens * rates.completion;
+
+  return estimatedMicroUsd > 0 ? Math.max(1, Math.ceil(estimatedMicroUsd)) : 0;
+}
+
+export function normalizeProviderUsage(payload, { provider = "", model = "" } = {}) {
   const promptTokens = nonNegativeInteger(payload?.usage?.prompt_tokens);
   const completionTokens = nonNegativeInteger(payload?.usage?.completion_tokens);
   const sourceCost = payload?.usage?.cost;
   const rawCost = Number(sourceCost);
-  const costKnown =
+  const providerReportedCost =
     sourceCost !== null &&
     sourceCost !== undefined &&
     sourceCost !== "" &&
     Number.isFinite(rawCost) &&
     rawCost >= 0;
-  const costUsd = costKnown ? rawCost : 0;
+  const estimatedCostMicroUsd =
+    !providerReportedCost && provider === "deepseek"
+      ? estimateDeepSeekCostMicroUsd(payload?.usage, model)
+      : null;
+  const costKnown = providerReportedCost || estimatedCostMicroUsd !== null;
+  const costMicroUsd = providerReportedCost
+    ? rawCost > 0
+      ? Math.max(1, Math.ceil(rawCost * 1_000_000))
+      : 0
+    : estimatedCostMicroUsd || 0;
+  const costUsd = costMicroUsd / 1_000_000;
 
   return {
     promptTokens,
@@ -344,7 +396,12 @@ export function normalizeProviderUsage(payload) {
     totalTokens: promptTokens + completionTokens,
     costKnown,
     costUsd,
-    costMicroUsd: costUsd > 0 ? Math.max(1, Math.ceil(costUsd * 1_000_000)) : 0,
+    costMicroUsd,
+    costBasis: providerReportedCost
+      ? "provider-reported"
+      : estimatedCostMicroUsd !== null
+        ? "provider-token-estimate"
+        : "conservative-reservation",
   };
 }
 
@@ -445,6 +502,7 @@ export function buildLearningEvent({
   completionTokens = 0,
   costMicroUsd = 0,
   costKnown = true,
+  costBasis = "",
   promptVersion = CHAT_PROMPT_VERSION,
   at = new Date(),
 }) {
@@ -471,7 +529,9 @@ export function buildLearningEvent({
     costMicroUsd: nonNegativeInteger(costMicroUsd),
     costKnown: Boolean(costKnown),
     pricingSnapshot: {
-      basis: costKnown ? "provider-reported" : "conservative-reservation",
+      basis:
+        String(costBasis || "").slice(0, 40) ||
+        (costKnown ? "provider-reported" : "conservative-reservation"),
       promptTokens: nonNegativeInteger(promptTokens),
       completionTokens: nonNegativeInteger(completionTokens),
       costMicroUsd: nonNegativeInteger(costMicroUsd),

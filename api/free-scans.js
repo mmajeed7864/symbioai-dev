@@ -32,10 +32,10 @@ export default async function handler(req, res) {
         new: requests.filter((item) => (item.status || "new") === "new").length,
       },
     });
-  } catch (error) {
+  } catch {
     res.status(503).json({
       ok: false,
-      error: error.message || "Free scan sync failed.",
+      error: "Free scan sync is temporarily unavailable.",
     });
   }
 }
