@@ -17,6 +17,8 @@
     "set-stripe": "node tools/set-stripe.mjs",
     "minify:widget": "terser src/assets/js/symbio-widget.js -c -m -o src/assets/js/symbio-widget.min.js",
     "test": "node --test tests/*.test.mjs",
+    "security:secrets": "node tools/security/scan-secrets.mjs",
+    "security:audit": "npm run security:secrets && npm audit --omit=dev --audit-level=high",
     "eval:chat-model": "node tools/chat-model-eval.mjs",
     "lint": "npm run lint:css && npm run lint:js && npm run lint:html",
     "lint:css": "stylelint \"src/assets/css/**/*.css\"",

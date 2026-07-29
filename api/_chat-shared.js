@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 
 export const DEFAULT_CHAT_PROVIDER = "deepseek";
-export const DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-v4-flash";
+export const DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-v4-pro";
 export const DEFAULT_OPENROUTER_CHAT_MODEL = "qwen/qwen3.5-flash-02-23";
 export const DEFAULT_CHAT_MODEL = DEFAULT_DEEPSEEK_CHAT_MODEL;
-export const CHAT_PROMPT_VERSION = "2026-07-29.1";
+export const CHAT_PROMPT_VERSION = "2026-07-29.3";
 export const MAX_REQUEST_BYTES = 20000;
 export const MAX_CONTEXT_BYTES = 6000;
 export const MAX_MESSAGE_BYTES = 1600;
@@ -95,6 +95,7 @@ Conversation rules:
 - Give a direct, useful answer in plain language, normally under 120 words.
 - Use plain text only. Do not use Markdown headings, bold markers, tables, or code formatting.
 - For a business scenario, recommend the smallest useful solution and explain why.
+- When the newest message clearly names the visitor's business type, name that business type once in the answer so the recommendation feels specific.
 - Answer the current need directly without adding unrelated products or upgrade paths.
 - Do not ask the visitor to repeat their business type, problem, or desired outcome when the newest message already provides it.
 - Ask at most one focused follow-up question when needed.
@@ -286,6 +287,13 @@ export function configuredChatModel(
   return String(env.DEEPSEEK_CHAT_MODEL || DEFAULT_DEEPSEEK_CHAT_MODEL).trim();
 }
 
+export function shouldEnforceChatBudget(provider, env = process.env) {
+  return !(
+    provider === "deepseek" &&
+    String(env.SYMBIO_CHAT_UNCAPPED_DEEPSEEK || "").trim() === "1"
+  );
+}
+
 export function buildOpenRouterBody(messages, model = DEFAULT_OPENROUTER_CHAT_MODEL) {
   return {
     model,
@@ -304,15 +312,16 @@ export function buildOpenRouterBody(messages, model = DEFAULT_OPENROUTER_CHAT_MO
 }
 
 export function buildDeepSeekBody(messages, model = DEFAULT_DEEPSEEK_CHAT_MODEL) {
+  const thinkingEnabled = model === "deepseek-v4-pro";
   return {
     model,
     messages: [{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages],
     stream: false,
-    temperature: 0.2,
-    max_tokens: 220,
+    max_tokens: thinkingEnabled ? 1200 : 220,
     thinking: {
-      type: "disabled",
+      type: thinkingEnabled ? "enabled" : "disabled",
     },
+    ...(thinkingEnabled ? { reasoning_effort: "high" } : { temperature: 0.2 }),
   };
 }
 

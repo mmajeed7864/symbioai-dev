@@ -17,6 +17,7 @@ import {
   normalizeMessages,
   safeSessionId,
   sensitiveTypesInText,
+  shouldEnforceChatBudget,
   scrubSensitiveMessages,
 } from "./_chat-shared.js";
 import {
@@ -379,15 +380,18 @@ export default async function handler(req, res) {
     });
   }
 
-  let budgetReservation;
-  try {
-    budgetReservation = await reserveMonthlyBudget(state.redis);
-  } catch {
-    res.status(503).json({ ok: false, error: "Assistant budget protection is unavailable." });
-    return;
+  const budgetEnforced = shouldEnforceChatBudget(provider);
+  let budgetReservation = null;
+  if (budgetEnforced) {
+    try {
+      budgetReservation = await reserveMonthlyBudget(state.redis);
+    } catch {
+      res.status(503).json({ ok: false, error: "Assistant budget protection is unavailable." });
+      return;
+    }
   }
 
-  if (!budgetReservation.success) {
+  if (budgetReservation && !budgetReservation.success) {
     const learningEvent = await bestEffortTelemetry("budget fallback telemetry", async () => {
       const [event] = await Promise.all([
         storeLearningEvent(state.redis, {
@@ -418,34 +422,40 @@ export default async function handler(req, res) {
   try {
     daily = await takeDailyAllowance(state.redis);
   } catch {
-    await bestEffortTelemetry("budget reservation release", () =>
-      settleMonthlyBudget(state.redis, budgetReservation, { model })
-    );
+    if (budgetReservation) {
+      await bestEffortTelemetry("budget reservation release", () =>
+        settleMonthlyBudget(state.redis, budgetReservation, { model })
+      );
+    }
     res.status(503).json({ ok: false, error: "Assistant protection is unavailable." });
     return;
   }
 
   if (!daily.success) {
-    await bestEffortTelemetry("budget reservation release", () =>
-      settleMonthlyBudget(state.redis, budgetReservation, { model })
-    );
+    if (budgetReservation) {
+      await bestEffortTelemetry("budget reservation release", () =>
+        settleMonthlyBudget(state.redis, budgetReservation, { model })
+      );
+    }
     res.status(429).json({ ok: false, error: "The assistant reached today's usage limit." });
     return;
   }
 
   let providerResponse;
-  try {
-    const markedDispatched = await markBudgetReservationDispatched(
-      state.redis,
-      budgetReservation
-    );
-    if (!markedDispatched) throw new Error("Budget reservation expired before dispatch.");
-  } catch {
-    await bestEffortTelemetry("budget reservation release", () =>
-      settleMonthlyBudget(state.redis, budgetReservation, { model })
-    );
-    res.status(503).json({ ok: false, error: "Assistant protection is unavailable." });
-    return;
+  if (budgetReservation) {
+    try {
+      const markedDispatched = await markBudgetReservationDispatched(
+        state.redis,
+        budgetReservation
+      );
+      if (!markedDispatched) throw new Error("Budget reservation expired before dispatch.");
+    } catch {
+      await bestEffortTelemetry("budget reservation release", () =>
+        settleMonthlyBudget(state.redis, budgetReservation, { model })
+      );
+      res.status(503).json({ ok: false, error: "Assistant protection is unavailable." });
+      return;
+    }
   }
   try {
     providerResponse = await fetchProvider(
@@ -454,15 +464,18 @@ export default async function handler(req, res) {
       apiKey
     );
   } catch {
-    await Promise.all([
-      bestEffortTelemetry("conservative budget settlement", () =>
-        settleMonthlyBudget(state.redis, budgetReservation, {
-          actualCostMicroUsd: budgetReservation.reservationMicroUsd,
-          model,
-        })
-      ),
-      recordProviderError(state, model),
-    ]);
+    const failureTasks = [recordProviderError(state, model)];
+    if (budgetReservation) {
+      failureTasks.push(
+        bestEffortTelemetry("conservative budget settlement", () =>
+          settleMonthlyBudget(state.redis, budgetReservation, {
+            actualCostMicroUsd: budgetReservation.reservationMicroUsd,
+            model,
+          })
+        )
+      );
+    }
+    await Promise.all(failureTasks);
     res.status(502).json({ ok: false, error: "The assistant could not answer right now." });
     return;
   }
@@ -471,13 +484,15 @@ export default async function handler(req, res) {
   const usage = normalizeProviderUsage(payload, { provider, model });
   const chargedCostMicroUsd = usage.costKnown
     ? usage.costMicroUsd
-    : budgetReservation.reservationMicroUsd;
-  await bestEffortTelemetry("budget settlement", () =>
-    settleMonthlyBudget(state.redis, budgetReservation, {
-      actualCostMicroUsd: chargedCostMicroUsd,
-      model,
-    })
-  );
+    : budgetReservation?.reservationMicroUsd || 0;
+  if (budgetReservation) {
+    await bestEffortTelemetry("budget settlement", () =>
+      settleMonthlyBudget(state.redis, budgetReservation, {
+        actualCostMicroUsd: chargedCostMicroUsd,
+        model,
+      })
+    );
+  }
   if (!providerResponse.ok) {
     console.warn("[symbio-chat] provider request failed", {
       model,
@@ -526,6 +541,7 @@ export default async function handler(req, res) {
       message: "symbio chat answer generated",
       provider,
       model,
+      budgetEnforced,
       promptVersion: CHAT_PROMPT_VERSION,
       promptTokens: usage.promptTokens,
       completionTokens: usage.completionTokens,

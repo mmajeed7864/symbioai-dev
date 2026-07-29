@@ -17,6 +17,7 @@ import {
   normalizeMessages,
   safeSessionId,
   sensitiveTypesInText,
+  shouldEnforceChatBudget,
   scrubSensitiveMessages,
 } from "../api/_chat-shared.js";
 
@@ -188,6 +189,24 @@ test("builds fixed, non-reasoning provider requests", () => {
       model: "deepseek-v4-flash",
     }),
     buildDeepSeekBody([{ role: "user", content: "Hello" }], "deepseek-v4-flash")
+  );
+
+  const deepSeekProBody = buildDeepSeekBody(
+    [{ role: "user", content: "Hello" }],
+    "deepseek-v4-pro"
+  );
+  assert.equal(deepSeekProBody.thinking.type, "enabled");
+  assert.equal(deepSeekProBody.reasoning_effort, "high");
+  assert.equal(deepSeekProBody.max_tokens, 1200);
+  assert.equal(deepSeekProBody.temperature, undefined);
+
+  assert.equal(
+    shouldEnforceChatBudget("deepseek", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }),
+    false
+  );
+  assert.equal(
+    shouldEnforceChatBudget("openrouter", { SYMBIO_CHAT_UNCAPPED_DEEPSEEK: "1" }),
+    true
   );
   assert.match(CHAT_PROMPT_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
 });

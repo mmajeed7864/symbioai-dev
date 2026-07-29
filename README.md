@@ -288,7 +288,8 @@ Required production environment variables:
 | `SYMBIO_CHAT_PROVIDER`           | `deepseek` (default) or `openrouter` for an explicit rollback |
 | `SYMBIO_CHAT_MODEL`              | Provider-neutral live chatbot model override                 |
 | `DEEPSEEK_API_KEY`               | Server-only direct DeepSeek key used by the website assistant |
-| `DEEPSEEK_CHAT_MODEL`            | Direct model override; defaults to `deepseek-v4-flash`        |
+| `DEEPSEEK_CHAT_MODEL`            | Direct model override; defaults to `deepseek-v4-pro`          |
+| `SYMBIO_CHAT_UNCAPPED_DEEPSEEK`  | Set to `1` to bypass only the monthly ledger on direct DeepSeek |
 | `OPENROUTER_CHAT_API_KEY`        | Optional rollback key for the OpenRouter provider             |
 | `OPENROUTER_CHAT_MODEL`          | Optional OpenRouter rollback model override                   |
 
@@ -316,6 +317,11 @@ cost and can reconcile against a dedicated key's monthly usage. Cost is stored w
 version, token counts, and an effective price snapshot. Prompt changes stay review-only
 until the golden regression, PII, and per-turn cost gates pass; Git/Vercel retain the prior
 production version for one-step rollback.
+
+`SYMBIO_CHAT_UNCAPPED_DEEPSEEK=1` bypasses the monthly dollar ledger only for the direct DeepSeek
+provider. Request-size checks, origin enforcement, privacy redaction, per-IP/session rate limits,
+the global daily abuse ceiling, telemetry, and cache remain active. Switching the provider back to
+`openrouter` automatically restores the monthly budget ledger.
 
 Nunjucks templates and `chatbot-demo.html` are excluded from Prettier
 (its HTML parser rewrites `{% %}`/`{{ }}` tags) — they are hand-formatted and validated by

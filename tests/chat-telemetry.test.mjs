@@ -92,7 +92,7 @@ test("learning metadata contains no raw conversation or contact data", () => {
   assert.equal(serialized.includes("example.com"), false);
   assert.equal(event.questionBytes > 0, true);
   assert.equal(event.answerBytes > 0, true);
-  assert.equal(event.promptVersion, "2026-07-29.1");
+  assert.equal(event.promptVersion, "2026-07-29.3");
   assert.equal(event.pricingSnapshot.basis, "provider-reported");
   assert.equal(event.pricingSnapshot.costMicroUsd, 3);
 });
