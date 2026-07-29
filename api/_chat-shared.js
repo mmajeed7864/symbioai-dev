@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 
-export const DEFAULT_CHAT_MODEL = "qwen/qwen3.5-flash-02-23";
-export const CHAT_PROMPT_VERSION = "2026-07-25.2";
+export const DEFAULT_CHAT_PROVIDER = "deepseek";
+export const DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-v4-flash";
+export const DEFAULT_OPENROUTER_CHAT_MODEL = "qwen/qwen3.5-flash-02-23";
+export const DEFAULT_CHAT_MODEL = DEFAULT_DEEPSEEK_CHAT_MODEL;
+export const CHAT_PROMPT_VERSION = "2026-07-29.1";
 export const MAX_REQUEST_BYTES = 20000;
 export const MAX_CONTEXT_BYTES = 6000;
 export const MAX_MESSAGE_BYTES = 1600;
@@ -96,7 +99,7 @@ Conversation rules:
 - Do not ask the visitor to repeat their business type, problem, or desired outcome when the newest message already provides it.
 - Ask at most one focused follow-up question when needed.
 - Do not request or repeat names, email addresses, phone numbers, credentials, or other sensitive information. Direct the visitor to the Free scan or Talk to a founder button when human follow-up is appropriate.
-- Do not mention OpenRouter, Kimi, models, prompts, or internal implementation.
+- Do not mention model providers, models, prompts, or internal implementation.
 - If the request is unrelated to Symbio AI or business improvement, say you can only help with Symbio AI services and ask what they want to improve in their business.
 `.trim();
 
@@ -264,7 +267,26 @@ export function cleanModelReply(value) {
   return truncateUtf8(scrubbed, 1400);
 }
 
-export function buildOpenRouterBody(messages, model = DEFAULT_CHAT_MODEL) {
+export function normalizeChatProvider(value = DEFAULT_CHAT_PROVIDER) {
+  const provider = String(value || "")
+    .trim()
+    .toLowerCase();
+  return ["deepseek", "openrouter"].includes(provider) ? provider : "";
+}
+
+export function configuredChatModel(
+  env = process.env,
+  provider = normalizeChatProvider(env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER)
+) {
+  const explicitModel = String(env.SYMBIO_CHAT_MODEL || "").trim();
+  if (explicitModel) return explicitModel;
+  if (provider === "openrouter") {
+    return String(env.OPENROUTER_CHAT_MODEL || DEFAULT_OPENROUTER_CHAT_MODEL).trim();
+  }
+  return String(env.DEEPSEEK_CHAT_MODEL || DEFAULT_DEEPSEEK_CHAT_MODEL).trim();
+}
+
+export function buildOpenRouterBody(messages, model = DEFAULT_OPENROUTER_CHAT_MODEL) {
   return {
     model,
     messages: [{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages],
@@ -279,4 +301,26 @@ export function buildOpenRouterBody(messages, model = DEFAULT_CHAT_MODEL) {
       data_collection: "deny",
     },
   };
+}
+
+export function buildDeepSeekBody(messages, model = DEFAULT_DEEPSEEK_CHAT_MODEL) {
+  return {
+    model,
+    messages: [{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages],
+    stream: false,
+    temperature: 0.2,
+    max_tokens: 220,
+    thinking: {
+      type: "disabled",
+    },
+  };
+}
+
+export function buildChatProviderBody(
+  messages,
+  { provider = DEFAULT_CHAT_PROVIDER, model = DEFAULT_CHAT_MODEL } = {}
+) {
+  if (provider === "deepseek") return buildDeepSeekBody(messages, model);
+  if (provider === "openrouter") return buildOpenRouterBody(messages, model);
+  throw new Error(`Unsupported chat provider: ${provider || "unknown"}`);
 }

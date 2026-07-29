@@ -2,23 +2,37 @@ import { readFile } from "node:fs/promises";
 
 import {
   CHAT_PROMPT_VERSION,
+  DEFAULT_CHAT_PROVIDER,
   DEFAULT_CHAT_MODEL,
-  buildOpenRouterBody,
+  buildChatProviderBody,
+  configuredChatModel,
+  normalizeChatProvider,
   sensitiveTypesInText,
 } from "../api/_chat-shared.js";
+import { normalizeProviderUsage } from "../api/_chat-telemetry.js";
 
 const fixtureUrl = new URL("../tests/fixtures/chat-model-eval.json", import.meta.url);
 const allCases = JSON.parse(await readFile(fixtureUrl, "utf8"));
 const requestedCase = String(process.env.CHAT_EVAL_CASE || "").trim();
 const cases = requestedCase ? allCases.filter(({ id }) => id === requestedCase) : allCases;
-const apiKey = process.env.OPENROUTER_CHAT_API_KEY || process.env.OPENROUTER_API_KEY;
-const model = process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL;
+const provider = normalizeChatProvider(
+  process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER
+);
+const apiKey =
+  provider === "deepseek"
+    ? process.env.DEEPSEEK_API_KEY
+    : process.env.OPENROUTER_CHAT_API_KEY || process.env.OPENROUTER_API_KEY;
+const model = configuredChatModel(process.env, provider) || DEFAULT_CHAT_MODEL;
+const providerUrl =
+  provider === "deepseek"
+    ? "https://api.deepseek.com/chat/completions"
+    : "https://openrouter.ai/api/v1/chat/completions";
 const maxPromptTokens = Number(process.env.CHAT_EVAL_MAX_PROMPT_TOKENS || 2500);
 const maxCompletionTokens = Number(process.env.CHAT_EVAL_MAX_COMPLETION_TOKENS || 220);
 const maxTurnCostUsd = Number(process.env.CHAT_EVAL_MAX_TURN_COST_USD || 0.01);
 
 if (!apiKey) {
-  throw new Error("Set OPENROUTER_CHAT_API_KEY or OPENROUTER_API_KEY before running this eval.");
+  throw new Error(`Set the ${provider || "chat"} provider API key before running this eval.`);
 }
 if (!cases.length) {
   throw new Error(`No chat model eval case matched CHAT_EVAL_CASE=${requestedCase}.`);
@@ -29,15 +43,19 @@ let passedCount = 0;
 
 for (const item of cases) {
   const startedAt = Date.now();
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+  const response = await fetch(providerUrl, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "https://symbioai.dev",
-      "X-Title": "Symbio Chat Model Regression Eval",
+      ...(provider === "openrouter"
+        ? {
+            "HTTP-Referer": "https://symbioai.dev",
+            "X-Title": "Symbio Chat Model Regression Eval",
+          }
+        : {}),
     },
-    body: JSON.stringify(buildOpenRouterBody(item.messages, model)),
+    body: JSON.stringify(buildChatProviderBody(item.messages, { provider, model })),
   });
 
   const payload = await response.json().catch(() => null);
@@ -48,17 +66,14 @@ for (const item of cases) {
     normalized.includes(term.toLowerCase())
   );
   const forbiddenPass = item.forbidden.every((term) => !normalized.includes(term.toLowerCase()));
-  const promptTokens = Number(payload?.usage?.prompt_tokens);
-  const completionTokens = Number(payload?.usage?.completion_tokens);
-  const sourceCost = payload?.usage?.cost;
-  const cost = Number(sourceCost);
+  const usage = normalizeProviderUsage(payload, { provider, model });
+  const promptTokens = usage.promptTokens;
+  const completionTokens = usage.completionTokens;
+  const cost = usage.costUsd;
   const usageKnown =
     Number.isFinite(promptTokens) &&
     Number.isFinite(completionTokens) &&
-    sourceCost !== null &&
-    sourceCost !== undefined &&
-    sourceCost !== "" &&
-    Number.isFinite(cost);
+    usage.costKnown;
   const piiTypes = sensitiveTypesInText(answer);
   const usagePass =
     usageKnown &&
@@ -80,6 +95,7 @@ for (const item of cases) {
   console.log(
     JSON.stringify({
       id: item.id,
+      provider,
       model,
       promptVersion: CHAT_PROMPT_VERSION,
       passed,

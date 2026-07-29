@@ -1,10 +1,12 @@
 import { Ratelimit } from "@upstash/ratelimit";
 
 import {
-  DEFAULT_CHAT_MODEL,
+  DEFAULT_CHAT_PROVIDER,
   MAX_REQUEST_BYTES,
+  configuredChatModel,
   hashValue,
   isAllowedOrigin,
+  normalizeChatProvider,
   safeSessionId,
 } from "./_chat-shared.js";
 import {
@@ -88,7 +90,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  const model = String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim();
+  const provider = normalizeChatProvider(
+    process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER
+  );
+  const model = configuredChatModel(process.env, provider);
   try {
     const limiters = getEventLimiters(redis);
     const normalizedSession = safeSessionId(sessionId) || "invalid-session";

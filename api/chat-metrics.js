@@ -1,6 +1,10 @@
 import { Ratelimit } from "@upstash/ratelimit";
 
-import { hashValue } from "./_chat-shared.js";
+import {
+  DEFAULT_CHAT_PROVIDER,
+  hashValue,
+  normalizeChatProvider,
+} from "./_chat-shared.js";
 import {
   getChatMetrics,
   getChatRedis,
@@ -78,6 +82,18 @@ export function normalizeProviderKeyUsage(payload, now = new Date()) {
 }
 
 async function providerKeyUsage(redis, now = new Date()) {
+  const provider = normalizeChatProvider(
+    process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER
+  );
+  if (provider !== "openrouter") {
+    return {
+      available: false,
+      provider: provider || "unknown",
+      error:
+        "Direct provider usage is tracked from response tokens in the local budget ledger.",
+    };
+  }
+
   const usageMonth = metricKeysForDate(now).monthLabel;
   const cacheKey = `${PROVIDER_USAGE_CACHE_PREFIX}:${usageMonth}`;
   const cached = await redis.get(cacheKey).catch(() => null);

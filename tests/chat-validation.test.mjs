@@ -5,6 +5,8 @@ import {
   CHAT_PROMPT_VERSION,
   CHAT_SYSTEM_PROMPT,
   MAX_CONTEXT_BYTES,
+  buildChatProviderBody,
+  buildDeepSeekBody,
   buildOpenRouterBody,
   cacheKeyForMessages,
   cleanModelReply,
@@ -157,7 +159,7 @@ test("recognizes context-dependent follow-ups", () => {
   assert.equal(isContextDependentFollowup("What are your hours?"), false);
 });
 
-test("builds a fixed, non-reasoning OpenRouter request", () => {
+test("builds fixed, non-reasoning provider requests", () => {
   const body = buildOpenRouterBody(
     [{ role: "user", content: "I need a chatbot for a restaurant." }],
     "qwen/qwen3.5-flash-02-23"
@@ -170,6 +172,23 @@ test("builds a fixed, non-reasoning OpenRouter request", () => {
   assert.equal(body.messages[0].role, "system");
   assert.equal(body.messages[0].content, CHAT_SYSTEM_PROMPT);
   assert.equal(body.tools, undefined);
+
+  const deepSeekBody = buildDeepSeekBody(
+    [{ role: "user", content: "I need a chatbot for a restaurant." }],
+    "deepseek-v4-flash"
+  );
+  assert.equal(deepSeekBody.model, "deepseek-v4-flash");
+  assert.equal(deepSeekBody.thinking.type, "disabled");
+  assert.equal(deepSeekBody.max_tokens, 220);
+  assert.equal(deepSeekBody.max_completion_tokens, undefined);
+  assert.equal(deepSeekBody.provider, undefined);
+  assert.deepEqual(
+    buildChatProviderBody([{ role: "user", content: "Hello" }], {
+      provider: "deepseek",
+      model: "deepseek-v4-flash",
+    }),
+    buildDeepSeekBody([{ role: "user", content: "Hello" }], "deepseek-v4-flash")
+  );
   assert.match(CHAT_PROMPT_VERSION, /^\d{4}-\d{2}-\d{2}\.\d+$/);
 });
 

@@ -32,6 +32,7 @@ test("normalizes provider-reported usage without losing a legitimate zero cost",
       costKnown: true,
       costUsd: 0,
       costMicroUsd: 0,
+      costBasis: "provider-reported",
     }
   );
 
@@ -39,6 +40,25 @@ test("normalizes provider-reported usage without losing a legitimate zero cost",
   assert.equal(normalizeProviderUsage({ usage: { cost: 0.00000001 } }).costMicroUsd, 1);
   assert.equal(normalizeProviderUsage({ usage: { cost: null } }).costKnown, false);
   assert.equal(normalizeProviderUsage({ usage: {} }).costKnown, false);
+});
+
+test("estimates direct DeepSeek V4 costs from cache-aware token usage", () => {
+  const usage = normalizeProviderUsage(
+    {
+      usage: {
+        prompt_tokens: 1000,
+        prompt_cache_hit_tokens: 600,
+        prompt_cache_miss_tokens: 400,
+        completion_tokens: 200,
+      },
+    },
+    { provider: "deepseek", model: "deepseek-v4-flash" }
+  );
+
+  assert.equal(usage.costKnown, true);
+  assert.equal(usage.costBasis, "provider-token-estimate");
+  assert.equal(usage.costMicroUsd, 114);
+  assert.equal(usage.costUsd, 0.000114);
 });
 
 test("uses UTC day and month keys", () => {
@@ -72,7 +92,7 @@ test("learning metadata contains no raw conversation or contact data", () => {
   assert.equal(serialized.includes("example.com"), false);
   assert.equal(event.questionBytes > 0, true);
   assert.equal(event.answerBytes > 0, true);
-  assert.equal(event.promptVersion, "2026-07-25.2");
+  assert.equal(event.promptVersion, "2026-07-29.1");
   assert.equal(event.pricingSnapshot.basis, "provider-reported");
   assert.equal(event.pricingSnapshot.costMicroUsd, 3);
 });

@@ -285,8 +285,12 @@ Required production environment variables:
 | `SYMBIO_CHAT_MAX_CALL_USD`        | Conservative pre-call reservation; defaults to `0.01`        |
 | `UPSTASH_REDIS_REST_URL`         | Existing Upstash REST endpoint                               |
 | `UPSTASH_REDIS_REST_TOKEN`       | Existing Upstash REST token                                  |
-| `OPENROUTER_CHAT_API_KEY`        | Restricted OpenRouter key used only by the website assistant |
-| `OPENROUTER_CHAT_MODEL`          | Live chatbot model override                                  |
+| `SYMBIO_CHAT_PROVIDER`           | `deepseek` (default) or `openrouter` for an explicit rollback |
+| `SYMBIO_CHAT_MODEL`              | Provider-neutral live chatbot model override                 |
+| `DEEPSEEK_API_KEY`               | Server-only direct DeepSeek key used by the website assistant |
+| `DEEPSEEK_CHAT_MODEL`            | Direct model override; defaults to `deepseek-v4-flash`        |
+| `OPENROUTER_CHAT_API_KEY`        | Optional rollback key for the OpenRouter provider             |
+| `OPENROUTER_CHAT_MODEL`          | Optional OpenRouter rollback model override                   |
 
 ---
 
@@ -302,15 +306,14 @@ Required production environment variables:
 | `npm run minify:widget` | Regenerate `symbio-widget.min.js` with Terser            |
 | `npm run eval:chat-model` | Run versioned quality, PII-output, token, and cost gates |
 
-The model path atomically reserves budget in Redis before calling OpenRouter. Each reservation has
+The model path atomically reserves budget in Redis before calling the selected provider. Each reservation has
 a unique five-minute lease and is settled once; an expired dispatched lease is conservatively
 charged instead of silently released. The dashboard reads that same local guard ledger. At the
 local cap, the widget falls back to a no-token response; an unavailable budget ledger fails
-closed. The dedicated OpenRouter key's provider-side monthly limit is the final hard stop if an
-actual provider charge exceeds the conservative per-call reservation. Provider-reported cost is
-stored with model, prompt version, token counts, and an effective price snapshot. The private
-metrics endpoint reconciles the local ledger against that key's monthly usage on a month-scoped
-15-minute cache. Prompt changes stay review-only
+closed. Direct DeepSeek calls are priced from cache-hit, cache-miss, and completion token counts
+using the model's versioned rate table. OpenRouter calls continue to use provider-reported dollar
+cost and can reconcile against a dedicated key's monthly usage. Cost is stored with model, prompt
+version, token counts, and an effective price snapshot. Prompt changes stay review-only
 until the golden regression, PII, and per-turn cost gates pass; Git/Vercel retain the prior
 production version for one-step rollback.
 

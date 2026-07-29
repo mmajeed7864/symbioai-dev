@@ -2,15 +2,18 @@ import { Ratelimit } from "@upstash/ratelimit";
 
 import {
   CHAT_PROMPT_VERSION,
+  DEFAULT_CHAT_PROVIDER,
   DEFAULT_CHAT_MODEL,
   MAX_REQUEST_BYTES,
-  buildOpenRouterBody,
+  buildChatProviderBody,
   cacheKeyForMessages,
   cleanModelReply,
+  configuredChatModel,
   containsSensitiveInput,
   hashValue,
   isAllowedOrigin,
   isBusinessConversation,
+  normalizeChatProvider,
   normalizeMessages,
   safeSessionId,
   sensitiveTypesInText,
@@ -26,7 +29,10 @@ import {
   storeLearningEvent,
 } from "./_chat-telemetry.js";
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const PROVIDER_URLS = Object.freeze({
+  deepseek: "https://api.deepseek.com/chat/completions",
+  openrouter: "https://openrouter.ai/api/v1/chat/completions",
+});
 const CACHE_SECONDS = 15 * 60;
 const DEFAULT_DAILY_LIMIT = 75;
 const TELEMETRY_WAIT_MS = 400;
@@ -134,17 +140,29 @@ async function bestEffortTelemetry(label, task, waitMs = TELEMETRY_WAIT_MS) {
   return result.value;
 }
 
-async function fetchOpenRouter(body, apiKey) {
+function providerApiKey(provider) {
+  return provider === "deepseek"
+    ? process.env.DEEPSEEK_API_KEY
+    : process.env.OPENROUTER_CHAT_API_KEY;
+}
+
+async function fetchProvider(provider, body, apiKey) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 14000);
+  const openRouterHeaders =
+    provider === "openrouter"
+      ? {
+          "HTTP-Referer": "https://symbioai.dev",
+          "X-Title": "Symbio AI Website Assistant",
+        }
+      : {};
   try {
-    return await fetch(OPENROUTER_URL, {
+    return await fetch(PROVIDER_URLS[provider], {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://symbioai.dev",
-        "X-Title": "Symbio AI Website Assistant",
+        ...openRouterHeaders,
       },
       body: JSON.stringify(body),
       signal: controller.signal,
@@ -209,7 +227,15 @@ export default async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.OPENROUTER_CHAT_API_KEY;
+  const provider = normalizeChatProvider(
+    process.env.SYMBIO_CHAT_PROVIDER || DEFAULT_CHAT_PROVIDER
+  );
+  if (!provider) {
+    res.status(503).json({ ok: false, error: "Assistant provider is not configured." });
+    return;
+  }
+
+  const apiKey = providerApiKey(provider);
   if (!apiKey) {
     res.status(503).json({ ok: false, error: "Assistant fallback is unavailable." });
     return;
@@ -289,7 +315,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const model = String(process.env.OPENROUTER_CHAT_MODEL || DEFAULT_CHAT_MODEL).trim();
+  const model = configuredChatModel(process.env, provider) || DEFAULT_CHAT_MODEL;
 
   if (!isBusinessConversation(modelMessages)) {
     const learningEvent = await bestEffortTelemetry("out-of-scope learning telemetry", async () => {
@@ -422,7 +448,11 @@ export default async function handler(req, res) {
     return;
   }
   try {
-    providerResponse = await fetchOpenRouter(buildOpenRouterBody(modelMessages, model), apiKey);
+    providerResponse = await fetchProvider(
+      provider,
+      buildChatProviderBody(modelMessages, { provider, model }),
+      apiKey
+    );
   } catch {
     await Promise.all([
       bestEffortTelemetry("conservative budget settlement", () =>
@@ -438,7 +468,7 @@ export default async function handler(req, res) {
   }
 
   const payload = await providerResponse.json().catch(() => null);
-  const usage = normalizeProviderUsage(payload);
+  const usage = normalizeProviderUsage(payload, { provider, model });
   const chargedCostMicroUsd = usage.costKnown
     ? usage.costMicroUsd
     : budgetReservation.reservationMicroUsd;
@@ -494,6 +524,7 @@ export default async function handler(req, res) {
     JSON.stringify({
       level: "info",
       message: "symbio chat answer generated",
+      provider,
       model,
       promptVersion: CHAT_PROMPT_VERSION,
       promptTokens: usage.promptTokens,
