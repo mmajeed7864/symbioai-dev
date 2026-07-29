@@ -39,7 +39,7 @@
           aiEndpoint: "",             // optional: POST {messages,sessionId} -> {reply}
           eventEndpoint: "",          // optional: POST deterministic answer metadata
           feedbackEndpoint: "",       // optional: POST Helpful / Needs work feedback
-          aiSessionLimit: 8,          // optional: browser-side courtesy cap
+          aiSessionLimit: 20,         // optional: browser-side courtesy cap
          onLead: function (lead) {}  // optional callback
        };
      </script>
@@ -133,8 +133,8 @@
         attr("feedback-endpoint") ||
         user.feedbackEndpoint ||
         (aiEndpoint ? aiEndpoint.replace(/\/chat(?:\?.*)?$/, "/chat-feedback") : ""),
-      aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 15000),
-      aiSessionLimit: Math.max(1, Number(user.aiSessionLimit) || 8),
+      aiTimeoutMs: Math.max(1000, Number(user.aiTimeoutMs) || 30000),
+      aiSessionLimit: Math.max(1, Number(user.aiSessionLimit) || 20),
       leadTimeoutMs: Math.max(1000, Number(user.leadTimeoutMs) || 10000),
       maxInputLength: Math.max(100, Number(user.maxInputLength) || 600),
       onLead: typeof user.onLead === "function" ? user.onLead : null,
@@ -660,18 +660,6 @@
     } catch (error) {
       return "chat_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
-  }
-
-  function needsContextualAnswer(text) {
-    const normalized = normalizeIntentText(text);
-    return (
-      /\b(that|this|it|one|ones|those|these|they|them|same|above|earlier|option|plan)\b/.test(
-        normalized
-      ) ||
-      /^(and|but|also|okay|ok|so|then|what about|how about|would that|can it|does it)\b/.test(
-        normalized
-      )
-    );
   }
 
   function hasExplicitBusinessDeclaration(text) {
@@ -1257,7 +1245,7 @@
   async function aiReply() {
     if (aiCalls >= cfg.aiSessionLimit) return null;
     aiCalls += 1;
-    const messages = history.slice(-6).map((m) => ({
+    const messages = history.slice(-10).map((m) => ({
       role: m.role,
       content: String(m.text || "").slice(0, 1200),
     }));
@@ -1423,14 +1411,10 @@
       return;
     }
 
-    // High-confidence business questions stay instant and token-free. The optional
-    // AI endpoint handles unknown asks and context-dependent follow-up questions.
+    // With a live endpoint configured, the model answers every normal message.
+    // The built-in intent engine remains the instant fallback if the endpoint fails.
     const result = intentReply(text);
-    const shouldAskAi =
-      cfg.aiEndpoint &&
-      aiCalls < cfg.aiSessionLimit &&
-      (result.fallback ||
-        (!result.highConfidence && history.length > 2 && needsContextualAnswer(text)));
+    const shouldAskAi = Boolean(cfg.aiEndpoint && aiCalls < cfg.aiSessionLimit);
     if (!shouldAskAi) {
       addTrackedDeterministicReply(text, result.text);
       if (result.offerLead) setChips(["Yes, contact me"].concat(defaultChips()));
@@ -1621,6 +1605,7 @@
       originalHistory.forEach((message) => history.push(message));
       return result;
     };
+    publicApi.__shouldUseAiForTests = () => Boolean(cfg.aiEndpoint && aiCalls < cfg.aiSessionLimit);
   }
   window.SymbioWidget = publicApi;
 

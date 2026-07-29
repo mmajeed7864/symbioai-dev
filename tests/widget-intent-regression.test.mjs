@@ -8,7 +8,7 @@ const widgetSource = await readFile(
   "utf8"
 );
 
-function loadIntentClassifier() {
+function loadWidgetTestApi() {
   const currentScript = {
     hasAttribute: () => false,
     getAttribute: () => null,
@@ -22,6 +22,8 @@ function loadIntentClassifier() {
       voiceMessage: "Generic voice guidance.",
       chatbotMessage: "Generic chatbot guidance.",
       leadGenerationMessage: "Generic lead guidance.",
+      aiEndpoint: "/api/chat",
+      aiSessionLimit: 20,
     },
     location: { href: "https://symbioai.dev/" },
     addEventListener: () => {},
@@ -43,8 +45,18 @@ function loadIntentClassifier() {
     clearTimeout,
   });
 
-  return window.SymbioWidget.__intentReplyForTests;
+  return window.SymbioWidget;
 }
+
+function loadIntentClassifier() {
+  return loadWidgetTestApi().__intentReplyForTests;
+}
+
+test("configured AI endpoint handles every normal business question", () => {
+  const widget = loadWidgetTestApi();
+
+  assert.equal(widget.__shouldUseAiForTests(), true);
+});
 
 test("new car-wash app request overrides stale real-estate context", () => {
   const classify = loadIntentClassifier();

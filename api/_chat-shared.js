@@ -4,11 +4,11 @@ export const DEFAULT_CHAT_PROVIDER = "deepseek";
 export const DEFAULT_DEEPSEEK_CHAT_MODEL = "deepseek-v4-pro";
 export const DEFAULT_OPENROUTER_CHAT_MODEL = "qwen/qwen3.5-flash-02-23";
 export const DEFAULT_CHAT_MODEL = DEFAULT_DEEPSEEK_CHAT_MODEL;
-export const CHAT_PROMPT_VERSION = "2026-07-29.3";
+export const CHAT_PROMPT_VERSION = "2026-07-29.5";
 export const MAX_REQUEST_BYTES = 20000;
-export const MAX_CONTEXT_BYTES = 6000;
-export const MAX_MESSAGE_BYTES = 1600;
-export const MAX_CONTEXT_MESSAGES = 6;
+export const MAX_CONTEXT_BYTES = 10000;
+export const MAX_MESSAGE_BYTES = 2400;
+export const MAX_CONTEXT_MESSAGES = 10;
 
 const ALLOWED_ORIGINS = new Set([
   "https://symbioai.dev",
@@ -92,7 +92,11 @@ Conversation rules:
 - The newest user message controls the current request and business. If it names a different business or corrects your industry assumption, ignore conflicting older industry details. Keep older constraints only when they are compatible with the newest business.
 - If the newest message explicitly requests an app, chatbot, voice agent, website, dashboard, or workflow, answer that product first. Do not replace it with an older product topic; mention a compatible add-on only after directly answering the newest request.
 - Use only the approved facts above. Never invent pricing, availability, policies, integrations, case studies, or capabilities.
-- Give a direct, useful answer in plain language, normally under 120 words.
+- Act like a sharp, practical business consultant, not a menu of canned answers. Directly answer the visitor's actual question before asking anything.
+- Explain how the recommendation would work for the visitor's business and connect it to a useful outcome such as more completed enquiries, bookings, calls, sales opportunities, or less manual work. Never turn that explanation into a revenue guarantee.
+- When the visitor has already supplied enough context, give a concrete recommendation, what it would do, and the approved starting price when one exists. Do not respond only with "tell me more."
+- When the visitor challenges or compares an approved price, acknowledge that exact price in the answer before explaining the practical value and tradeoff.
+- Give a direct, useful answer in plain language, normally under 150 words.
 - Use plain text only. Do not use Markdown headings, bold markers, tables, or code formatting.
 - For a business scenario, recommend the smallest useful solution and explain why.
 - When the newest message clearly names the visitor's business type, name that business type once in the answer so the recommendation feels specific.
@@ -242,12 +246,14 @@ export function hashValue(value) {
     .digest("hex");
 }
 
-export function cacheKeyForMessages(messages) {
+export function cacheKeyForMessages(messages, scope = CHAT_PROMPT_VERSION) {
   const normalized = messages.map(({ role, content }) => ({
     role,
     content: content.toLowerCase().replace(/\s+/g, " ").trim(),
   }));
-  return `symbio:chat:answer:${hashValue(JSON.stringify(normalized))}`;
+  return `symbio:chat:answer:${hashValue(
+    JSON.stringify({ scope: String(scope || ""), messages: normalized })
+  )}`;
 }
 
 export function cleanModelReply(value) {
@@ -289,8 +295,7 @@ export function configuredChatModel(
 
 export function shouldEnforceChatBudget(provider, env = process.env) {
   return !(
-    provider === "deepseek" &&
-    String(env.SYMBIO_CHAT_UNCAPPED_DEEPSEEK || "").trim() === "1"
+    provider === "deepseek" && String(env.SYMBIO_CHAT_UNCAPPED_DEEPSEEK || "").trim() === "1"
   );
 }
 
@@ -317,7 +322,7 @@ export function buildDeepSeekBody(messages, model = DEFAULT_DEEPSEEK_CHAT_MODEL)
     model,
     messages: [{ role: "system", content: CHAT_SYSTEM_PROMPT }, ...messages],
     stream: false,
-    max_tokens: thinkingEnabled ? 1200 : 220,
+    max_tokens: thinkingEnabled ? 1800 : 320,
     thinking: {
       type: thinkingEnabled ? "enabled" : "disabled",
     },
