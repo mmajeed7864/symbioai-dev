@@ -362,22 +362,13 @@
     logoGroup.position.z = 0.36;
     scene.add(logoGroup);
 
+    // Helix ribbon removed (founder, 2026-07-31): the double-strand + rungs fought the ambient
+    // video for attention. Strands are still constructed (the animation loop references them)
+    // but never added to the scene; the glowing core alone anchors the logo mark.
     const blue = makeStrand(THREE, 0, 0x2f6bff, 0x2eeaff);
     const violet = makeStrand(THREE, Math.PI, 0x8b5cff, 0x714cff);
-    logoGroup.add(blue.mesh, violet.mesh);
-
-    const barMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.44,
-      blending: THREE.AdditiveBlending,
-    });
-    for (let i = 12; i < blue.points.length - 12; i += 18) {
-      const bar = makeCylinder(THREE, blue.points[i], violet.points[i], 0.016, barMaterial);
-      bar.userData.offset = i * 0.031;
-      bars.push(bar);
-      logoGroup.add(bar);
-    }
+    void blue;
+    void violet;
 
     core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.34, 2),

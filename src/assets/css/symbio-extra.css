@@ -773,6 +773,7 @@ body.has-symbio-intro {
   margin: 0.35rem auto 0.15rem;
   border-radius: 0.9rem;
 }
+
 @media (prefers-reduced-motion: reduce) {
   .symbio-intro__video { display: none; }
 }
