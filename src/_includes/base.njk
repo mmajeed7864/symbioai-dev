@@ -121,6 +121,7 @@
     <link rel="stylesheet" href="assets/css/symbio-extra.css?v=20260714-cinematic" />
     {% if pageStylesheet %}<link rel="stylesheet" href="{{ pageStylesheet }}" />{% endif %}
     <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/symbio-motion.js" defer></script>
     {% if extraScripts %}
       {% for script in extraScripts %}
         <script src="{{ script.src }}" {% if script.type %}type="{{ script.type }}"{% endif %}{% if script.defer %} defer{% endif %}></script>

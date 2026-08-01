@@ -766,6 +766,8 @@ body.has-symbio-intro {
 /* Product-lane illustration: sits between the topline and the title. The
    soft-lavender art backgrounds blend into the card, so no border needed. */
 .product-card__art {
+  transform: translateY(var(--sm-drift, 0));
+  transition: transform 200ms linear;
   display: block;
   width: min(11.5rem, 60%);
   height: auto;
@@ -776,4 +778,74 @@ body.has-symbio-intro {
 
 @media (prefers-reduced-motion: reduce) {
   .symbio-intro__video { display: none; }
+}
+
+/* ===== Symbio Motion (2026-08-01) ========================================= */
+/* Split-text hero rise */
+.sm-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.55em) rotate(2deg);
+  filter: blur(6px);
+  transition:
+    opacity 640ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 640ms ease;
+}
+
+.sm-in .sm-word,
+.sm-word:where(.sm-in) {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+h1.sm-in .sm-word {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+.sm-fade {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sm-fade.sm-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Scroll-triggered rise for cards/sections */
+.sm-rise {
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  transition:
+    opacity 680ms ease,
+    transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.sm-rise.sm-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Pointer-depth + parallax drift */
+.product-card {
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 320ms ease;
+}
+
+.btn--primary,
+.hero .btn {
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.motion-off .sm-rise,
+.motion-off .sm-fade,
+.motion-off .sm-word {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
