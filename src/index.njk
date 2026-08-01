@@ -9,6 +9,13 @@ extraScripts:
 
 {# ===== 3D brand intro ================================================== #}
 <section class="symbio-intro" data-symbio-intro aria-label="Symbio AI cinematic intro">
+  {# Ambient brand loop (Higgsfield, 2026-07-31): paints motion the instant the gate shows,
+     under the 3D canvas so the particle work still reads on top. Muted+playsinline keeps
+     mobile autoplay legal; the webp poster covers the first frame and any autoplay refusal. #}
+  <video class="symbio-intro__video" autoplay muted loop playsinline preload="auto"
+         poster="assets/img/intro-poster.webp" aria-hidden="true">
+    <source src="assets/media/intro-loop.mp4" type="video/mp4" />
+  </video>
   <canvas class="symbio-intro__canvas" data-symbio-intro-canvas aria-hidden="true"></canvas>
   <div class="symbio-intro__grid" aria-hidden="true"></div>
   <div class="symbio-intro__scan" aria-hidden="true"></div>
@@ -334,6 +341,7 @@ extraScripts:
             <span class="product-card__price">{{ lane.priceLabel or ("Starts at " + lane.startsAt) }}</span>
             {% if lane.compareAt %}<span class="product-card__compare">{{ lane.compareAt }}</span>{% endif %}
           </div>
+          {% if lane.art %}<img class="product-card__art" src="{{ lane.art }}" alt="" loading="lazy" decoding="async" width="560" height="560" />{% endif %}
           <h3 class="product-card__title">{{ lane.title }}</h3>
           <p class="product-card__text">{{ lane.summary }}</p>
           <ul class="product-card__features">

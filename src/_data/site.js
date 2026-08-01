@@ -148,6 +148,7 @@ export default {
   productLanes: [
     {
       key: "website",
+      art: "assets/img/lanes/website.webp",
       eyebrow: "Websites and redesigns",
       title: "Premium website or redesign",
       shortTitle: "Website / redesign",
@@ -168,6 +169,7 @@ export default {
     },
     {
       key: "app",
+      art: "assets/img/lanes/app.webp",
       eyebrow: "Apps and portals",
       title: "Custom app",
       shortTitle: "Custom app",
@@ -183,6 +185,7 @@ export default {
     },
     {
       key: "dashboard",
+      art: "assets/img/lanes/dashboard.webp",
       eyebrow: "Dashboards",
       title: "Business dashboard",
       shortTitle: "Dashboard",
@@ -198,6 +201,7 @@ export default {
     },
     {
       key: "chatbot",
+      art: "assets/img/lanes/chatbot.webp",
       eyebrow: "Chatbots",
       title: "AI chatbot / lead intake",
       shortTitle: "AI chatbot",
@@ -213,6 +217,7 @@ export default {
     },
     {
       key: "voice",
+      art: "assets/img/lanes/voice.webp",
       eyebrow: "Customer-service voice agents",
       title: "AI voice agent",
       shortTitle: "Voice agent",
@@ -234,6 +239,7 @@ export default {
     },
     {
       key: "agent",
+      art: "assets/img/lanes/agent.webp",
       eyebrow: "AI agents",
       title: "AI agent system",
       shortTitle: "AI agent",
