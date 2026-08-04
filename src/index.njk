@@ -73,6 +73,41 @@ extraScripts:
           into one clean system.
         </p>
 
+        <div class="hero-scan" aria-labelledby="hero-scan-title">
+          <div class="hero-scan__heading">
+            <span class="hero-scan__eyebrow">Free instant teardown</span>
+            <h2 id="hero-scan-title">See what your website is costing you.</h2>
+          </div>
+          <form
+            class="hero-scan__form"
+            data-teardown-form
+            data-scan-api="{{ site.scanApi }}"
+            novalidate
+          >
+            <label class="visually-hidden" for="hero-scan-url">Your website URL</label>
+            <div class="hero-scan__controls">
+              <input
+                class="input hero-scan__input"
+                id="hero-scan-url"
+                name="url"
+                type="url"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="https://yourbusiness.com"
+                required
+              />
+              <button class="btn btn--primary" type="submit" data-teardown-submit>
+                Scan my site
+              </button>
+            </div>
+            <p class="form__status hero-scan__status" data-teardown-status role="status" aria-live="polite"></p>
+          </form>
+          <p class="hero-scan__note">
+            No signup. Contact us only if you want help with the fixes.
+            <a href="{{ site.cta.url }}">No website yet? Send us your idea.</a>
+          </p>
+        </div>
+
         <div class="hero__cta btn-row">
           <a class="btn btn--primary btn--lg" href="{{ site.links.demos }}">See the product demos</a>
           <a class="btn btn--secondary btn--lg" href="{{ site.checkout.url }}">Open checkout</a>
@@ -200,6 +235,22 @@ extraScripts:
   </div>
 </section>
 
+{# ===== Homepage instant-teardown results ============================== #}
+<section class="section section--tight hero-scan-results" hidden data-teardown-results>
+  <div class="container container--narrow">
+    <div class="section__head section__head--center">
+      <span class="eyebrow eyebrow--center">Your teardown</span>
+      <h2 class="section__title" data-teardown-title>Top fixes</h2>
+      <p class="section__lead">These are the first improvements we would prioritize.</p>
+    </div>
+    <div class="grid grid--auto" data-teardown-list></div>
+    <div class="btn-row btn-row--center mt-6">
+      <a class="btn btn--primary btn--lg" href="{{ site.cta.url }}">Get the full free scan</a>
+      <a class="btn btn--secondary btn--lg" href="pricing.html">See pricing</a>
+    </div>
+  </div>
+</section>
+
 {# ===== Who we help (slim strip) ====================================== #}
 <section class="section section--tight">
   <div class="container">
@@ -231,7 +282,7 @@ extraScripts:
           <li>Human handoff</li>
         </ul>
         <div class="btn-row mt-6">
-          <a class="btn btn--primary" href="{{ site.links.voice }}">See the voice agent</a>
+          <a class="btn btn--primary" href="{{ site.links.voice }}">Try the AI receptionist demo</a>
           <a class="btn btn--ghost" href="{{ site.cta.url }}">Map my call flow</a>
         </div>
       </div>

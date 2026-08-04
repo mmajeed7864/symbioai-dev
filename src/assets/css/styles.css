@@ -925,6 +925,98 @@ ol {
   color: var(--c-text-muted);
 }
 
+.hero-scan {
+  max-width: 36rem;
+  margin-top: 1.75rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--c-surface) 92%, transparent);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+}
+
+.hero-scan__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-scan__heading h2 {
+  max-width: 21rem;
+  font-size: var(--fs-400);
+  line-height: var(--lh-tight);
+}
+
+.hero-scan__eyebrow {
+  flex: 0 0 auto;
+  font-size: var(--fs-100);
+  font-weight: 700;
+  color: var(--c-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-scan__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.65rem;
+}
+
+.hero-scan__input {
+  min-width: 0;
+}
+
+.hero-scan__controls .btn {
+  white-space: nowrap;
+}
+
+.hero-scan__status {
+  min-height: 0;
+  margin-top: 0.5rem;
+}
+
+.hero-scan__status:empty {
+  display: none;
+}
+
+.hero-scan__note {
+  margin-top: 0.65rem;
+  font-size: var(--fs-200);
+  color: var(--c-text-faint);
+}
+
+.hero-scan__note a {
+  color: var(--c-accent);
+  font-weight: 600;
+}
+
+.hero-scan-results {
+  scroll-margin-top: 6rem;
+  background: var(--c-surface-soft);
+  border-block: 1px solid var(--c-border);
+}
+
+@media (max-width: 580px) {
+  .hero-scan__heading {
+    display: block;
+  }
+
+  .hero-scan__heading h2 {
+    margin-top: 0.35rem;
+  }
+
+  .hero-scan__controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-scan__controls .btn {
+    width: 100%;
+  }
+}
+
 .hero__cta {
   margin-top: 2rem;
 }

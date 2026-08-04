@@ -2,6 +2,13 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/contact.html",
+      "destination": "/scan.html",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
