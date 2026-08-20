@@ -288,6 +288,10 @@ Required production environment variables:
 | `SYMBIO_CHAT_PROVIDER`           | `deepseek` (default) or `openrouter` for an explicit rollback |
 | `SYMBIO_CHAT_MODEL`              | Provider-neutral live chatbot model override                 |
 | `DEEPSEEK_API_KEY`               | Server-only direct DeepSeek key used by the website assistant |
+| `DASHSCOPE_API_KEY`              | Server-only direct Qwen US backup key for FitCoach trainer text |
+| `ELEVENLABS_API_KEY`             | Server-only ElevenLabs key for bounded FitCoach spoken replies |
+| `FITCOACH_ELEVENLABS_FEMALE_VOICE_ID` | Optional Nova female voice override                       |
+| `FITCOACH_ELEVENLABS_MALE_VOICE_ID` | Optional Atlas male voice override                         |
 | `DEEPSEEK_CHAT_MODEL`            | Direct model override; defaults to `deepseek-v4-pro`          |
 | `SYMBIO_CHAT_UNCAPPED_DEEPSEEK`  | Set to `1` to bypass only the monthly ledger on direct DeepSeek |
 | `OPENROUTER_CHAT_API_KEY`        | Optional rollback key for the OpenRouter provider             |

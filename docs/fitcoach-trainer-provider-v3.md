@@ -1,8 +1,8 @@
 # FitCoach trainer provider v3
 
-Status: private synthetic founder research. This route is not approved for real-user health data, public accounts, medical advice, plan mutation, or production voice upload.
+Status: private synthetic founder research. These routes are not approved for real-user health data, public accounts, medical advice, plan mutation, or microphone-audio upload.
 
-Production endpoint: `/api/fitcoach-chat-v3`. The founder PWA moved to v3 on 2026-08-20. `/api/fitcoach-chat`, `/api/fitcoach-chat-v2`, `/api/fitcoach-transcribe`, and `/api/fitcoach-speech` now return `410 Gone`; they cannot route text or audio to a provider.
+Trainer text endpoint: `/api/fitcoach-chat-v3`. Spoken-reply endpoint: `/api/fitcoach-speech-v2`. The founder PWA moved to these bounded contracts on 2026-08-20. `/api/fitcoach-chat`, `/api/fitcoach-chat-v2`, `/api/fitcoach-transcribe`, and `/api/fitcoach-speech` return `410 Gone`; they cannot route text or audio to a provider.
 
 ## Product contract
 
@@ -25,6 +25,11 @@ Keep every key in the server environment. A browser or Chrome login is not an AP
 - `DEEPSEEK_API_KEY`: enables the primary provider.
 - `DASHSCOPE_API_KEY`: enables the direct Qwen US backup.
 - `FITCOACH_DEEPSEEK_MODEL`: optional allow-listed override to `deepseek-v4-pro`; Flash remains the default.
+- `ELEVENLABS_API_KEY`: enables premium text-to-speech for bounded coach replies.
+- `FITCOACH_ELEVENLABS_FEMALE_VOICE_ID`: optional Nova voice override.
+- `FITCOACH_ELEVENLABS_MALE_VOICE_ID`: optional Atlas voice override.
+- `FITCOACH_ELEVENLABS_<GENDER>_<TONE>_VOICE_ID`: optional per-tone voice override.
+- `FITCOACH_ELEVENLABS_MODEL`: optional allow-listed `eleven_flash_v2_5` or `eleven_multilingual_v2` override.
 
 Qwen is backup-only: it is added only when both the DeepSeek primary and the DashScope key are configured. A Qwen-only server configuration fails closed to local deterministic copy.
 
@@ -47,10 +52,12 @@ Official references:
 
 ## Voice and presentation
 
-The founder PWA uses device speech recognition and device speech synthesis. It does not upload raw voice audio through the FitCoach API. Nova, Atlas, and Sage are device-voice preferences; availability depends on the phone or browser. Supportive, Direct, Strict, and Competitive change wording guidance and bounded speech rate/pitch, but never safety or plan semantics. Strict must remain firm without shame, punishment, unsafe escalation, or pressure to ignore pain or rest.
+The founder PWA uses browser/device speech recognition. It does not create, store, or upload microphone audio through the FitCoach API. For replies already cleared for speech, `/api/fitcoach-speech-v2` accepts one exact synthetic low-sensitivity text-only envelope, streams ElevenLabs MP3 audio, and exposes no provider secret to the browser. Nova is the female profile and Atlas the male profile. Supportive, Direct, Strict, and Competitive select reviewed delivery settings, but never change safety, facts, actions, or plan semantics. If ElevenLabs is unavailable or autoplay is blocked, the app falls back to device speech and keeps the text reply visible.
+
+ElevenLabs processes only the bounded spoken coach reply text. Its provider retention and account terms remain external to FitCoach, so the UI does not promise zero retention. Strict must remain firm without shame, punishment, unsafe escalation, or pressure to ignore pain or rest.
 
 ## Verification
 
-Run the repository tests and secret scan before any provider activation. The FitCoach suite covers the 43-case safety floor, exact request and provider contracts, DeepSeek-first routing under every mode, direct Qwen failover, rejection of Kimi/OpenRouter configuration, timeouts, oversized and unsafe output, projection leakage, and deterministic personality fallback.
+Run the repository tests and secret scan before any provider activation. The FitCoach suite covers the 43-case safety floor, exact request and provider contracts, DeepSeek-first routing under every mode, direct Qwen failover, rejection of Kimi/OpenRouter configuration, timeouts, oversized and unsafe output, projection leakage, deterministic personality fallback, exact text-only speech envelopes, female/male profiles, and per-tone voice settings.
 
 Still required before any real-user or general public release: independent provider privacy approval, authenticated identity, real-device acceptance testing, and explicit plan-diff approval/rollback wiring.
