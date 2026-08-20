@@ -1,5 +1,7 @@
 export const FITCOACH_SPEECH_VERSION = "2026-08-20.1";
 export const MAX_SPEECH_CHARS = 1_200;
+export const DEFAULT_MONTHLY_SPEECH_CHAR_BUDGET = 75_000;
+export const SPEECH_BUDGET_TTL_SECONDS = 60 * 60 * 24 * 45;
 export const VOICE_TONES = Object.freeze(["supportive", "direct", "strict", "competitive"]);
 export const VOICE_GENDERS = Object.freeze(["female", "male"]);
 export const VOICE_PROFILES = Object.freeze(["nova", "atlas", "bennett", "mira"]);
@@ -84,6 +86,11 @@ function normalizeCode(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+function positiveInteger(value, fallback) {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 export function cleanSpeechText(value) {
   if (typeof value !== "string") return "";
   return value
@@ -100,6 +107,41 @@ export function safeSpeechSessionId(value) {
     .replace(/[^a-zA-Z0-9_-]/gu, "")
     .slice(0, 80);
   return normalized.length >= 8 ? normalized : "";
+}
+
+export function speechCharBudgetLimit({
+  monthlyCharBudget = process.env.FITCOACH_ELEVENLABS_MONTHLY_CHAR_BUDGET,
+} = {}) {
+  return Math.min(
+    1_000_000,
+    Math.max(10_000, positiveInteger(monthlyCharBudget, DEFAULT_MONTHLY_SPEECH_CHAR_BUDGET))
+  );
+}
+
+export function speechCharBudgetKey(value = new Date()) {
+  return `fitcoach:speech-v2:char-budget:${value.toISOString().slice(0, 7)}`;
+}
+
+export async function reserveSpeechCharBudget(
+  redis,
+  {
+    chars,
+    at = new Date(),
+    monthlyCharBudget = process.env.FITCOACH_ELEVENLABS_MONTHLY_CHAR_BUDGET,
+  } = {}
+) {
+  const amount = positiveInteger(chars, 0);
+  if (!redis || !amount) throw new Error("VOICE_BUDGET_PROTECTION_UNAVAILABLE");
+  const limit = speechCharBudgetLimit({ monthlyCharBudget });
+  const key = speechCharBudgetKey(at);
+  const total = positiveInteger(await redis.incrby(key, amount), 0);
+  if (total === amount) await redis.expire(key, SPEECH_BUDGET_TTL_SECONDS);
+  if (!total) throw new Error("VOICE_BUDGET_PROTECTION_UNAVAILABLE");
+  if (total > limit) {
+    try { await redis.decrby(key, amount); } catch {}
+    return Object.freeze({ success: false, key, limit, chars: amount, used: Math.max(0, total - amount) });
+  }
+  return Object.freeze({ success: true, key, limit, chars: amount, used: total });
 }
 
 export function parseSpeechRequest(value) {

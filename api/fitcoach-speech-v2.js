@@ -4,6 +4,7 @@ import {
   FITCOACH_SPEECH_VERSION,
   buildElevenLabsRequest,
   parseSpeechRequest,
+  reserveSpeechCharBudget,
   resolveVoiceProfile,
   safeSpeechSessionId,
 } from "./_fitcoach-speech-v2.js";
@@ -28,16 +29,17 @@ function protection() {
     ? {
         ip: new Ratelimit({
           redis,
-          limiter: Ratelimit.slidingWindow(24, "10 m"),
+          limiter: Ratelimit.slidingWindow(72, "10 m"),
           prefix: "fitcoach:speech-v2:ip",
           analytics: false,
         }),
         session: new Ratelimit({
           redis,
-          limiter: Ratelimit.slidingWindow(20, "10 m"),
+          limiter: Ratelimit.slidingWindow(48, "10 m"),
           prefix: "fitcoach:speech-v2:session",
           analytics: false,
         }),
+        redis,
       }
     : null;
   return protectionState;
@@ -110,6 +112,16 @@ export default async function handler(req, res) {
 
   const apiKey = String(process.env.ELEVENLABS_API_KEY || "").trim();
   if (!apiKey) return res.status(503).json({ ok: false, error: "VOICE_PROVIDER_NOT_CONFIGURED" });
+
+  try {
+    const budget = await reserveSpeechCharBudget(limiter.redis, { chars: parsed.request.text.length });
+    if (!budget.success) {
+      res.setHeader("X-FitCoach-Voice-Limit", "monthly-char-budget");
+      return res.status(429).json({ ok: false, error: "VOICE_MONTHLY_BUDGET_REACHED" });
+    }
+  } catch {
+    return res.status(503).json({ ok: false, error: "VOICE_BUDGET_PROTECTION_UNAVAILABLE" });
+  }
 
   const profile = resolveVoiceProfile(parsed.request);
   const upstream = buildElevenLabsRequest(parsed.request, profile, apiKey);

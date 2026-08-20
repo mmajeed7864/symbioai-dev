@@ -5,7 +5,10 @@ import {
   FITCOACH_SPEECH_VERSION,
   buildElevenLabsRequest,
   parseSpeechRequest,
+  reserveSpeechCharBudget,
   resolveVoiceProfile,
+  speechCharBudgetKey,
+  speechCharBudgetLimit,
 } from "../api/_fitcoach-speech-v2.js";
 
 function rawRequest(overrides = {}) {
@@ -90,4 +93,41 @@ test("ElevenLabs request streams MP3 and contains no microphone audio field", ()
   assert.equal(body.model_id, "eleven_flash_v2_5");
   assert.equal("audio" in body, false);
   assert.equal("voice_id" in body, false);
+});
+
+test("speech character budget is monthly, bounded, and releases rejected overage", async () => {
+  const calls = [];
+  const values = new Map();
+  const redis = {
+    async incrby(key, amount) {
+      calls.push(["incrby", key, amount]);
+      const next = Number(values.get(key) || 0) + amount;
+      values.set(key, next);
+      return next;
+    },
+    async decrby(key, amount) {
+      calls.push(["decrby", key, amount]);
+      const next = Math.max(0, Number(values.get(key) || 0) - amount);
+      values.set(key, next);
+      return next;
+    },
+    async expire(key, ttl) {
+      calls.push(["expire", key, ttl]);
+      return 1;
+    },
+  };
+  const at = new Date("2026-08-20T12:00:00Z");
+  assert.equal(speechCharBudgetLimit({ monthlyCharBudget: 5 }), 10_000);
+  assert.equal(speechCharBudgetLimit({ monthlyCharBudget: 2_000_000 }), 1_000_000);
+  assert.equal(speechCharBudgetKey(at), "fitcoach:speech-v2:char-budget:2026-08");
+
+  const first = await reserveSpeechCharBudget(redis, { chars: 4_000, at, monthlyCharBudget: 10_000 });
+  const second = await reserveSpeechCharBudget(redis, { chars: 7_000, at, monthlyCharBudget: 10_000 });
+
+  assert.equal(first.success, true);
+  assert.equal(first.used, 4_000);
+  assert.equal(second.success, false);
+  assert.equal(second.used, 4_000);
+  assert.equal(values.get("fitcoach:speech-v2:char-budget:2026-08"), 4_000);
+  assert.deepEqual(calls.map(call => call[0]), ["incrby", "expire", "incrby", "decrby"]);
 });
