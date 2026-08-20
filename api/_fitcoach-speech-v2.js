@@ -2,10 +2,20 @@ export const FITCOACH_SPEECH_VERSION = "2026-08-20.1";
 export const MAX_SPEECH_CHARS = 1_200;
 export const VOICE_TONES = Object.freeze(["supportive", "direct", "strict", "competitive"]);
 export const VOICE_GENDERS = Object.freeze(["female", "male"]);
+export const VOICE_PROFILES = Object.freeze(["nova", "atlas", "bennett", "mira"]);
 
 const TONE_SET = new Set(VOICE_TONES);
 const GENDER_SET = new Set(VOICE_GENDERS);
+const PROFILE_SET = new Set(VOICE_PROFILES);
 const REQUEST_KEYS = new Set([
+  "text",
+  "session_id",
+  "data_classification",
+  "tone",
+  "voice_gender",
+  "voice_profile",
+]);
+const LEGACY_REQUEST_KEYS = new Set([
   "text",
   "session_id",
   "data_classification",
@@ -20,6 +30,13 @@ const MODELS = new Set(["eleven_flash_v2_5", "eleven_multilingual_v2"]);
 const DEFAULT_VOICE_IDS = Object.freeze({
   female: "EXAVITQu4vr4xnSDxMaL",
   male: "pNInz6obpgDQGcFmaJgB",
+});
+
+const PROFILE_GENDERS = Object.freeze({
+  nova: "female",
+  atlas: "male",
+  bennett: "male",
+  mira: "female",
 });
 
 const TONE_SETTINGS = Object.freeze({
@@ -86,7 +103,9 @@ export function safeSpeechSessionId(value) {
 }
 
 export function parseSpeechRequest(value) {
-  if (!hasExactKeys(value, REQUEST_KEYS)) {
+  const hasNewEnvelope = hasExactKeys(value, REQUEST_KEYS);
+  const hasLegacyEnvelope = hasExactKeys(value, LEGACY_REQUEST_KEYS);
+  if (!hasNewEnvelope && !hasLegacyEnvelope) {
     return { ok: false, status: 400, error: "INVALID_REQUEST_ENVELOPE" };
   }
   if (value.data_classification !== "synthetic_low_sensitivity") {
@@ -96,18 +115,23 @@ export function parseSpeechRequest(value) {
   const sessionId = safeSpeechSessionId(value.session_id);
   const tone = normalizeCode(value.tone);
   const gender = normalizeCode(value.voice_gender);
+  const profile = hasNewEnvelope
+    ? normalizeCode(value.voice_profile)
+    : gender === "female" ? "nova" : "atlas";
   if (
     !text
     || text.length > MAX_SPEECH_CHARS
     || !sessionId
     || !TONE_SET.has(tone)
     || !GENDER_SET.has(gender)
+    || !PROFILE_SET.has(profile)
+    || PROFILE_GENDERS[profile] !== gender
   ) {
     return { ok: false, status: 400, error: "INVALID_REQUEST_CONFIGURATION" };
   }
   return {
     ok: true,
-    request: Object.freeze({ text, sessionId, tone, gender }),
+    request: Object.freeze({ text, sessionId, tone, gender, profile }),
   };
 }
 
@@ -124,16 +148,26 @@ function baseVoiceKey(gender) {
   return `FITCOACH_ELEVENLABS_${gender.toUpperCase()}_VOICE_ID`;
 }
 
+function profileVoiceKey(profile, tone) {
+  return `FITCOACH_ELEVENLABS_${profile.toUpperCase()}_${tone.toUpperCase()}_VOICE_ID`;
+}
+
+function baseProfileKey(profile) {
+  return `FITCOACH_ELEVENLABS_${profile.toUpperCase()}_VOICE_ID`;
+}
+
 export function resolveVoiceProfile(request, env = process.env) {
-  const fallback = configuredVoiceId(env[baseVoiceKey(request.gender)], DEFAULT_VOICE_IDS[request.gender]);
-  const voiceId = configuredVoiceId(env[toneVoiceKey(request.gender, request.tone)], fallback);
+  const genderFallback = configuredVoiceId(env[baseVoiceKey(request.gender)], DEFAULT_VOICE_IDS[request.gender]);
+  const toneFallback = configuredVoiceId(env[toneVoiceKey(request.gender, request.tone)], genderFallback);
+  const profileFallback = configuredVoiceId(env[baseProfileKey(request.profile)], toneFallback);
+  const voiceId = configuredVoiceId(env[profileVoiceKey(request.profile, request.tone)], profileFallback);
   const modelId = MODELS.has(String(env.FITCOACH_ELEVENLABS_MODEL || "").trim())
     ? String(env.FITCOACH_ELEVENLABS_MODEL).trim()
     : "eleven_flash_v2_5";
   return Object.freeze({
     voiceId,
     modelId,
-    profile: `${request.gender === "female" ? "nova" : "atlas"}-${request.tone}`,
+    profile: `${request.profile}-${request.tone}`,
     voiceSettings: TONE_SETTINGS[request.tone],
   });
 }

@@ -15,6 +15,7 @@ function rawRequest(overrides = {}) {
     data_classification: "synthetic_low_sensitivity",
     tone: "supportive",
     voice_gender: "female",
+    voice_profile: "nova",
     ...overrides,
   };
 }
@@ -34,35 +35,49 @@ test("speech v2 accepts one exact low-sensitivity text-only envelope", () => {
   assert.equal(parseSpeechRequest({ ...rawRequest(), audio: "must-not-exist" }).error, "INVALID_REQUEST_ENVELOPE");
   assert.equal(parseSpeechRequest(rawRequest({ data_classification: "real_user" })).error, "REAL_USER_VOICE_EGRESS_DISABLED");
   assert.equal(parseSpeechRequest(rawRequest({ voice_gender: "unknown" })).error, "INVALID_REQUEST_CONFIGURATION");
+  assert.equal(parseSpeechRequest(rawRequest({ voice_profile: "unknown" })).error, "INVALID_REQUEST_CONFIGURATION");
+  assert.equal(parseSpeechRequest(rawRequest({ voice_gender: "female", voice_profile: "atlas" })).error, "INVALID_REQUEST_CONFIGURATION");
   assert.equal(parseSpeechRequest(rawRequest({ tone: "cruel" })).error, "INVALID_REQUEST_CONFIGURATION");
   assert.equal(parseSpeechRequest(rawRequest({ text: "x".repeat(1_201) })).error, "INVALID_REQUEST_CONFIGURATION");
+});
+
+test("legacy exact speech envelope remains compatible during service-worker rollout", () => {
+  const legacy = rawRequest();
+  delete legacy.voice_profile;
+  const parsed = parseSpeechRequest(legacy);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.request.profile, "nova");
+  assert.equal(parsed.request.gender, "female");
 });
 
 test("female and male profiles have reviewed tone-specific delivery settings", () => {
   const supportive = resolveVoiceProfile(parsedRequest(), {
     FITCOACH_ELEVENLABS_FEMALE_VOICE_ID: "femaleBaseVoice12345",
   });
-  const strict = resolveVoiceProfile(parsedRequest({ tone: "strict" }), {
+  const strict = resolveVoiceProfile(parsedRequest({ tone: "strict", voice_gender: "male", voice_profile: "atlas" }), {
     FITCOACH_ELEVENLABS_FEMALE_VOICE_ID: "femaleBaseVoice12345",
-    FITCOACH_ELEVENLABS_FEMALE_STRICT_VOICE_ID: "femaleStrictVoice12",
-  });
-  const competitiveMale = resolveVoiceProfile(parsedRequest({ tone: "competitive", voice_gender: "male" }), {
     FITCOACH_ELEVENLABS_MALE_VOICE_ID: "maleBaseVoice123456",
+    FITCOACH_ELEVENLABS_ATLAS_STRICT_VOICE_ID: "atlasStrictVoice123",
+  });
+  const directBritish = resolveVoiceProfile(parsedRequest({ tone: "direct", voice_gender: "male", voice_profile: "bennett" }), {
+    FITCOACH_ELEVENLABS_MALE_VOICE_ID: "maleBaseVoice123456",
+    FITCOACH_ELEVENLABS_BENNETT_VOICE_ID: "bennettBaseVoice12",
   });
 
   assert.equal(supportive.voiceId, "femaleBaseVoice12345");
   assert.equal(supportive.profile, "nova-supportive");
-  assert.equal(strict.voiceId, "femaleStrictVoice12");
-  assert.equal(strict.profile, "nova-strict");
-  assert.equal(competitiveMale.voiceId, "maleBaseVoice123456");
-  assert.equal(competitiveMale.profile, "atlas-competitive");
+  assert.equal(strict.voiceId, "atlasStrictVoice123");
+  assert.equal(strict.profile, "atlas-strict");
+  assert.equal(directBritish.voiceId, "bennettBaseVoice12");
+  assert.equal(directBritish.profile, "bennett-direct");
   assert.ok(supportive.voiceSettings.speed < strict.voiceSettings.speed);
-  assert.ok(competitiveMale.voiceSettings.style > strict.voiceSettings.style);
+  assert.ok(resolveVoiceProfile(parsedRequest({ tone: "competitive", voice_gender: "male", voice_profile: "atlas" }), {}).voiceSettings.style > strict.voiceSettings.style);
   assert.equal(supportive.modelId, "eleven_flash_v2_5");
 });
 
 test("ElevenLabs request streams MP3 and contains no microphone audio field", () => {
-  const request = parsedRequest({ tone: "direct", voice_gender: "male" });
+  const request = parsedRequest({ tone: "direct", voice_gender: "male", voice_profile: "bennett" });
   const profile = resolveVoiceProfile(request, {});
   const built = buildElevenLabsRequest(request, profile, "server-secret-key");
   const body = JSON.parse(built.options.body);
