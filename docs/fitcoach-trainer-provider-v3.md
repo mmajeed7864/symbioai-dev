@@ -2,7 +2,7 @@
 
 Status: private synthetic founder research. This route is not approved for real-user health data, public accounts, medical advice, plan mutation, or production voice upload.
 
-Production endpoint: `/api/fitcoach-chat-v3`. The earlier FitCoach endpoints remain temporary migration surfaces only and must be retired after the founder PWA has moved to v3.
+Production endpoint: `/api/fitcoach-chat-v3`. The founder PWA moved to v3 on 2026-08-20. `/api/fitcoach-chat`, `/api/fitcoach-chat-v2`, `/api/fitcoach-transcribe`, and `/api/fitcoach-speech` now return `410 Gone`; they cannot route text or audio to a provider.
 
 ## Product contract
 
@@ -25,6 +25,8 @@ Keep every key in the server environment. A browser or Chrome login is not an AP
 - `DEEPSEEK_API_KEY`: enables the primary provider.
 - `DASHSCOPE_API_KEY`: enables the direct Qwen US backup.
 - `FITCOACH_DEEPSEEK_MODEL`: optional allow-listed override to `deepseek-v4-pro`; Flash remains the default.
+
+Qwen is backup-only: it is added only when both the DeepSeek primary and the DashScope key are configured. A Qwen-only server configuration fails closed to local deterministic copy.
 
 Model URLs are fixed in code so environment variables cannot redirect trainer data to an arbitrary host. Moonshot/Kimi and OpenRouter variables are intentionally ignored by this route.
 
@@ -51,4 +53,4 @@ The founder PWA uses device speech recognition and device speech synthesis. It d
 
 Run the repository tests and secret scan before any provider activation. The FitCoach suite covers the 43-case safety floor, exact request and provider contracts, DeepSeek-first routing under every mode, direct Qwen failover, rejection of Kimi/OpenRouter configuration, timeouts, oversized and unsafe output, projection leakage, and deterministic personality fallback.
 
-Still required before any real-user or public release: independent provider privacy approval, authenticated identity, real phone testing, end-to-end server deployment verification, and explicit plan-diff approval/rollback wiring.
+Still required before any real-user or general public release: independent provider privacy approval, authenticated identity, real-device acceptance testing, and explicit plan-diff approval/rollback wiring.
