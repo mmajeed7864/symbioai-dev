@@ -14,6 +14,14 @@ import {
   parseCoachRequest,
   safeCoachSessionId,
 } from "./_fitcoach-coach-v3.js";
+import {
+  FITCOACH_NUTRITION_VERSION,
+  lookupBarcodeNutrition,
+  parseNutritionRequest,
+  safeNutritionSessionId,
+  searchNutritionFoods,
+  unavailableVisionNutritionEstimate,
+} from "./_fitcoach-nutrition-v1.js";
 
 const ALLOWED_ORIGINS = new Set([
   "https://mmajeed7864.github.io",
@@ -23,6 +31,7 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:8080",
 ]);
 const MAX_BODY_BYTES = 24_000;
+const NUTRITION_ACTIONS = new Set(["barcode_lookup", "text_search", "vision_estimate"]);
 let protectionState;
 
 function getProtection() {
@@ -109,6 +118,69 @@ async function settleSafely(redis, reservation, options) {
   }
 }
 
+function nutritionStatusForError(error) {
+  if (error === "FOOD_NOT_FOUND") return 404;
+  if (error === "VISION_PROVIDER_NOT_CONFIGURED") return 503;
+  if (error === "NUTRITION_PROVIDER_UNAVAILABLE") return 502;
+  return 400;
+}
+
+async function enforceProtection(req, res, protection, sessionId) {
+  if (!protection) {
+    res.status(503).json({ ok: false, error: "RATE_LIMIT_PROTECTION_UNAVAILABLE" });
+    return false;
+  }
+  try {
+    const [ipLimit, sessionLimit] = await Promise.all([
+      protection.ip.limit(ipFor(req)),
+      protection.session.limit(sessionId),
+    ]);
+    if (!ipLimit.success || !sessionLimit.success) {
+      res.status(429).json({ ok: false, error: "RATE_LIMITED" });
+      return false;
+    }
+    return true;
+  } catch {
+    res.status(503).json({ ok: false, error: "RATE_LIMIT_PROTECTION_UNAVAILABLE" });
+    return false;
+  }
+}
+
+async function handleNutritionRequest(req, res) {
+  const parsed = parseNutritionRequest(req.body);
+  if (!parsed.ok) return res.status(parsed.status).json({ ok: false, error: parsed.error });
+
+  const protection = getProtection();
+  if (!(await enforceProtection(req, res, protection, safeNutritionSessionId(req.body?.session_id)))) return undefined;
+
+  let result;
+  if (parsed.request.action === "barcode_lookup") {
+    result = await lookupBarcodeNutrition(parsed.request.barcode);
+  } else if (parsed.request.action === "text_search") {
+    result = await searchNutritionFoods(parsed.request.query);
+  } else {
+    result = unavailableVisionNutritionEstimate();
+  }
+
+  if (!result.ok) {
+    return res.status(nutritionStatusForError(result.error)).json({
+      ok: false,
+      error: result.error,
+      detail: result.detail,
+      nutrition_version: FITCOACH_NUTRITION_VERSION,
+    });
+  }
+  return res.status(200).json({
+    ok: true,
+    action: parsed.request.action,
+    provider: "open_food_facts",
+    nutrition_version: FITCOACH_NUTRITION_VERSION,
+    food: result.food || null,
+    foods: result.foods || [],
+    build: buildLabel(req),
+  });
+}
+
 export default async function handler(req, res) {
   setCors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
@@ -123,6 +195,10 @@ export default async function handler(req, res) {
   const contentLength = Number(req.headers["content-length"] || 0);
   if (!Number.isFinite(contentLength) || contentLength < 0 || contentLength > MAX_BODY_BYTES) {
     return res.status(413).json({ ok: false, error: "REQUEST_TOO_LARGE" });
+  }
+
+  if (NUTRITION_ACTIONS.has(String(req.body?.action || ""))) {
+    return handleNutritionRequest(req, res);
   }
 
   const parsed = parseCoachRequest(req.body);
@@ -149,21 +225,7 @@ export default async function handler(req, res) {
   }
 
   const protection = getProtection();
-  if (!protection) {
-    return res.status(503).json({ ok: false, error: "RATE_LIMIT_PROTECTION_UNAVAILABLE" });
-  }
-  try {
-    const sessionId = safeCoachSessionId(req.body?.session_id);
-    const [ipLimit, sessionLimit] = await Promise.all([
-      protection.ip.limit(ipFor(req)),
-      protection.session.limit(sessionId),
-    ]);
-    if (!ipLimit.success || !sessionLimit.success) {
-      return res.status(429).json({ ok: false, error: "RATE_LIMITED" });
-    }
-  } catch {
-    return res.status(503).json({ ok: false, error: "RATE_LIMIT_PROTECTION_UNAVAILABLE" });
-  }
+  if (!(await enforceProtection(req, res, protection, safeCoachSessionId(req.body?.session_id)))) return undefined;
 
   const externalRoutes = createProviderRoutes();
   if (!externalRoutes.length) {
