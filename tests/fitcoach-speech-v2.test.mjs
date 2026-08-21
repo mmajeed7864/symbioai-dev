@@ -33,7 +33,7 @@ test("speech v2 accepts one exact low-sensitivity text-only envelope", () => {
   const parsed = parseSpeechRequest(rawRequest());
   assert.equal(parsed.ok, true);
   assert.equal(parsed.request.text, rawRequest().text);
-  assert.equal(FITCOACH_SPEECH_VERSION, "2026-08-20.1");
+  assert.equal(FITCOACH_SPEECH_VERSION, "2026-08-21.1");
 
   assert.equal(parseSpeechRequest({ ...rawRequest(), audio: "must-not-exist" }).error, "INVALID_REQUEST_ENVELOPE");
   assert.equal(parseSpeechRequest(rawRequest({ data_classification: "real_user" })).error, "REAL_USER_VOICE_EGRESS_DISABLED");
@@ -77,6 +77,9 @@ test("female and male profiles have reviewed tone-specific delivery settings", (
   assert.ok(supportive.voiceSettings.speed < strict.voiceSettings.speed);
   assert.ok(resolveVoiceProfile(parsedRequest({ tone: "competitive", voice_gender: "male", voice_profile: "atlas" }), {}).voiceSettings.style > strict.voiceSettings.style);
   assert.equal(supportive.modelId, "eleven_flash_v2_5");
+  const builtInBritish = resolveVoiceProfile(parsedRequest({ tone: "rude", voice_gender: "male", voice_profile: "bennett" }), {});
+  assert.equal(builtInBritish.voiceId, "ZVE5GaLwU3HuFONCXSPz");
+  assert.equal(builtInBritish.profile, "bennett-rude");
 });
 
 test("ElevenLabs request streams MP3 and contains no microphone audio field", () => {

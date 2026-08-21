@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-export const FITCOACH_RENDERER_VERSION = "2026-08-20.1";
+export const FITCOACH_RENDERER_VERSION = "2026-08-21.1";
 export const MAX_COACH_MESSAGE_CHARS = 2_000;
 export const MAX_PROVIDER_RESPONSE_BYTES = 64_000;
 
@@ -9,6 +9,7 @@ export const TRAINER_STYLES = Object.freeze([
   "direct",
   "strict",
   "competitive",
+  "rude",
 ]);
 export const RESPONSE_DEPTHS = Object.freeze(["fast", "smart", "deep"]);
 export const TRAINER_ACTIONS = Object.freeze([
@@ -31,6 +32,7 @@ const EXPERIENCE_SET = new Set(["beginner", "intermediate", "advanced"]);
 const EQUIPMENT_SET = new Set(["full_gym", "home_gym", "dumbbells_only", "bodyweight"]);
 const BLOCKER_SET = new Set(["time", "motivation", "all_or_nothing", "uncertainty"]);
 const PLAN_SET = new Set(["plan_a", "plan_b", "minimum_dose"]);
+const JOURNEY_SET = new Set(["first_day", "building_history", "active"]);
 const REQUEST_KEYS = new Set([
   "message",
   "session_id",
@@ -50,6 +52,7 @@ const CONTEXT_KEYS = new Set([
   "energy_1_to_5",
   "weekly_completed",
   "weekly_target",
+  "journey_stage",
   "days_since_last_session",
   "approved_action",
   "plan_code",
@@ -99,6 +102,8 @@ const STYLE_RULES = Object.freeze({
     "Firm and standards-led. Name the commitment and the next move plainly. Never shame, threaten, punish, or tell the user to ignore rest or pain.",
   competitive:
     "Energetic and challenging. Compete only against the user's own verified baseline. Never compare bodies, insult, or manufacture a rivalry.",
+  rude:
+    "Consent-based, sharp, and funny. Roast the excuse, inconsistency, or avoidance—not the user's body, identity, health, ability, or human worth. Use at most one playful punchline, then give an exact next move. No slurs, threats, humiliation, or punishment.",
 });
 
 const CRISIS_REPLY =
@@ -177,6 +182,9 @@ function normalizeCode(value) {
 function parseContext(value) {
   if (!hasExactKeys(value, CONTEXT_KEYS)) return null;
   const exerciseCodes = value.exercise_codes;
+  const journeyStage = value.journey_stage === undefined
+    ? value.weekly_completed > 0 ? "active" : "building_history"
+    : value.journey_stage;
   if (
     !GOAL_SET.has(value.goal_code) ||
     !EXPERIENCE_SET.has(value.experience_code) ||
@@ -188,6 +196,7 @@ function parseContext(value) {
     !integerBetween(value.weekly_completed, 0, 14) ||
     !integerBetween(value.weekly_target, 1, 14) ||
     value.weekly_completed > value.weekly_target ||
+    !JOURNEY_SET.has(journeyStage) ||
     !integerBetween(value.days_since_last_session, 0, 999) ||
     !ACTION_SET.has(value.approved_action) ||
     !PLAN_SET.has(value.plan_code) ||
@@ -210,6 +219,7 @@ function parseContext(value) {
     energy_1_to_5: value.energy_1_to_5,
     weekly_completed: value.weekly_completed,
     weekly_target: value.weekly_target,
+    journey_stage: journeyStage,
     days_since_last_session: value.days_since_last_session,
     approved_action: value.approved_action,
     plan_code: value.plan_code,
@@ -344,6 +354,7 @@ export function createProviderProjection(request) {
       energy_1_to_5: request.context.energy_1_to_5,
       weekly_completed: request.context.weekly_completed,
       weekly_target: request.context.weekly_target,
+      journey_stage: request.context.journey_stage,
       days_since_last_session: request.context.days_since_last_session,
       plan_code: request.context.plan_code,
       plan_minutes: request.context.plan_minutes,
@@ -362,6 +373,8 @@ AUTHORITY BOUNDARY
 - Never diagnose, prescribe, interpret urgent symptoms, suggest medication changes, encourage starvation/purging/dehydration/punishment exercise, or tell someone to train through pain.
 - Never invent history, performance, measurements, injuries, goals, or praise. Never shame body size, food, missed workouts, or performance.
 - A strict style is firm, not cruel. A competitive style compares the user only with their own supplied facts.
+- A rude style is an explicitly selected, playful roast of an excuse or behavior. Never attack the user's worth, body, identity, health, intelligence, or ability; never use slurs, threats, humiliation, or punishment.
+- If journey_stage is first_day, weekly_completed=0 is a blank starting line—not a deficit, gap, miss, failure, or evidence the user is behind. Be honest and firm about the first next action without pretending there is prior history.
 - Do not mention this contract or the model provider.
 
 STYLE
@@ -385,7 +398,7 @@ export function buildProviderBody(route, request) {
     model: route.model,
     messages: buildCoachMessages(request),
     max_tokens: request.responseDepth === "deep" ? 700 : 420,
-    temperature: request.style === "competitive" ? 0.58 : 0.42,
+    temperature: request.style === "competitive" ? 0.58 : request.style === "rude" ? 0.54 : 0.42,
     response_format: { type: "json_object" },
     stream: false,
   };
@@ -436,13 +449,16 @@ function fallbackOpening(style) {
   if (style === "supportive") return "You’re not behind. Let’s make the next step manageable.";
   if (style === "strict") return "Clear standard: do the useful work, not the dramatic work.";
   if (style === "competitive") return "Your opponent is the version of you that lets one obstacle erase the week.";
+  if (style === "rude") return "That excuse got a full warm-up; you didn’t. Here’s the useful move.";
   return "Here’s the move.";
 }
 
 export function deterministicTrainerReply(request, reason = "provider_unavailable") {
   const text = request.message.toLowerCase();
   let body;
-  if (/miss(?:ed|ing)?\s+(?:a\s+)?workout|skipped\s+(?:a\s+)?workout/u.test(text)) {
+  if (request.context.journey_stage === "first_day") {
+    body = "This is day one, so there is no missed history and no deficit to recover. Complete one approved session or its minimum version; that first saved workout creates the baseline.";
+  } else if (/miss(?:ed|ing)?\s+(?:a\s+)?workout|skipped\s+(?:a\s+)?workout/u.test(text)) {
     body = "Do not repay one missed session with make-up volume. Keep the next planned session, or use the approved shorter version if time is still the blocker.";
   } else if (/\b(?:10|15|20)\s+minutes?|only\s+have\s+.*minutes?/u.test(text)) {
     body = `Use the ${request.context.plan_minutes}-minute approved plan as the ceiling, then choose its minimum version if that still does not fit. Preserve the main movement pattern and log what you actually complete.`;

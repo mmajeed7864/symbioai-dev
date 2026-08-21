@@ -35,6 +35,7 @@ function rawRequest(overrides = {}) {
       energy_1_to_5: 3,
       weekly_completed: 1,
       weekly_target: 3,
+      journey_stage: "active",
       days_since_last_session: 2,
       approved_action: "RECOVER_MISSED_SESSION",
       plan_code: "plan_a",
@@ -159,6 +160,7 @@ test("provider projection is allow-listed and carries no raw profile, memory, he
     "energy_1_to_5",
     "weekly_completed",
     "weekly_target",
+    "journey_stage",
     "days_since_last_session",
     "plan_code",
     "plan_minutes",
@@ -172,7 +174,7 @@ test("provider projection is allow-listed and carries no raw profile, memory, he
 
 test("all response depths keep DeepSeek first and style never changes action or facts", async () => {
   for (const responseDepth of ["fast", "smart", "deep"]) {
-    for (const style of ["supportive", "direct", "strict", "competitive"]) {
+    for (const style of ["supportive", "direct", "strict", "competitive", "rude"]) {
       const request = parsedRequest({ style, response_depth: responseDepth });
       const calls = [];
       const result = await generateCoachReply(request, {
@@ -193,6 +195,38 @@ test("all response depths keep DeepSeek first and style never changes action or 
       assert.equal(createProviderProjection(request).approved_action, "RECOVER_MISSED_SESSION");
     }
   }
+});
+
+test("first-day context prevents a zero-session shame frame and legacy clients remain compatible", () => {
+  const firstDay = parsedRequest({
+    style: "strict",
+    context: {
+      ...rawRequest().context,
+      weekly_completed: 0,
+      journey_stage: "first_day",
+      days_since_last_session: 999,
+      approved_action: "CHECK_IN",
+    },
+  });
+  const system = buildCoachMessages(firstDay)[0].content;
+  const fallback = deterministicTrainerReply(firstDay);
+  assert.match(system, /blank starting line/u);
+  assert.match(fallback, /day one/u);
+  assert.doesNotMatch(fallback, /behind|gap|failure/u);
+
+  const legacy = rawRequest();
+  delete legacy.context.journey_stage;
+  const parsedLegacy = parseCoachRequest(legacy);
+  assert.equal(parsedLegacy.ok, true);
+  assert.equal(parsedLegacy.request.context.journey_stage, "active");
+});
+
+test("rude mode is bounded to the excuse and never authorizes degrading output", () => {
+  const request = parsedRequest({ style: "rude" });
+  const system = buildCoachMessages(request)[0].content;
+  assert.match(system, /Roast the excuse/u);
+  assert.match(system, /Never attack the user's worth/u);
+  assert.equal(validateProviderReply({ choices: [{ message: { content: JSON.stringify({ reply: "You are a pathetic loser and your body is disgusting." }) } }] }).ok, false);
 });
 
 test("fails over only on retryable transport, 429, or server errors", async () => {

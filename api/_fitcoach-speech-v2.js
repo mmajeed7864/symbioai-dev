@@ -1,8 +1,8 @@
-export const FITCOACH_SPEECH_VERSION = "2026-08-20.1";
+export const FITCOACH_SPEECH_VERSION = "2026-08-21.1";
 export const MAX_SPEECH_CHARS = 1_200;
 export const DEFAULT_MONTHLY_SPEECH_CHAR_BUDGET = 75_000;
 export const SPEECH_BUDGET_TTL_SECONDS = 60 * 60 * 24 * 45;
-export const VOICE_TONES = Object.freeze(["supportive", "direct", "strict", "competitive"]);
+export const VOICE_TONES = Object.freeze(["supportive", "direct", "strict", "competitive", "rude"]);
 export const VOICE_GENDERS = Object.freeze(["female", "male"]);
 export const VOICE_PROFILES = Object.freeze(["nova", "atlas", "bennett", "mira"]);
 
@@ -32,6 +32,11 @@ const MODELS = new Set(["eleven_flash_v2_5", "eleven_multilingual_v2"]);
 const DEFAULT_VOICE_IDS = Object.freeze({
   female: "EXAVITQu4vr4xnSDxMaL",
   male: "pNInz6obpgDQGcFmaJgB",
+});
+
+export const DEFAULT_PROFILE_VOICE_IDS = Object.freeze({
+  // Danny — Authentic Modern British Male (Modern London; warm and authoritative).
+  bennett: "ZVE5GaLwU3HuFONCXSPz",
 });
 
 const PROFILE_GENDERS = Object.freeze({
@@ -67,6 +72,13 @@ const TONE_SETTINGS = Object.freeze({
     stability: 0.5,
     similarity_boost: 0.8,
     style: 0.3,
+    use_speaker_boost: true,
+    speed: 1.04,
+  }),
+  rude: Object.freeze({
+    stability: 0.58,
+    similarity_boost: 0.82,
+    style: 0.32,
     use_speaker_boost: true,
     speed: 1.04,
   }),
@@ -201,7 +213,8 @@ function baseProfileKey(profile) {
 export function resolveVoiceProfile(request, env = process.env) {
   const genderFallback = configuredVoiceId(env[baseVoiceKey(request.gender)], DEFAULT_VOICE_IDS[request.gender]);
   const toneFallback = configuredVoiceId(env[toneVoiceKey(request.gender, request.tone)], genderFallback);
-  const profileFallback = configuredVoiceId(env[baseProfileKey(request.profile)], toneFallback);
+  const profileDefault = configuredVoiceId(DEFAULT_PROFILE_VOICE_IDS[request.profile], toneFallback);
+  const profileFallback = configuredVoiceId(env[baseProfileKey(request.profile)], profileDefault);
   const voiceId = configuredVoiceId(env[profileVoiceKey(request.profile, request.tone)], profileFallback);
   const modelId = MODELS.has(String(env.FITCOACH_ELEVENLABS_MODEL || "").trim())
     ? String(env.FITCOACH_ELEVENLABS_MODEL).trim()
