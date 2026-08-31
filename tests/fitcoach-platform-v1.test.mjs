@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 
 import {
   FitCoachPlatformError,
@@ -17,8 +17,9 @@ import {
   publicFitCoachPlatformConfig,
   verifyFitCoachSubscription,
 } from "../api/_fitcoach-platform.js";
-import { createFitCoachPlatformConfigHandler } from "../api/fitcoach-platform-config-v1.js";
-import { createFitCoachSubscriptionsHandler } from "../api/fitcoach-subscriptions-v1.js";
+import { createFitCoachPlatformConfigHandler } from "../api/_fitcoach-platform-config-route-v1.js";
+import { createFitCoachSubscriptionsHandler } from "../api/_fitcoach-subscriptions-route-v1.js";
+import { createFitCoachPlatformRouter } from "../api/fitcoach-platform-v1.js";
 
 const SUBJECT_ID = "a441b8f4-753e-4d93-9820-ae2cebe9e9dc";
 const OTHER_SUBJECT_ID = "f8fbd578-4e08-4c3a-90ba-15b081ad6927";
@@ -312,6 +313,32 @@ test("platform config route enforces origin and explicit client builds", async (
   assert.equal(isAllowedFitCoachBuild("0.5.3", env), false);
 });
 
+test("one public platform router dispatches every stable external contract", async () => {
+  const calls = [];
+  const handlers = Object.fromEntries(
+    ["account", "config", "entitlements", "subscriptions", "sync"].map((route) => [
+      route,
+      async (_req, res) => {
+        calls.push(route);
+        return res.status(200).json({ ok: true, route });
+      },
+    ])
+  );
+  const router = createFitCoachPlatformRouter({ handlers });
+  for (const route of Object.keys(handlers)) {
+    const response = makeResponse();
+    await router({ query: { fitcoach_route: route } }, response);
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.route, route);
+  }
+  assert.deepEqual(calls, ["account", "config", "entitlements", "subscriptions", "sync"]);
+
+  const missing = makeResponse();
+  await router({ query: { fitcoach_route: "unknown" } }, missing);
+  assert.equal(missing.statusCode, 404);
+  assert.equal(missing.body.error, "FITCOACH_PLATFORM_ROUTE_NOT_FOUND");
+});
+
 test("subscription envelopes are platform-specific and never silently truncate tokens", () => {
   const apple = parseSubscriptionRequest({
     platform: "apple",
@@ -581,4 +608,41 @@ test("database migration keeps account and billing tables server-only", async ()
   assert.match(sql, /p_status = 'revoked'[\s\S]*delete from public\.fitcoach_sync_documents/i);
   assert.match(sql, /FITCOACH_SUBSCRIPTION_REPLAY_MISMATCH/);
   assert.doesNotMatch(sql, /\bpurchase_token\b|\btransaction_id\b/i);
+});
+
+test("Vercel keeps all external platform URLs while staying within the 12-function limit", async () => {
+  const apiDirectory = new URL("../api/", import.meta.url);
+  const publicFunctions = (await readdir(apiDirectory)).filter(
+    (file) => file.endsWith(".js") && !file.startsWith("_")
+  );
+  assert.equal(publicFunctions.length, 12);
+  assert.equal(publicFunctions.includes("fitcoach-platform-v1.js"), true);
+  assert.equal(publicFunctions.includes("fitcoach-transcribe.js"), false);
+
+  const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  const rewrites = new Map(config.rewrites.map((item) => [item.source, item.destination]));
+  assert.equal(
+    rewrites.get("/api/fitcoach-platform-config-v1"),
+    "/api/fitcoach-platform-v1?fitcoach_route=config"
+  );
+  assert.equal(
+    rewrites.get("/api/fitcoach-sync-v1"),
+    "/api/fitcoach-platform-v1?fitcoach_route=sync"
+  );
+  assert.equal(
+    rewrites.get("/api/fitcoach-account-v1"),
+    "/api/fitcoach-platform-v1?fitcoach_route=account"
+  );
+  assert.equal(
+    rewrites.get("/api/fitcoach-entitlements-v1"),
+    "/api/fitcoach-platform-v1?fitcoach_route=entitlements"
+  );
+  assert.equal(
+    rewrites.get("/api/fitcoach-subscriptions-v1"),
+    "/api/fitcoach-platform-v1?fitcoach_route=subscriptions"
+  );
+  assert.equal(
+    rewrites.get("/api/fitcoach-transcribe"),
+    "/api/fitcoach-chat?fitcoach_retired=transcribe"
+  );
 });

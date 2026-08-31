@@ -20,6 +20,12 @@ that matches the service secret, has a service-role JWT claim, or uses an `sb_se
 rejected. Set `FITCOACH_ALLOWED_CLIENT_BUILDS` to a comma-separated allow-list to reject stale
 clients; without it, a syntactically valid semantic version is still required.
 
+The five stable platform URLs are rewritten to one public `fitcoach-platform-v1` serverless router;
+their handlers remain underscore-prefixed internal modules. This preserves the external contracts
+while keeping the Vercel deployment at its 12-function plan limit. The retired
+`/api/fitcoach-transcribe` URL is likewise rewritten to the existing retired-route function and
+continues to return the explicit no-store `410` response.
+
 ## Authentication and encrypted sync
 
 The client authenticates with Supabase Auth, then sends the resulting access token to the FitCoach
