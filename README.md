@@ -297,6 +297,25 @@ Required production environment variables:
 | `OPENROUTER_CHAT_API_KEY`        | Optional rollback key for the OpenRouter provider             |
 | `OPENROUTER_CHAT_MODEL`          | Optional OpenRouter rollback model override                   |
 
+FitCoach account sync, portable export/deletion, store-verification, and verified nutrition use
+separate fail-closed contracts. See
+[`docs/fitcoach-platform-v1.md`](docs/fitcoach-platform-v1.md) before applying the reviewed
+Supabase migration or enabling any capability. In particular, public Supabase configuration is
+exposed only through `/api/fitcoach-platform-config-v1`, account state is encrypted before it
+reaches Postgres, and `/api/fitcoach-subscriptions-v1` cannot grant premium without a reviewed
+server-side Apple/Google verifier.
+
+Account/sync activation requires applying `supabase/fitcoach_platform_v1.sql`, then configuring
+`SUPABASE_URL`, `SUPABASE_SECRET_KEY` (or `SUPABASE_SERVICE_ROLE_KEY`),
+`FITCOACH_PUBLIC_SUPABASE_URL`, `FITCOACH_PUBLIC_SUPABASE_ANON_KEY`,
+`FITCOACH_AUTH_PROVIDERS`, `FITCOACH_ACCOUNT_SYNC_ENABLED=1`,
+`FITCOACH_SYNC_CONSENT_VERSION`, `FITCOACH_DATA_ENCRYPTION_KEYS_JSON`, and
+`FITCOACH_DATA_ENCRYPTION_KEY_VERSION`. The single-key
+`FITCOACH_DATA_ENCRYPTION_KEY_B64` is supported only as a bootstrap alternative. Verified food
+search uses the server-only `FDC_API_KEY`. Store verification additionally requires
+`FITCOACH_SUBSCRIPTION_PRODUCT_IDS` plus the Apple or Google credential set documented in the
+platform guide and a reviewed verifier adapter; credentials alone do not enable premium.
+
 ---
 
 ## Tooling

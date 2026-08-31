@@ -1,5 +1,6 @@
-export const FITCOACH_NUTRITION_VERSION = "2026-08-21.1";
+export const FITCOACH_NUTRITION_VERSION = "2026-08-31.1";
 export const OPEN_FOOD_FACTS_BASE = "https://world.openfoodfacts.org";
+export const USDA_FDC_BASE = "https://api.nal.usda.gov/fdc/v1";
 
 const DATA_CLASSIFICATION = "synthetic_low_sensitivity";
 const ACTIONS = Object.freeze(["barcode_lookup", "text_search", "vision_estimate"]);
@@ -7,7 +8,7 @@ const SESSION_ID_RE = /^fitcoach-[a-z0-9._:-]{3,96}$/i;
 const BARCODE_RE = /^[0-9]{6,18}$/;
 const QUERY_RE = /^[\p{L}\p{N}\p{Zs}.,'’&()+/-]{2,80}$/u;
 const RAW_IMAGE_RE = /data:image\/|;base64,|blob:|bytes|base64|image_bytes|imageBytes|dataUrl|data_url/i;
-const USER_AGENT = "FitCoach/0.4.3 founder-nutrition-contact=support@symbioai.dev";
+const USER_AGENT = "FitCoach/0.5.4 nutrition-contact=support@symbioai.dev";
 const PRODUCT_FIELDS = [
   "code",
   "product_name",
@@ -19,6 +20,15 @@ const PRODUCT_FIELDS = [
   "nutrition_data_per",
   "nutriments",
 ].join(",");
+const USDA_NUTRIENT_IDS = Object.freeze({
+  calories: [1008, 2047, 2048],
+  protein: [1003],
+  fat: [1004],
+  carbs: [1005],
+  fiber: [1079],
+  sugar: [2000],
+  sodium: [1093],
+});
 
 const isRecord = value => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const clean = (value, max = 160) => (typeof value === "string" ? value.trim().slice(0, max) : "");
@@ -151,6 +161,50 @@ export function mapOpenFoodFactsProduct(product) {
   };
 }
 
+function usdaNutrientValue(food, ids) {
+  const nutrients = Array.isArray(food?.foodNutrients) ? food.foodNutrients : [];
+  for (const id of ids) {
+    const match = nutrients.find(item => Number(item?.nutrientId || item?.nutrient?.id) === id);
+    const value = finite(match?.value ?? match?.amount);
+    if (value !== null) return value;
+  }
+  return null;
+}
+
+export function mapUsdaFood(food) {
+  if (!isRecord(food)) return null;
+  const name = clean(food.description, 120) || clean(food.lowercaseDescription, 120);
+  const fdcId = Number(food.fdcId);
+  if (!name || !Number.isSafeInteger(fdcId) || fdcId < 1) return null;
+  const calories = usdaNutrientValue(food, USDA_NUTRIENT_IDS.calories);
+  const protein = usdaNutrientValue(food, USDA_NUTRIENT_IDS.protein);
+  const carbs = usdaNutrientValue(food, USDA_NUTRIENT_IDS.carbs);
+  const fat = usdaNutrientValue(food, USDA_NUTRIENT_IDS.fat);
+  if ([calories, protein, carbs, fat].some(value => value === null)) return null;
+  const dataType = clean(food.dataType, 60);
+  return {
+    name,
+    brand: clean(food.brandOwner, 80) || clean(food.brandName, 80),
+    barcode: clean(food.gtinUpc, 24),
+    fdcId,
+    servingLabel: "100 g",
+    dataBasis: "100g",
+    confidence: ["Foundation", "Survey (FNDDS)", "SR Legacy"].includes(dataType) ? "high" : "medium",
+    source: "usda_fooddata_central",
+    sourceDataType: dataType,
+    licenseNote: "USDA FoodData Central (CC0); values shown per 100 g. Verify packaged-food labels before relying on them.",
+    per: {
+      calories: round0(calories),
+      protein: round1(protein),
+      carbs: round1(carbs),
+      fat: round1(fat),
+      fiber: round1(usdaNutrientValue(food, USDA_NUTRIENT_IDS.fiber) ?? 0),
+      sugar: round1(usdaNutrientValue(food, USDA_NUTRIENT_IDS.sugar) ?? 0),
+      sodium: round0(usdaNutrientValue(food, USDA_NUTRIENT_IDS.sodium) ?? 0),
+    },
+  };
+}
+
 function productUrl(barcode) {
   const url = new URL(`/api/v2/product/${encodeURIComponent(barcode)}`, OPEN_FOOD_FACTS_BASE);
   url.searchParams.set("fields", PRODUCT_FIELDS);
@@ -181,7 +235,7 @@ export async function lookupBarcodeNutrition(barcode, { fetchImpl = fetch, timeo
     if (body?.status !== 1 || !body?.product) return { ok: false, error: "FOOD_NOT_FOUND" };
     const food = mapOpenFoodFactsProduct(body.product);
     if (!food) return { ok: false, error: "NUTRITION_DATA_INCOMPLETE" };
-    return { ok: true, food };
+    return { ok: true, food, provider: "open_food_facts", fallbackUsed: false };
   } catch {
     return { ok: false, error: "NUTRITION_PROVIDER_UNAVAILABLE" };
   } finally {
@@ -189,7 +243,48 @@ export async function lookupBarcodeNutrition(barcode, { fetchImpl = fetch, timeo
   }
 }
 
-export async function searchNutritionFoods(query, { fetchImpl = fetch, timeoutMs = 6_000 } = {}) {
+export async function searchUsdaNutritionFoods(
+  query,
+  { fetchImpl = fetch, timeoutMs = 6_000, apiKey = process.env.FDC_API_KEY } = {}
+) {
+  const safeKey = clean(apiKey, 240);
+  if (!safeKey) return { ok: false, error: "NUTRITION_PROVIDER_NOT_CONFIGURED" };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
+  try {
+    const url = new URL(`${USDA_FDC_BASE}/foods/search`);
+    url.searchParams.set("api_key", safeKey);
+    const response = await fetchImpl(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "User-Agent": USER_AGENT,
+      },
+      body: JSON.stringify({
+        query,
+        pageSize: 8,
+        pageNumber: 1,
+        dataType: ["Foundation", "Survey (FNDDS)", "SR Legacy", "Branded"],
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) return { ok: false, error: "NUTRITION_PROVIDER_UNAVAILABLE" };
+    const body = await response.json();
+    const foods = (Array.isArray(body?.foods) ? body.foods : [])
+      .map(mapUsdaFood)
+      .filter(Boolean)
+      .slice(0, 5);
+    if (!foods.length) return { ok: false, error: "FOOD_NOT_FOUND" };
+    return { ok: true, foods, provider: "usda_fooddata_central", fallbackUsed: false };
+  } catch {
+    return { ok: false, error: "NUTRITION_PROVIDER_UNAVAILABLE" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function searchOpenFoodFactsFoods(query, { fetchImpl = fetch, timeoutMs = 6_000 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
   try {
@@ -204,12 +299,42 @@ export async function searchNutritionFoods(query, { fetchImpl = fetch, timeoutMs
       .filter(Boolean)
       .slice(0, 5);
     if (!foods.length) return { ok: false, error: "FOOD_NOT_FOUND" };
-    return { ok: true, foods };
+    return { ok: true, foods, provider: "open_food_facts", fallbackUsed: false };
   } catch {
     return { ok: false, error: "NUTRITION_PROVIDER_UNAVAILABLE" };
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function searchNutritionFoods(
+  query,
+  { fetchImpl = fetch, timeoutMs = 6_000, env = process.env } = {}
+) {
+  const usda = await searchUsdaNutritionFoods(query, {
+    fetchImpl,
+    timeoutMs,
+    apiKey: env.FDC_API_KEY,
+  });
+  if (usda.ok) return usda;
+
+  const openFoodFacts = await searchOpenFoodFactsFoods(query, { fetchImpl, timeoutMs });
+  if (openFoodFacts.ok) {
+    return {
+      ...openFoodFacts,
+      fallbackUsed: Boolean(clean(env.FDC_API_KEY, 240)),
+      fallbackReason: clean(env.FDC_API_KEY, 240) ? usda.error : "usda_not_configured",
+    };
+  }
+  return {
+    ok: false,
+    error: usda.error === "FOOD_NOT_FOUND" && openFoodFacts.error === "FOOD_NOT_FOUND"
+      ? "FOOD_NOT_FOUND"
+      : "NUTRITION_PROVIDER_UNAVAILABLE",
+    providersAttempted: clean(env.FDC_API_KEY, 240)
+      ? ["usda_fooddata_central", "open_food_facts"]
+      : ["open_food_facts"],
+  };
 }
 
 export function unavailableVisionNutritionEstimate() {

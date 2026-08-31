@@ -20,3 +20,9 @@ updates.
 Provider credentials belong only in encrypted hosting environment variables.
 They must never use browser-exposed prefixes or be committed to source, build
 artifacts, screenshots, issue comments, or logs.
+
+FitCoach purchase tokens, App Store transaction identifiers, social-provider
+revocation tokens, Supabase service-role keys, USDA keys, and account-state
+encryption keys are server-only secrets. Store receipts never directly unlock
+premium: the server must verify the store response, product, signed-in account
+binding, and event status before applying an idempotent entitlement transition.
