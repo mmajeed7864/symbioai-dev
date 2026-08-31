@@ -173,7 +173,10 @@ test("verified search falls back honestly to Open Food Facts when USDA is unavai
     env: { FDC_API_KEY: "server-only-test-key" },
     fetchImpl: async url => {
       calls.push(String(url));
-      if (String(url).includes("api.nal.usda.gov")) return { ok: false, status: 503, json: async () => ({}) };
+      const requestUrl = new URL(String(url));
+      if (requestUrl.hostname === "api.nal.usda.gov") {
+        return { ok: false, status: 503, json: async () => ({}) };
+      }
       return { ok: true, json: async () => ({ products: [product] }) };
     },
   });
