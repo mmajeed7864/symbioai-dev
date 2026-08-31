@@ -22,7 +22,7 @@ function rawRequest(overrides = {}) {
   return {
     message: "I missed a workout. What should I do?",
     session_id: "fitcoach_test_session_123",
-    data_classification: "synthetic_low_sensitivity",
+    data_classification: "user_provided_fitness_coaching_text",
     style: "direct",
     response_depth: "smart",
     context: {
@@ -57,7 +57,9 @@ function parsedRequest(overrides = {}) {
   return parsed.request;
 }
 
-function providerResponse(reply = "Here’s the move. Keep the next planned session and do not add punishment volume.") {
+function providerResponse(
+  reply = "Here’s the move. Keep the next planned session and do not add punishment volume."
+) {
   return new Response(
     JSON.stringify({ choices: [{ message: { content: JSON.stringify({ reply }) } }] }),
     { status: 200, headers: { "content-type": "application/json" } }
@@ -71,16 +73,22 @@ test("preserves the canonical 43-case trainer free-text safety floor", () => {
   }
 });
 
-test("fails the request envelope closed and blocks non-synthetic provider egress", () => {
+test("fails the request envelope closed and accepts only truthful bounded coaching text", () => {
   assert.deepEqual(parseCoachRequest({ ...rawRequest(), profile: { name: "must not pass" } }), {
     ok: false,
     status: 400,
     error: "INVALID_REQUEST_ENVELOPE",
   });
-  assert.equal(
-    parseCoachRequest(rawRequest({ data_classification: "real_user" })).error,
-    "REAL_USER_PROVIDER_EGRESS_DISABLED"
-  );
+  for (const classification of [
+    "synthetic_low_sensitivity",
+    "real_user",
+    "user_provided_food_lookup",
+    "generated_coach_reply_text",
+  ]) {
+    const result = parseCoachRequest(rawRequest({ data_classification: classification }));
+    assert.equal(result.status, 400, classification);
+    assert.equal(result.error, "UNSUPPORTED_DATA_CLASSIFICATION", classification);
+  }
   assert.equal(
     parseCoachRequest(rawRequest({ context: { ...rawRequest().context, bodyweight: 180 } })).error,
     "INVALID_REQUEST_CONFIGURATION"
@@ -136,10 +144,7 @@ test("uses only verified direct DeepSeek and Qwen US routes", () => {
     }),
     []
   );
-  assert.deepEqual(
-    createProviderRoutes({ DASHSCOPE_API_KEY: "qwen-cannot-be-primary" }),
-    []
-  );
+  assert.deepEqual(createProviderRoutes({ DASHSCOPE_API_KEY: "qwen-cannot-be-primary" }), []);
   assert.deepEqual(
     createProviderRoutes({ DEEPSEEK_API_KEY: "deepseek-only" }).map(({ provider }) => provider),
     ["deepseek"]
@@ -150,6 +155,9 @@ test("provider projection is allow-listed and carries no raw profile, memory, he
   const request = parsedRequest();
   const projection = createProviderProjection(request);
   const serialized = JSON.stringify(projection);
+  assert.equal(projection.data_classification, "user_provided_fitness_coaching_text");
+  assert.equal(projection.context_classification, "bounded_allowlisted_fitness_codes");
+  assert.equal("synthetic_only" in projection, false);
   assert.deepEqual(Object.keys(projection.facts), [
     "goal_code",
     "experience_code",
@@ -166,7 +174,14 @@ test("provider projection is allow-listed and carries no raw profile, memory, he
     "plan_minutes",
     "exercise_codes",
   ]);
-  for (const forbidden of ["name", "condition", "medication", "bodyweight", "profileId", "memory"]) {
+  for (const forbidden of [
+    "name",
+    "condition",
+    "medication",
+    "bodyweight",
+    "profileId",
+    "memory",
+  ]) {
     assert.equal(serialized.includes(forbidden), false, forbidden);
   }
   assert.equal(projection.approved_action, "RECOVER_MISSED_SESSION");
@@ -184,7 +199,9 @@ test("all response depths keep DeepSeek first and style never changes action or 
         },
         fetchImpl: async (url, options) => {
           calls.push({ url, body: JSON.parse(options.body) });
-          return providerResponse(`${style} renderer reply with a concrete next step and no plan mutation.`);
+          return providerResponse(
+            `${style} renderer reply with a concrete next step and no plan mutation.`
+          );
         },
       });
       assert.equal(calls.length, 1);
@@ -226,7 +243,20 @@ test("rude mode is bounded to the excuse and never authorizes degrading output",
   const system = buildCoachMessages(request)[0].content;
   assert.match(system, /Roast the excuse/u);
   assert.match(system, /Never attack the user's worth/u);
-  assert.equal(validateProviderReply({ choices: [{ message: { content: JSON.stringify({ reply: "You are a pathetic loser and your body is disgusting." }) } }] }).ok, false);
+  assert.equal(
+    validateProviderReply({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              reply: "You are a pathetic loser and your body is disgusting.",
+            }),
+          },
+        },
+      ],
+    }).ok,
+    false
+  );
 });
 
 test("fails over only on retryable transport, 429, or server errors", async () => {
@@ -237,7 +267,9 @@ test("fails over only on retryable transport, 429, or server errors", async () =
     fetchImpl: async (url) => {
       calls.push(url);
       if (calls.length === 1) return new Response("busy", { status: 503 });
-      return providerResponse("Direct answer from the reviewed Qwen US fallback with one clear next move.");
+      return providerResponse(
+        "Direct answer from the reviewed Qwen US fallback with one clear next move."
+      );
     },
   });
   assert.equal(retryable.provider, "qwen-us");
@@ -256,6 +288,30 @@ test("fails over only on retryable transport, 429, or server errors", async () =
   assert.equal(terminalCalls.length, 1);
 });
 
+test("provider attempt telemetry contains metadata only", async () => {
+  const events = [];
+  const request = parsedRequest({ message: "I missed my workout; keep this out of logs." });
+  const result = await generateCoachReply(request, {
+    env: { DEEPSEEK_API_KEY: "d" },
+    fetchImpl: async () =>
+      providerResponse("Keep the next approved session and avoid adding punishment volume."),
+    onAttempt: (event) => events.push(event),
+  });
+
+  assert.equal(result.provider, "deepseek");
+  assert.equal(events.length, 1);
+  assert.deepEqual(Object.keys(events[0]).sort(), [
+    "latency_ms",
+    "model",
+    "provider",
+    "request_hash",
+    "result",
+  ]);
+  const serialized = JSON.stringify(events);
+  assert.equal(serialized.includes(request.message), false);
+  assert.equal(serialized.includes(request.conversation[0].content), false);
+});
+
 test("timeout reaches the next provider, while invalid or unsafe output stays local", async () => {
   const request = parsedRequest();
   let calls = 0;
@@ -266,7 +322,9 @@ test("timeout reaches the next provider, while invalid or unsafe output stays lo
       calls += 1;
       if (calls === 1) {
         return new Promise((_resolve, reject) => {
-          options.signal.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+          options.signal.addEventListener("abort", () =>
+            reject(new DOMException("aborted", "AbortError"))
+          );
         });
       }
       return providerResponse("The backup renderer answered cleanly after the primary timed out.");
@@ -285,10 +343,9 @@ test("timeout reaches the next provider, while invalid or unsafe output stays lo
       env: { DEEPSEEK_API_KEY: "d", DASHSCOPE_API_KEY: "q" },
       fetchImpl: async () => {
         calls += 1;
-        return new Response(
-          JSON.stringify({ choices: [{ message: { content } }] }),
-          { status: 200 }
-        );
+        return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+          status: 200,
+        });
       },
     });
     assert.equal(result.provider, "deterministic-copy");
@@ -299,10 +356,22 @@ test("timeout reaches the next provider, while invalid or unsafe output stays lo
 
 test("provider response contract rejects action, memory, plan, unsafe copy, and oversized reply", () => {
   const wrap = (value) => ({ choices: [{ message: { content: JSON.stringify(value) } }] });
-  assert.equal(validateProviderReply(wrap({ reply: "A useful trainer answer that is long enough." })).ok, true);
-  assert.equal(validateProviderReply(wrap({ reply: "Useful answer", memory_writes: ["private"] })).ok, false);
-  assert.equal(validateProviderReply(wrap({ reply: "Useful answer", plan_proposal: {} })).ok, false);
-  assert.equal(validateProviderReply(wrap({ reply: "Visit https://phishing.example for your plan." })).ok, false);
+  assert.equal(
+    validateProviderReply(wrap({ reply: "A useful trainer answer that is long enough." })).ok,
+    true
+  );
+  assert.equal(
+    validateProviderReply(wrap({ reply: "Useful answer", memory_writes: ["private"] })).ok,
+    false
+  );
+  assert.equal(
+    validateProviderReply(wrap({ reply: "Useful answer", plan_proposal: {} })).ok,
+    false
+  );
+  assert.equal(
+    validateProviderReply(wrap({ reply: "Visit https://phishing.example for your plan." })).ok,
+    false
+  );
   assert.equal(validateProviderReply(wrap({ reply: "x".repeat(1_201) })).ok, false);
 });
 

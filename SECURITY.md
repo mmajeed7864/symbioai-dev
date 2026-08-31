@@ -26,3 +26,9 @@ revocation tokens, Supabase service-role keys, USDA keys, and account-state
 encryption keys are server-only secrets. Store receipts never directly unlock
 premium: the server must verify the store response, product, signed-in account
 binding, and event status before applying an idempotent entitlement transition.
+
+FitCoach data classifications must describe actual provenance and purpose. User-provided coach
+text, user-provided food lookups, and generated coach replies use separate exact allow-listed
+labels. A classification is never a substitute for payload minimization, private-data interception,
+provider review, consent, or retention controls. Raw prompts, replies, purchase credentials, and
+food queries must not be written to application logs.

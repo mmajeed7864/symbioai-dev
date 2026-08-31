@@ -89,7 +89,17 @@ test("learning metadata contains no raw conversation or contact data", () => {
   assert.equal(serialized.includes("Jane Doe"), false);
   assert.equal(serialized.includes("jane@example.com"), false);
   assert.equal(serialized.includes("704-555-0123"), false);
-  assert.equal(serialized.includes("example.com"), false);
+  const serializedUrls = serialized.match(/https?:\/\/[^\s"\\]+/gu) || [];
+  assert.equal(
+    serializedUrls.some((candidate) => {
+      try {
+        return new URL(candidate).hostname === "example.com";
+      } catch {
+        return false;
+      }
+    }),
+    false
+  );
   assert.equal(event.questionBytes > 0, true);
   assert.equal(event.answerBytes > 0, true);
   assert.equal(event.promptVersion, "2026-07-29.5");

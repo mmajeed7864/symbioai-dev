@@ -210,10 +210,10 @@ These are implemented client-side; a backend developer only needs to honor them.
 
 On submit, the form POSTs JSON to:
 
-| Host                       | Endpoint                                                                  |
-| -------------------------- | ------------------------------------------------------------------------- |
-| `localhost` / `127.0.0.1`  | `http://127.0.0.1:8878/api/free-scan`                                     |
-| anything else (production) | `/api/free-scan` on `https://www.symbioai.dev`                            |
+| Host                       | Endpoint                                       |
+| -------------------------- | ---------------------------------------------- |
+| `localhost` / `127.0.0.1`  | `http://127.0.0.1:8878/api/free-scan`          |
+| anything else (production) | `/api/free-scan` on `https://www.symbioai.dev` |
 
 **Body** (JSON):
 
@@ -278,24 +278,24 @@ Authorization: Bearer <SYMBIO_COMMAND_CENTER_TOKEN>
 
 Required production environment variables:
 
-| Variable                         | Purpose                                                      |
-| -------------------------------- | ------------------------------------------------------------ |
-| `SYMBIO_COMMAND_CENTER_TOKEN`    | Dedicated server-only bearer token for the private dashboard |
-| `SYMBIO_CHAT_MONTHLY_BUDGET_USD` | Enforced monthly model budget; defaults to `5`                |
-| `SYMBIO_CHAT_MAX_CALL_USD`        | Conservative pre-call reservation; defaults to `0.01`        |
-| `UPSTASH_REDIS_REST_URL`         | Existing Upstash REST endpoint                               |
-| `UPSTASH_REDIS_REST_TOKEN`       | Existing Upstash REST token                                  |
-| `SYMBIO_CHAT_PROVIDER`           | `deepseek` (default) or `openrouter` for an explicit rollback |
-| `SYMBIO_CHAT_MODEL`              | Provider-neutral live chatbot model override                 |
-| `DEEPSEEK_API_KEY`               | Server-only direct DeepSeek key used by the website assistant |
-| `DASHSCOPE_API_KEY`              | Server-only direct Qwen US backup key for FitCoach trainer text |
-| `ELEVENLABS_API_KEY`             | Server-only ElevenLabs key for bounded FitCoach spoken replies |
-| `FITCOACH_ELEVENLABS_FEMALE_VOICE_ID` | Optional Nova female voice override                       |
-| `FITCOACH_ELEVENLABS_MALE_VOICE_ID` | Optional Atlas male voice override                         |
-| `DEEPSEEK_CHAT_MODEL`            | Direct model override; defaults to `deepseek-v4-pro`          |
-| `SYMBIO_CHAT_UNCAPPED_DEEPSEEK`  | Set to `1` to bypass only the monthly ledger on direct DeepSeek |
-| `OPENROUTER_CHAT_API_KEY`        | Optional rollback key for the OpenRouter provider             |
-| `OPENROUTER_CHAT_MODEL`          | Optional OpenRouter rollback model override                   |
+| Variable                              | Purpose                                                         |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `SYMBIO_COMMAND_CENTER_TOKEN`         | Dedicated server-only bearer token for the private dashboard    |
+| `SYMBIO_CHAT_MONTHLY_BUDGET_USD`      | Enforced monthly model budget; defaults to `5`                  |
+| `SYMBIO_CHAT_MAX_CALL_USD`            | Conservative pre-call reservation; defaults to `0.01`           |
+| `UPSTASH_REDIS_REST_URL`              | Existing Upstash REST endpoint                                  |
+| `UPSTASH_REDIS_REST_TOKEN`            | Existing Upstash REST token                                     |
+| `SYMBIO_CHAT_PROVIDER`                | `deepseek` (default) or `openrouter` for an explicit rollback   |
+| `SYMBIO_CHAT_MODEL`                   | Provider-neutral live chatbot model override                    |
+| `DEEPSEEK_API_KEY`                    | Server-only direct DeepSeek key used by the website assistant   |
+| `DASHSCOPE_API_KEY`                   | Server-only direct Qwen US backup key for FitCoach trainer text |
+| `ELEVENLABS_API_KEY`                  | Server-only ElevenLabs key for bounded FitCoach spoken replies  |
+| `FITCOACH_ELEVENLABS_FEMALE_VOICE_ID` | Optional Nova female voice override                             |
+| `FITCOACH_ELEVENLABS_MALE_VOICE_ID`   | Optional Atlas male voice override                              |
+| `DEEPSEEK_CHAT_MODEL`                 | Direct model override; defaults to `deepseek-v4-pro`            |
+| `SYMBIO_CHAT_UNCAPPED_DEEPSEEK`       | Set to `1` to bypass only the monthly ledger on direct DeepSeek |
+| `OPENROUTER_CHAT_API_KEY`             | Optional rollback key for the OpenRouter provider               |
+| `OPENROUTER_CHAT_MODEL`               | Optional OpenRouter rollback model override                     |
 
 FitCoach account sync, portable export/deletion, store-verification, and verified nutrition use
 separate fail-closed contracts. See
@@ -304,6 +304,13 @@ Supabase migration or enabling any capability. In particular, public Supabase co
 exposed only through `/api/fitcoach-platform-config-v1`, account state is encrypted before it
 reaches Postgres, and `/api/fitcoach-subscriptions-v1` cannot grant premium without a reviewed
 server-side Apple/Google verifier.
+
+FitCoach public clients must classify content by its real provenance and purpose:
+`user_provided_fitness_coaching_text` for coach input, `user_provided_food_lookup` for nutrition
+search/barcodes, and `generated_coach_reply_text` for text sent to speech synthesis. The API rejects
+the former founder-only `synthetic_low_sensitivity` label and any cross-purpose label; this does not
+expand the exact payload schemas or permit health records, identifiers, credentials, or microphone
+audio.
 
 Account/sync activation requires applying `supabase/fitcoach_platform_v1.sql`, then configuring
 `SUPABASE_URL`, `SUPABASE_SECRET_KEY` (or `SUPABASE_SERVICE_ROLE_KEY`),
@@ -320,14 +327,14 @@ platform guide and a reviewed verifier adapter; credentials alone do not enable 
 
 ## Tooling
 
-| Script                  | What it does                                             |
-| ----------------------- | -------------------------------------------------------- |
-| `npm run dev`           | Eleventy dev server with live reload                     |
-| `npm run build`         | Build the static site to `dist/`                         |
-| `npm run clean`         | Remove `dist/`                                           |
-| `npm run lint`          | Stylelint + ESLint + HTMLHint (HTMLHint runs on `dist/`) |
-| `npm run format`        | Prettier write (CSS / JS / JSON / MD)                    |
-| `npm run minify:widget` | Regenerate `symbio-widget.min.js` with Terser            |
+| Script                    | What it does                                             |
+| ------------------------- | -------------------------------------------------------- |
+| `npm run dev`             | Eleventy dev server with live reload                     |
+| `npm run build`           | Build the static site to `dist/`                         |
+| `npm run clean`           | Remove `dist/`                                           |
+| `npm run lint`            | Stylelint + ESLint + HTMLHint (HTMLHint runs on `dist/`) |
+| `npm run format`          | Prettier write (CSS / JS / JSON / MD)                    |
+| `npm run minify:widget`   | Regenerate `symbio-widget.min.js` with Terser            |
 | `npm run eval:chat-model` | Run versioned quality, PII-output, token, and cost gates |
 
 The model path atomically reserves budget in Redis before calling the selected provider. Each reservation has

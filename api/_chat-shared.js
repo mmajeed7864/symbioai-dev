@@ -256,9 +256,26 @@ export function cacheKeyForMessages(messages, scope = CHAT_PROMPT_VERSION) {
   )}`;
 }
 
+export function neutralizeHtmlMarkup(value) {
+  const input = String(value || "");
+  let output = "";
+  let insideMarkup = false;
+  for (const character of input) {
+    if (character === "<") {
+      insideMarkup = true;
+      continue;
+    }
+    if (character === ">") {
+      insideMarkup = false;
+      continue;
+    }
+    if (!insideMarkup) output += character;
+  }
+  return output;
+}
+
 export function cleanModelReply(value) {
-  const cleaned = String(value || "")
-    .replace(/<[^>]*>/g, "")
+  const cleaned = neutralizeHtmlMarkup(value)
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/__([^_]+)__/g, "$1")
     .replace(/^\s{0,3}#{1,6}\s+/gm, "")

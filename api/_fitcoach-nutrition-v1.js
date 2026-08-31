@@ -1,13 +1,16 @@
-export const FITCOACH_NUTRITION_VERSION = "2026-08-31.1";
+import { FITCOACH_DATA_CLASSIFICATIONS } from "./_fitcoach-data-classifications.js";
+
+export const FITCOACH_NUTRITION_VERSION = "2026-08-31.2";
 export const OPEN_FOOD_FACTS_BASE = "https://world.openfoodfacts.org";
+export const OPEN_FOOD_FACTS_SEARCH_BASE = "https://search.openfoodfacts.org";
 export const USDA_FDC_BASE = "https://api.nal.usda.gov/fdc/v1";
 
-const DATA_CLASSIFICATION = "synthetic_low_sensitivity";
 const ACTIONS = Object.freeze(["barcode_lookup", "text_search", "vision_estimate"]);
 const SESSION_ID_RE = /^fitcoach-[a-z0-9._:-]{3,96}$/i;
 const BARCODE_RE = /^[0-9]{6,18}$/;
 const QUERY_RE = /^[\p{L}\p{N}\p{Zs}.,'’&()+/-]{2,80}$/u;
-const RAW_IMAGE_RE = /data:image\/|;base64,|blob:|bytes|base64|image_bytes|imageBytes|dataUrl|data_url/i;
+const RAW_IMAGE_RE =
+  /data:image\/|;base64,|blob:|bytes|base64|image_bytes|imageBytes|dataUrl|data_url/i;
 const USER_AGENT = "FitCoach/0.5.4 nutrition-contact=support@symbioai.dev";
 const PRODUCT_FIELDS = [
   "code",
@@ -30,11 +33,11 @@ const USDA_NUTRIENT_IDS = Object.freeze({
   sodium: [1093],
 });
 
-const isRecord = value => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const isRecord = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const clean = (value, max = 160) => (typeof value === "string" ? value.trim().slice(0, max) : "");
-const round1 = value => Math.round(value * 10) / 10;
-const round0 = value => Math.round(value);
-const finite = value => {
+const round1 = (value) => Math.round(value * 10) / 10;
+const round0 = (value) => Math.round(value);
+const finite = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 };
@@ -42,7 +45,19 @@ const finite = value => {
 function exactKeys(record, expected) {
   const keys = Object.keys(record).sort();
   const expectedKeys = [...expected].sort();
-  return keys.length === expectedKeys.length && keys.every((key, index) => key === expectedKeys[index]);
+  return (
+    keys.length === expectedKeys.length && keys.every((key, index) => key === expectedKeys[index])
+  );
+}
+
+function cleanBrand(value) {
+  if (!Array.isArray(value)) return clean(value, 80);
+  return value
+    .map((item) => clean(item, 40))
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(", ")
+    .slice(0, 80);
 }
 
 function rejectRawImagePayload(value) {
@@ -60,13 +75,15 @@ export function safeNutritionSessionId(value) {
 
 export function parseNutritionRequest(input) {
   if (!isRecord(input)) return { ok: false, status: 400, error: "INVALID_JSON" };
-  if (rejectRawImagePayload(input)) return { ok: false, status: 400, error: "RAW_IMAGE_PAYLOAD_REJECTED" };
-  if (input.data_classification !== DATA_CLASSIFICATION) {
+  if (rejectRawImagePayload(input))
+    return { ok: false, status: 400, error: "RAW_IMAGE_PAYLOAD_REJECTED" };
+  if (input.data_classification !== FITCOACH_DATA_CLASSIFICATIONS.foodLookup) {
     return { ok: false, status: 400, error: "UNSUPPORTED_DATA_CLASSIFICATION" };
   }
   if (!ACTIONS.includes(input.action)) return { ok: false, status: 400, error: "INVALID_ACTION" };
   const sessionId = clean(input.session_id, 120);
-  if (!SESSION_ID_RE.test(sessionId)) return { ok: false, status: 400, error: "INVALID_SESSION_ID" };
+  if (!SESSION_ID_RE.test(sessionId))
+    return { ok: false, status: 400, error: "INVALID_SESSION_ID" };
 
   if (input.action === "barcode_lookup") {
     if (!exactKeys(input, ["action", "data_classification", "session_id", "barcode"])) {
@@ -94,7 +111,12 @@ export function parseNutritionRequest(input) {
   }
   const mime = clean(input.image.mime, 80).toLowerCase();
   const size = finite(input.image.size);
-  if (!["image/jpeg", "image/png", "image/heic", "image/heif", "image/webp"].includes(mime) || !Number.isFinite(size) || size < 1 || size > 12_000_000) {
+  if (
+    !["image/jpeg", "image/png", "image/heic", "image/heif", "image/webp"].includes(mime) ||
+    !Number.isFinite(size) ||
+    size < 1 ||
+    size > 12_000_000
+  ) {
     return { ok: false, status: 400, error: "INVALID_IMAGE_METADATA" };
   }
   return {
@@ -125,26 +147,36 @@ function servingBasis(product) {
 export function mapOpenFoodFactsProduct(product) {
   if (!isRecord(product)) return null;
   const nutriments = isRecord(product.nutriments) ? product.nutriments : {};
-  const name = clean(product.product_name_en, 120) || clean(product.product_name, 120) || clean(product.generic_name, 120);
+  const name =
+    clean(product.product_name_en, 120) ||
+    clean(product.product_name, 120) ||
+    clean(product.generic_name, 120);
   if (!name) return null;
 
   const basis = servingBasis(product);
   const suffixes = basis === "serving" ? ["_serving", "_100g"] : ["_100g"];
-  const nutrient = (...names) => firstNumber(nutriments, names.flatMap(namePart => suffixes.map(suffix => `${namePart}${suffix}`)));
+  const nutrient = (...names) =>
+    firstNumber(
+      nutriments,
+      names.flatMap((namePart) => suffixes.map((suffix) => `${namePart}${suffix}`))
+    );
   const calories = nutrient("energy-kcal", "energy_kcal");
   const protein = nutrient("proteins", "protein");
   const carbs = nutrient("carbohydrates", "carbohydrate");
   const fat = nutrient("fat");
-  if ([calories, protein, carbs, fat].some(value => value === null)) return null;
+  if ([calories, protein, carbs, fat].some((value) => value === null)) return null;
 
   const sodiumG = nutrient("sodium");
   const sodiumMg = nutrient("sodium_mg", "sodium-mg");
   const confidence = basis === "serving" && clean(product.serving_size, 80) ? "high" : "medium";
   return {
     name,
-    brand: clean(product.brands, 80),
+    brand: cleanBrand(product.brands),
     barcode: clean(product.code, 24),
-    servingLabel: clean(product.serving_size, 80) || clean(product.quantity, 80) || (basis === "100g" ? "100 g" : "1 serving"),
+    servingLabel:
+      clean(product.serving_size, 80) ||
+      clean(product.quantity, 80) ||
+      (basis === "100g" ? "100 g" : "1 serving"),
     dataBasis: basis,
     confidence,
     source: "open_food_facts",
@@ -156,7 +188,7 @@ export function mapOpenFoodFactsProduct(product) {
       fat: round1(fat),
       fiber: round1(nutrient("fiber", "fibers") ?? 0),
       sugar: round1(nutrient("sugars", "sugar") ?? 0),
-      sodium: round0(sodiumMg ?? ((sodiumG ?? 0) * 1000)),
+      sodium: round0(sodiumMg ?? (sodiumG ?? 0) * 1000),
     },
   };
 }
@@ -164,7 +196,7 @@ export function mapOpenFoodFactsProduct(product) {
 function usdaNutrientValue(food, ids) {
   const nutrients = Array.isArray(food?.foodNutrients) ? food.foodNutrients : [];
   for (const id of ids) {
-    const match = nutrients.find(item => Number(item?.nutrientId || item?.nutrient?.id) === id);
+    const match = nutrients.find((item) => Number(item?.nutrientId || item?.nutrient?.id) === id);
     const value = finite(match?.value ?? match?.amount);
     if (value !== null) return value;
   }
@@ -180,7 +212,7 @@ export function mapUsdaFood(food) {
   const protein = usdaNutrientValue(food, USDA_NUTRIENT_IDS.protein);
   const carbs = usdaNutrientValue(food, USDA_NUTRIENT_IDS.carbs);
   const fat = usdaNutrientValue(food, USDA_NUTRIENT_IDS.fat);
-  if ([calories, protein, carbs, fat].some(value => value === null)) return null;
+  if ([calories, protein, carbs, fat].some((value) => value === null)) return null;
   const dataType = clean(food.dataType, 60);
   return {
     name,
@@ -189,10 +221,13 @@ export function mapUsdaFood(food) {
     fdcId,
     servingLabel: "100 g",
     dataBasis: "100g",
-    confidence: ["Foundation", "Survey (FNDDS)", "SR Legacy"].includes(dataType) ? "high" : "medium",
+    confidence: ["Foundation", "Survey (FNDDS)", "SR Legacy"].includes(dataType)
+      ? "high"
+      : "medium",
     source: "usda_fooddata_central",
     sourceDataType: dataType,
-    licenseNote: "USDA FoodData Central (CC0); values shown per 100 g. Verify packaged-food labels before relying on them.",
+    licenseNote:
+      "USDA FoodData Central (CC0); values shown per 100 g. Verify packaged-food labels before relying on them.",
     per: {
       calories: round0(calories),
       protein: round1(protein),
@@ -211,18 +246,24 @@ function productUrl(barcode) {
   return url;
 }
 
-function searchUrl(query) {
-  const url = new URL("/cgi/search.pl", OPEN_FOOD_FACTS_BASE);
-  url.searchParams.set("search_terms", query);
-  url.searchParams.set("search_simple", "1");
-  url.searchParams.set("action", "process");
-  url.searchParams.set("json", "1");
-  url.searchParams.set("page_size", "5");
-  url.searchParams.set("fields", PRODUCT_FIELDS);
-  return url;
+function searchRequest(query) {
+  return Object.freeze({
+    url: new URL("/search", OPEN_FOOD_FACTS_SEARCH_BASE),
+    body: Object.freeze({
+      q: query,
+      fields: Object.freeze(PRODUCT_FIELDS.split(",")),
+      page_size: 10,
+      page: 1,
+      langs: Object.freeze(["en"]),
+      boost_phrase: true,
+    }),
+  });
 }
 
-export async function lookupBarcodeNutrition(barcode, { fetchImpl = fetch, timeoutMs = 6_000 } = {}) {
+export async function lookupBarcodeNutrition(
+  barcode,
+  { fetchImpl = fetch, timeoutMs = 6_000 } = {}
+) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
   try {
@@ -284,17 +325,27 @@ export async function searchUsdaNutritionFoods(
   }
 }
 
-export async function searchOpenFoodFactsFoods(query, { fetchImpl = fetch, timeoutMs = 6_000 } = {}) {
+export async function searchOpenFoodFactsFoods(
+  query,
+  { fetchImpl = fetch, timeoutMs = 6_000 } = {}
+) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
   try {
-    const response = await fetchImpl(searchUrl(query), {
-      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+    const request = searchRequest(query);
+    const response = await fetchImpl(request.url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": USER_AGENT,
+        Accept: "application/json",
+      },
+      body: JSON.stringify(request.body),
       signal: controller.signal,
     });
     if (!response.ok) return { ok: false, error: "NUTRITION_PROVIDER_UNAVAILABLE" };
     const body = await response.json();
-    const foods = (Array.isArray(body?.products) ? body.products : [])
+    const foods = (Array.isArray(body?.hits) ? body.hits : [])
       .map(mapOpenFoodFactsProduct)
       .filter(Boolean)
       .slice(0, 5);
@@ -328,9 +379,10 @@ export async function searchNutritionFoods(
   }
   return {
     ok: false,
-    error: usda.error === "FOOD_NOT_FOUND" && openFoodFacts.error === "FOOD_NOT_FOUND"
-      ? "FOOD_NOT_FOUND"
-      : "NUTRITION_PROVIDER_UNAVAILABLE",
+    error:
+      usda.error === "FOOD_NOT_FOUND" && openFoodFacts.error === "FOOD_NOT_FOUND"
+        ? "FOOD_NOT_FOUND"
+        : "NUTRITION_PROVIDER_UNAVAILABLE",
     providersAttempted: clean(env.FDC_API_KEY, 240)
       ? ["usda_fooddata_central", "open_food_facts"]
       : ["open_food_facts"],
@@ -341,6 +393,7 @@ export function unavailableVisionNutritionEstimate() {
   return {
     ok: false,
     error: "VISION_PROVIDER_NOT_CONFIGURED",
-    detail: "FitCoach does not upload meal photos until a reviewed vision provider, retention policy, and nutrition validation flow are configured.",
+    detail:
+      "FitCoach does not upload meal photos until a reviewed vision provider, retention policy, and nutrition validation flow are configured.",
   };
 }

@@ -32,32 +32,73 @@ const product = {
   },
 };
 
-test("parseNutritionRequest accepts only a bounded synthetic barcode envelope", () => {
+test("parseNutritionRequest accepts only a bounded user-provided food lookup", () => {
   const parsed = parseNutritionRequest({
     action: "barcode_lookup",
-    data_classification: "synthetic_low_sensitivity",
+    data_classification: "user_provided_food_lookup",
     session_id: SESSION,
     barcode: "0123 456789012",
   });
   assert.equal(parsed.ok, true);
   assert.equal(parsed.request.barcode, "0123456789012");
 
-  assert.equal(parseNutritionRequest({ action: "barcode_lookup", data_classification: "real_user", session_id: SESSION, barcode: "0123456789012" }).error, "UNSUPPORTED_DATA_CLASSIFICATION");
-  assert.equal(parseNutritionRequest({ action: "barcode_lookup", data_classification: "synthetic_low_sensitivity", session_id: SESSION, barcode: "0123456789012", profile_name: "Mohammed" }).error, "INVALID_BARCODE_ENVELOPE");
-  assert.equal(parseNutritionRequest({ action: "barcode_lookup", data_classification: "synthetic_low_sensitivity", session_id: SESSION, barcode: "abc" }).error, "INVALID_BARCODE");
+  for (const classification of [
+    "synthetic_low_sensitivity",
+    "real_user",
+    "user_provided_fitness_coaching_text",
+    "generated_coach_reply_text",
+  ]) {
+    assert.equal(
+      parseNutritionRequest({
+        action: "barcode_lookup",
+        data_classification: classification,
+        session_id: SESSION,
+        barcode: "0123456789012",
+      }).error,
+      "UNSUPPORTED_DATA_CLASSIFICATION",
+      classification
+    );
+  }
+  assert.equal(
+    parseNutritionRequest({
+      action: "barcode_lookup",
+      data_classification: "user_provided_food_lookup",
+      session_id: SESSION,
+      barcode: "0123456789012",
+      profile_name: "Mohammed",
+    }).error,
+    "INVALID_BARCODE_ENVELOPE"
+  );
+  assert.equal(
+    parseNutritionRequest({
+      action: "barcode_lookup",
+      data_classification: "user_provided_food_lookup",
+      session_id: SESSION,
+      barcode: "abc",
+    }).error,
+    "INVALID_BARCODE"
+  );
 });
 
 test("parseNutritionRequest rejects raw image payloads and accepts metadata-only vision requests", () => {
-  assert.equal(parseNutritionRequest({
-    action: "vision_estimate",
-    data_classification: "synthetic_low_sensitivity",
-    session_id: SESSION,
-    image: { name: "meal.jpg", mime: "image/jpeg", size: 2000, dataUrl: "data:image/jpeg;base64,AAAA" },
-  }).error, "RAW_IMAGE_PAYLOAD_REJECTED");
+  assert.equal(
+    parseNutritionRequest({
+      action: "vision_estimate",
+      data_classification: "user_provided_food_lookup",
+      session_id: SESSION,
+      image: {
+        name: "meal.jpg",
+        mime: "image/jpeg",
+        size: 2000,
+        dataUrl: "data:image/jpeg;base64,AAAA",
+      },
+    }).error,
+    "RAW_IMAGE_PAYLOAD_REJECTED"
+  );
 
   const parsed = parseNutritionRequest({
     action: "vision_estimate",
-    data_classification: "synthetic_low_sensitivity",
+    data_classification: "user_provided_food_lookup",
     session_id: SESSION,
     image: { name: "meal.jpg", mime: "image/jpeg", size: 2000 },
   });
@@ -80,6 +121,10 @@ test("mapOpenFoodFactsProduct converts verified label fields into FitCoach nutri
     sugar: 7,
     sodium: 80,
   });
+  assert.equal(
+    mapOpenFoodFactsProduct({ ...product, brands: ["Example", "Dairy"] }).brand,
+    "Example, Dairy"
+  );
 });
 
 test("barcode lookup uses Open Food Facts v2 product endpoint and no private fields", async () => {
@@ -97,21 +142,38 @@ test("barcode lookup uses Open Food Facts v2 product endpoint and no private fie
   assert.doesNotMatch(calledUrl, /profile|medical|condition/i);
 });
 
-test("text search uses Open Food Facts search endpoint and returns bounded candidates", async () => {
+test("text search uses the privacy-preserving Open Food Facts search endpoint", async () => {
   let calledUrl = "";
+  let calledOptions;
   const result = await searchNutritionFoods("greek yogurt", {
     env: {},
-    fetchImpl: async url => {
+    fetchImpl: async (url, options) => {
       calledUrl = String(url);
-      return { ok: true, json: async () => ({ products: [product, { ...product, code: "2", product_name: "Second" }] }) };
+      calledOptions = options;
+      return {
+        ok: true,
+        json: async () => ({ hits: [product, { ...product, code: "2", product_name: "Second" }] }),
+      };
     },
   });
   assert.equal(result.ok, true);
   assert.equal(result.provider, "open_food_facts");
   assert.equal(result.foods.length, 2);
-  assert.match(calledUrl, /\/cgi\/search\.pl\?/);
-  assert.match(calledUrl, /search_terms=greek\+yogurt/);
-  assert.match(calledUrl, /page_size=5/);
+  assert.equal(calledUrl, "https://search.openfoodfacts.org/search");
+  assert.equal(calledOptions.method, "POST");
+  assert.equal(calledOptions.headers["Content-Type"], "application/json");
+  const requestBody = JSON.parse(calledOptions.body);
+  assert.deepEqual(Object.keys(requestBody).sort(), [
+    "boost_phrase",
+    "fields",
+    "langs",
+    "page",
+    "page_size",
+    "q",
+  ]);
+  assert.equal(requestBody.q, "greek yogurt");
+  assert.equal(requestBody.page_size, 10);
+  assert.equal(calledUrl.includes("greek"), false);
 });
 
 const usdaFood = {
@@ -164,20 +226,25 @@ test("USDA search is primary only when its server-side key is configured", async
   assert.match(calledUrl, /^https:\/\/api\.nal\.usda\.gov\/fdc\/v1\/foods\/search\?/);
   assert.match(calledUrl, /api_key=server-only-test-key/);
   assert.equal(calledOptions.method, "POST");
-  assert.deepEqual(JSON.parse(calledOptions.body).dataType, ["Foundation", "Survey (FNDDS)", "SR Legacy", "Branded"]);
+  assert.deepEqual(JSON.parse(calledOptions.body).dataType, [
+    "Foundation",
+    "Survey (FNDDS)",
+    "SR Legacy",
+    "Branded",
+  ]);
 });
 
 test("verified search falls back honestly to Open Food Facts when USDA is unavailable", async () => {
   const calls = [];
   const result = await searchNutritionFoods("greek yogurt", {
     env: { FDC_API_KEY: "server-only-test-key" },
-    fetchImpl: async url => {
+    fetchImpl: async (url) => {
       calls.push(String(url));
       const requestUrl = new URL(String(url));
       if (requestUrl.hostname === "api.nal.usda.gov") {
         return { ok: false, status: 503, json: async () => ({}) };
       }
-      return { ok: true, json: async () => ({ products: [product] }) };
+      return { ok: true, json: async () => ({ hits: [product] }) };
     },
   });
   assert.equal(result.ok, true);
@@ -198,7 +265,7 @@ test("verified search reports provider failure only after every configured path 
 
 test("Open Food Facts helper remains the barcode-adjacent fallback without a USDA key", async () => {
   const result = await searchOpenFoodFactsFoods("greek yogurt", {
-    fetchImpl: async () => ({ ok: true, json: async () => ({ products: [product] }) }),
+    fetchImpl: async () => ({ ok: true, json: async () => ({ hits: [product] }) }),
   });
   assert.equal(result.ok, true);
   assert.equal(result.provider, "open_food_facts");
