@@ -52,6 +52,12 @@ function loadIntentClassifier() {
   return loadWidgetTestApi().__intentReplyForTests;
 }
 
+test("chat session identifiers use browser cryptography with no insecure fallback", () => {
+  assert.equal(widgetSource.includes("Math.random"), false);
+  assert.match(widgetSource, /cryptoApi\.randomUUID/u);
+  assert.match(widgetSource, /cryptoApi\.getRandomValues/u);
+});
+
 test("configured AI endpoint handles every normal business question", () => {
   const widget = loadWidgetTestApi();
 

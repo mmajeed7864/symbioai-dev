@@ -1,4 +1,6 @@
-export const FITCOACH_SPEECH_VERSION = "2026-08-21.1";
+import { FITCOACH_DATA_CLASSIFICATIONS } from "./_fitcoach-data-classifications.js";
+
+export const FITCOACH_SPEECH_VERSION = "2026-08-31.2";
 export const MAX_SPEECH_CHARS = 1_200;
 export const DEFAULT_MONTHLY_SPEECH_CHAR_BUDGET = 75_000;
 export const SPEECH_BUDGET_TTL_SECONDS = 60 * 60 * 24 * 45;
@@ -89,13 +91,17 @@ function isPlainObject(value) {
 }
 
 function hasExactKeys(value, allowed) {
-  return isPlainObject(value)
-    && Object.keys(value).length === allowed.size
-    && Object.keys(value).every((key) => allowed.has(key));
+  return (
+    isPlainObject(value) &&
+    Object.keys(value).length === allowed.size &&
+    Object.keys(value).every((key) => allowed.has(key))
+  );
 }
 
 function normalizeCode(value) {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .trim()
+    .toLowerCase();
 }
 
 function positiveInteger(value, fallback) {
@@ -150,8 +156,16 @@ export async function reserveSpeechCharBudget(
   if (total === amount) await redis.expire(key, SPEECH_BUDGET_TTL_SECONDS);
   if (!total) throw new Error("VOICE_BUDGET_PROTECTION_UNAVAILABLE");
   if (total > limit) {
-    try { await redis.decrby(key, amount); } catch {}
-    return Object.freeze({ success: false, key, limit, chars: amount, used: Math.max(0, total - amount) });
+    try {
+      await redis.decrby(key, amount);
+    } catch {}
+    return Object.freeze({
+      success: false,
+      key,
+      limit,
+      chars: amount,
+      used: Math.max(0, total - amount),
+    });
   }
   return Object.freeze({ success: true, key, limit, chars: amount, used: total });
 }
@@ -162,8 +176,8 @@ export function parseSpeechRequest(value) {
   if (!hasNewEnvelope && !hasLegacyEnvelope) {
     return { ok: false, status: 400, error: "INVALID_REQUEST_ENVELOPE" };
   }
-  if (value.data_classification !== "synthetic_low_sensitivity") {
-    return { ok: false, status: 403, error: "REAL_USER_VOICE_EGRESS_DISABLED" };
+  if (value.data_classification !== FITCOACH_DATA_CLASSIFICATIONS.generatedCoachReply) {
+    return { ok: false, status: 400, error: "UNSUPPORTED_DATA_CLASSIFICATION" };
   }
   const text = cleanSpeechText(value.text);
   const sessionId = safeSpeechSessionId(value.session_id);
@@ -171,15 +185,17 @@ export function parseSpeechRequest(value) {
   const gender = normalizeCode(value.voice_gender);
   const profile = hasNewEnvelope
     ? normalizeCode(value.voice_profile)
-    : gender === "female" ? "nova" : "atlas";
+    : gender === "female"
+      ? "nova"
+      : "atlas";
   if (
-    !text
-    || text.length > MAX_SPEECH_CHARS
-    || !sessionId
-    || !TONE_SET.has(tone)
-    || !GENDER_SET.has(gender)
-    || !PROFILE_SET.has(profile)
-    || PROFILE_GENDERS[profile] !== gender
+    !text ||
+    text.length > MAX_SPEECH_CHARS ||
+    !sessionId ||
+    !TONE_SET.has(tone) ||
+    !GENDER_SET.has(gender) ||
+    !PROFILE_SET.has(profile) ||
+    PROFILE_GENDERS[profile] !== gender
   ) {
     return { ok: false, status: 400, error: "INVALID_REQUEST_CONFIGURATION" };
   }
@@ -211,11 +227,23 @@ function baseProfileKey(profile) {
 }
 
 export function resolveVoiceProfile(request, env = process.env) {
-  const genderFallback = configuredVoiceId(env[baseVoiceKey(request.gender)], DEFAULT_VOICE_IDS[request.gender]);
-  const toneFallback = configuredVoiceId(env[toneVoiceKey(request.gender, request.tone)], genderFallback);
-  const profileDefault = configuredVoiceId(DEFAULT_PROFILE_VOICE_IDS[request.profile], toneFallback);
+  const genderFallback = configuredVoiceId(
+    env[baseVoiceKey(request.gender)],
+    DEFAULT_VOICE_IDS[request.gender]
+  );
+  const toneFallback = configuredVoiceId(
+    env[toneVoiceKey(request.gender, request.tone)],
+    genderFallback
+  );
+  const profileDefault = configuredVoiceId(
+    DEFAULT_PROFILE_VOICE_IDS[request.profile],
+    toneFallback
+  );
   const profileFallback = configuredVoiceId(env[baseProfileKey(request.profile)], profileDefault);
-  const voiceId = configuredVoiceId(env[profileVoiceKey(request.profile, request.tone)], profileFallback);
+  const voiceId = configuredVoiceId(
+    env[profileVoiceKey(request.profile, request.tone)],
+    profileFallback
+  );
   const modelId = MODELS.has(String(env.FITCOACH_ELEVENLABS_MODEL || "").trim())
     ? String(env.FITCOACH_ELEVENLABS_MODEL).trim()
     : "eleven_flash_v2_5";

@@ -150,6 +150,7 @@
   const el = {};
   const history = [];
   let aiCalls = 0;
+  let volatileChatSessionId = "";
   let lead = { step: null, name: "", contact: "", detail: "" };
 
   /* ---- Small helpers --------------------------------------------------- */
@@ -646,19 +647,35 @@
       .join(" ");
   }
 
+  function createSecureChatSessionId() {
+    const cryptoApi = window.crypto;
+    if (!cryptoApi) return "";
+    if (typeof cryptoApi.randomUUID === "function") {
+      return "chat_" + cryptoApi.randomUUID().replace(/-/g, "");
+    }
+    if (typeof cryptoApi.getRandomValues !== "function") return "";
+    const bytes = new Uint8Array(16);
+    cryptoApi.getRandomValues(bytes);
+    return "chat_" + Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
   function chatSessionId() {
+    if (volatileChatSessionId) return volatileChatSessionId;
     const storageKey = "symbio-ai-chat-session";
     try {
       const existing = window.sessionStorage.getItem(storageKey);
-      if (existing) return existing;
-      const created =
-        window.crypto && typeof window.crypto.randomUUID === "function"
-          ? window.crypto.randomUUID()
-          : "chat_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
-      window.sessionStorage.setItem(storageKey, created);
-      return created;
+      if (existing) {
+        volatileChatSessionId = existing;
+        return existing;
+      }
+      volatileChatSessionId = createSecureChatSessionId();
+      if (volatileChatSessionId) {
+        window.sessionStorage.setItem(storageKey, volatileChatSessionId);
+      }
+      return volatileChatSessionId;
     } catch (error) {
-      return "chat_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+      volatileChatSessionId = createSecureChatSessionId();
+      return volatileChatSessionId;
     }
   }
 

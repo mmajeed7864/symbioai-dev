@@ -104,10 +104,16 @@ credential remains live.
 ## Verified nutrition providers
 
 Text search uses USDA FoodData Central first when `FDC_API_KEY` is present server-side and falls
-back explicitly to Open Food Facts. Results identify their source and per-100g basis. Barcode
-lookup remains Open Food Facts. If every configured provider fails, the API reports
+back explicitly to the Open Food Facts Search-a-licious POST API. The query stays out of the URL,
+and the request asks for only the bounded product and nutrient fields required by FitCoach. Results
+identify their source and per-100g basis. Barcode lookup remains Open Food Facts. Food requests
+must declare `user_provided_food_lookup`; the API rejects synthetic and cross-purpose labels. If
+every configured provider fails, the API reports
 `NUTRITION_PROVIDER_UNAVAILABLE`; it never invents a verified result. Photo recognition remains
 unavailable until a reviewed vision provider is configured.
+
+The legacy Open Food Facts `/cgi/search.pl` endpoint is not used. It is a legacy full-text API and
+can return a temporary 503 even while the dedicated Search-a-licious service is healthy.
 
 ## Server variables
 

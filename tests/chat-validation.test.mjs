@@ -15,6 +15,7 @@ import {
   isBusinessConversation,
   isContextDependentFollowup,
   normalizeMessages,
+  neutralizeHtmlMarkup,
   safeSessionId,
   sensitiveTypesInText,
   shouldEnforceChatBudget,
@@ -232,4 +233,15 @@ test("origin, session, cache, and reply helpers are deterministic", () => {
   );
   assert.equal(boundaryLeak.includes("4111"), false);
   assert.equal(sensitiveTypesInText(boundaryLeak).length, 0);
+});
+
+test("HTML neutralization is complete and idempotent for nested markup", () => {
+  const nestedMarkup = "<scr<script>ipt>alert(1)</script><strong>Keep training text</strong>";
+  const neutralized = neutralizeHtmlMarkup(nestedMarkup);
+
+  assert.equal(neutralized.includes("<"), false);
+  assert.equal(neutralized.includes(">"), false);
+  assert.equal(neutralizeHtmlMarkup(neutralized), neutralized);
+  assert.equal(cleanModelReply("<strong>Keep training text</strong>"), "Keep training text");
+  assert.equal(cleanModelReply(cleanModelReply(nestedMarkup)), cleanModelReply(nestedMarkup));
 });

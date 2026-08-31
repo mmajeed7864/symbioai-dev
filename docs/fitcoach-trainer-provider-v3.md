@@ -1,6 +1,6 @@
 # FitCoach trainer provider v3
 
-Status: private synthetic founder research. These routes are not approved for real-user health data, public accounts, medical advice, plan mutation, or microphone-audio upload.
+Status: bounded ordinary fitness text. These routes are not approved for medical or health records, personal identifiers, credentials, medical advice, plan mutation, or microphone-audio upload.
 
 Trainer text endpoint: `/api/fitcoach-chat-v3`. Spoken-reply endpoint: `/api/fitcoach-speech-v2`. The founder PWA moved to these bounded contracts on 2026-08-20. `/api/fitcoach-chat`, `/api/fitcoach-chat-v2`, `/api/fitcoach-transcribe`, and `/api/fitcoach-speech` return `410 Gone`; they cannot route text or audio to a provider.
 
@@ -8,7 +8,15 @@ Trainer text endpoint: `/api/fitcoach-chat-v3`. Spoken-reply endpoint: `/api/fit
 
 The deterministic FitCoach layer owns safety, the selected intervention, plan facts, memory, and any later plan approval. The model is a copy renderer: it may phrase an already-approved coaching response, but it cannot choose an action, write memory, activate a plan, diagnose, clear someone to train, or make a safety decision.
 
-The request is rejected unless it is an exact `synthetic_low_sensitivity` envelope. The provider projection contains only allow-listed ordinary training codes and small counts. It excludes names, profile IDs, bodyweight, conditions, medication, raw plans, raw workout history, memory, and audio. Safety and private-data interception happen before any provider request. Intercepted text is not persisted and is never sent to text-to-speech.
+Every request must use one truthful, purpose-bound classification:
+
+- trainer input: `user_provided_fitness_coaching_text`;
+- food search or barcode input: `user_provided_food_lookup`;
+- spoken coach output: `generated_coach_reply_text`.
+
+`synthetic_low_sensitivity`, generic `real_user`, and cross-purpose classifications are rejected. A classification describes provenance and purpose; it is not permission to send arbitrary personal or health data.
+
+The coach provider receives the user-provided message, up to six filtered ordinary-fitness conversation turns, and an allow-listed projection of training codes and small counts. It excludes names, profile IDs, bodyweight, conditions, medication, raw plans, raw workout history, memory, and audio. Safety, secret, identifier, and private-health interception happen before any provider request. Intercepted text is not persisted and is never sent to text-to-speech. Provider-attempt logs contain metadata only, never raw prompts or replies.
 
 ## Direct provider order
 
@@ -39,9 +47,9 @@ The endpoint uses the existing Redis-backed IP/session rate limits and Symbio mo
 
 ## Privacy gate
 
-DeepSeek's current privacy terms say its service is not intended for sensitive data such as health data and describe model-improvement use and processing/storage in China. Qwen Model Studio publishes a no-training statement and a US region, but real-user activation still needs retention, DPA, consent, and legal review.
+DeepSeek's current privacy terms say its service is not intended for sensitive data such as health data and describe model-improvement use and processing/storage in China. Qwen Model Studio publishes a no-training statement and a US region, but production use still needs retention, DPA, consent, privacy-notice, and legal review.
 
-Therefore the current route fails closed for `real_user` classification and accepts only synthetic, low-sensitivity founder prompts. Do not bypass this gate to test a real profile.
+The route accepts only bounded, ordinary user-provided fitness coaching text. It fails closed when the client misclassifies provenance or when the text contains detected private-health data, identifiers, credentials, or urgent/safety content. Do not use the route for a medical profile or private record.
 
 Official references:
 
@@ -52,12 +60,12 @@ Official references:
 
 ## Voice and presentation
 
-The founder PWA uses browser/device speech recognition. It does not create, store, or upload microphone audio through the FitCoach API. For replies already cleared for speech, `/api/fitcoach-speech-v2` accepts one exact synthetic low-sensitivity text-only envelope, streams ElevenLabs MP3 audio, and exposes no provider secret to the browser. Nova is the female profile and Atlas the male profile. Supportive, Direct, Strict, and Competitive select reviewed delivery settings, but never change safety, facts, actions, or plan semantics. If ElevenLabs is unavailable or autoplay is blocked, the app falls back to device speech and keeps the text reply visible.
+The PWA uses browser/device speech recognition. It does not create, store, or upload microphone audio through the FitCoach API. For replies already cleared for speech, `/api/fitcoach-speech-v2` accepts one exact `generated_coach_reply_text` envelope, streams ElevenLabs MP3 audio, and exposes no provider secret to the browser. It rejects arbitrary user-dictation and food-lookup classifications. Nova is the female profile and Atlas the male profile. Supportive, Direct, Strict, Competitive, and Rude select reviewed delivery settings, but never change safety, facts, actions, or plan semantics. If ElevenLabs is unavailable or autoplay is blocked, the app falls back to device speech and keeps the text reply visible.
 
 ElevenLabs processes only the bounded spoken coach reply text. Its provider retention and account terms remain external to FitCoach, so the UI does not promise zero retention. Strict must remain firm without shame, punishment, unsafe escalation, or pressure to ignore pain or rest.
 
 ## Verification
 
-Run the repository tests and secret scan before any provider activation. The FitCoach suite covers the 43-case safety floor, exact request and provider contracts, DeepSeek-first routing under every mode, direct Qwen failover, rejection of Kimi/OpenRouter configuration, timeouts, oversized and unsafe output, projection leakage, deterministic personality fallback, exact text-only speech envelopes, female/male profiles, and per-tone voice settings.
+Run the repository tests and secret scan before any provider activation. The FitCoach suite covers the 43-case safety floor, exact truthful classification and provider contracts, rejection of synthetic and cross-purpose labels, DeepSeek-first routing under every mode, direct Qwen failover, rejection of Kimi/OpenRouter configuration, timeouts, oversized and unsafe output, projection leakage, deterministic personality fallback, exact text-only speech envelopes, female/male profiles, and per-tone voice settings.
 
-Still required before any real-user or general public release: independent provider privacy approval, authenticated identity, real-device acceptance testing, and explicit plan-diff approval/rollback wiring.
+Still required before general public release: independent provider privacy approval, explicit disclosure and consent, authenticated identity, real-device acceptance testing, and explicit plan-diff approval/rollback wiring.
