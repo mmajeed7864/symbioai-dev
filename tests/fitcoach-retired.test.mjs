@@ -5,7 +5,9 @@ import test from "node:test";
 import legacyChat from "../api/fitcoach-chat.js";
 import legacyChatV2 from "../api/fitcoach-chat-v2.js";
 import legacySpeech from "../api/fitcoach-speech.js";
-import legacyTranscribe from "../api/fitcoach-transcribe.js";
+
+const legacyTranscribe = (req, res) =>
+  legacyChat({ ...req, query: { ...(req.query || {}), fitcoach_retired: "transcribe" } }, res);
 
 function responseProbe() {
   return {
@@ -42,10 +44,7 @@ const retiredRoutes = [
 test("all legacy FitCoach endpoints return an explicit no-store 410", async () => {
   for (const [handler, endpoint, replacement] of retiredRoutes) {
     const res = responseProbe();
-    await handler(
-      { method: "POST", headers: { origin: "https://mmajeed7864.github.io" } },
-      res
-    );
+    await handler({ method: "POST", headers: { origin: "https://mmajeed7864.github.io" } }, res);
     assert.equal(res.statusCode, 410, endpoint);
     assert.deepEqual(res.body, {
       ok: false,
@@ -60,7 +59,10 @@ test("all legacy FitCoach endpoints return an explicit no-store 410", async () =
 
 test("retired routes keep preflight working and reject unknown origins", async () => {
   const preflight = responseProbe();
-  await legacyChat({ method: "OPTIONS", headers: { origin: "https://mmajeed7864.github.io" } }, preflight);
+  await legacyChat(
+    { method: "OPTIONS", headers: { origin: "https://mmajeed7864.github.io" } },
+    preflight
+  );
   assert.equal(preflight.statusCode, 204);
   assert.equal(preflight.ended, true);
 
@@ -75,9 +77,11 @@ test("the complete FitCoach API surface contains no retired provider route", asy
   const files = (await readdir(apiDirectory))
     .filter((file) => /^_?fitcoach.*\.js$/.test(file))
     .sort();
-  const source = (await Promise.all(
-    files.map(async (file) => `${file}\n${await readFile(new URL(file, apiDirectory), "utf8")}`)
-  )).join("\n");
+  const source = (
+    await Promise.all(
+      files.map(async (file) => `${file}\n${await readFile(new URL(file, apiDirectory), "utf8")}`)
+    )
+  ).join("\n");
 
   for (const forbidden of [/\bkimi\b/i, /\bmoonshot\b/i, /\bopenrouter\b/i]) {
     assert.equal(forbidden.test(source), false, String(forbidden));

@@ -173,7 +173,9 @@ async function handleNutritionRequest(req, res) {
   return res.status(200).json({
     ok: true,
     action: parsed.request.action,
-    provider: "open_food_facts",
+    provider: result.provider || result.food?.source || result.foods?.[0]?.source || "verified_nutrition",
+    fallback_used: Boolean(result.fallbackUsed),
+    fallback_reason: result.fallbackReason || null,
     nutrition_version: FITCOACH_NUTRITION_VERSION,
     food: result.food || null,
     foods: result.foods || [],

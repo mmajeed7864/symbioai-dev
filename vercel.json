@@ -2,6 +2,32 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/fitcoach-platform-config-v1",
+      "destination": "/api/fitcoach-platform-v1?fitcoach_route=config"
+    },
+    {
+      "source": "/api/fitcoach-sync-v1",
+      "destination": "/api/fitcoach-platform-v1?fitcoach_route=sync"
+    },
+    {
+      "source": "/api/fitcoach-account-v1",
+      "destination": "/api/fitcoach-platform-v1?fitcoach_route=account"
+    },
+    {
+      "source": "/api/fitcoach-entitlements-v1",
+      "destination": "/api/fitcoach-platform-v1?fitcoach_route=entitlements"
+    },
+    {
+      "source": "/api/fitcoach-subscriptions-v1",
+      "destination": "/api/fitcoach-platform-v1?fitcoach_route=subscriptions"
+    },
+    {
+      "source": "/api/fitcoach-transcribe",
+      "destination": "/api/fitcoach-chat?fitcoach_retired=transcribe"
+    }
+  ],
   "redirects": [
     {
       "source": "/contact.html",
