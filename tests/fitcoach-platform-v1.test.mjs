@@ -571,6 +571,7 @@ test("successful subscription reconciliation stores only digests and returns ser
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.premium, true);
   assert.equal(response.body.operation, "reconcile");
+  assert.match(response.body.verification_id, /^[a-f0-9]{64}$/u);
   assert.doesNotMatch(
     JSON.stringify(response.body),
     /123456789012345|provider-reference-never-store-raw/
