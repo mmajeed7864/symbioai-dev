@@ -58,6 +58,7 @@ export function createFitCoachSubscriptionsHandler({
         platform: parsed.request.platform,
         reconciled: true,
         replayedEvent: !applied,
+        verification_id: verified.eventId,
         premium: entitlements.some((item) => item.active),
         entitlements,
         platformVersion: FITCOACH_PLATFORM_VERSION,
