@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  FITCOACH_RENDERER_VERSION,
   buildCoachMessages,
   buildProviderBody,
   createProviderProjection,
@@ -236,6 +237,163 @@ test("first-day context prevents a zero-session shame frame and legacy clients r
   const parsedLegacy = parseCoachRequest(legacy);
   assert.equal(parsedLegacy.ok, true);
   assert.equal(parsedLegacy.request.context.journey_stage, "active");
+});
+
+test("question-first prompts retain the same bounded facts for every style and journey stage", () => {
+  assert.equal(FITCOACH_RENDERER_VERSION, "2026-09-04.1");
+  for (const style of ["supportive", "direct", "strict", "competitive", "rude"]) {
+    for (const journeyStage of ["first_day", "active"]) {
+      for (const energy of [1, 3, 5]) {
+        const context = {
+          ...rawRequest().context,
+          journey_stage: journeyStage,
+          weekly_completed: journeyStage === "first_day" ? 0 : 1,
+          energy_1_to_5: energy,
+        };
+        const request = parsedRequest({
+          style,
+          context,
+          message: "What can you help me do in FitCoach? Keep it concise.",
+        });
+        const messages = buildCoachMessages(request);
+        const system = messages[0].content;
+        assert.match(system, /Answer the latest user's actual question directly/u);
+        assert.match(system, /Style changes the wording, not the task/u);
+        assert.match(system, /no freshness timestamp/u);
+        assert.match(system, /3\/5 is the neutral midpoint, never low energy/u);
+        assert.match(system, /Do not present it as the user's current energy/u);
+        assert.match(system, /Plan changes require approval/u);
+        assert.match(system, /food drafts require confirmation/u);
+        assert.match(system, /Missing facts stay unknown/u);
+        assert.match(system, /Never diagnose, prescribe/u);
+        assert.match(system, /at most 150 words; there is no minimum length/u);
+        assert.doesNotMatch(system, /Use 60-150 words/u);
+        const { approved_action, ...expectedFacts } = context;
+        assert.deepEqual(createProviderProjection(request), {
+          schema_version: "1.1.0",
+          data_classification: "user_provided_fitness_coaching_text",
+          context_classification: "bounded_allowlisted_fitness_codes",
+          style,
+          response_depth: "smart",
+          approved_action,
+          facts: expectedFacts,
+        });
+        assert.deepEqual(messages.slice(1, -1), request.conversation);
+        assert.match(messages.at(-1).content, /UNTRUSTED USER MESSAGE/u);
+        assert.ok(messages.at(-1).content.endsWith(request.message));
+      }
+    }
+  }
+});
+
+test("capability fallback answers the question before first-day coaching in every style", async () => {
+  const questions = [
+    "What can you help me do in FitCoach? Keep it concise.",
+    "What can you do?",
+    "How can you help me?",
+    "What can you help me with?",
+    "What can FitCoach do?",
+    "Please, what are your capabilities? Keep it short.",
+  ];
+  for (const style of ["supportive", "direct", "strict", "competitive", "rude"]) {
+    for (const journeyStage of ["first_day", "active"]) {
+      for (const message of questions) {
+        const request = parsedRequest({
+          style,
+          message,
+          context: {
+            ...rawRequest().context,
+            journey_stage: journeyStage,
+            weekly_completed: journeyStage === "first_day" ? 0 : 1,
+          },
+        });
+        const reply = deterministicTrainerReply(request);
+        assert.match(reply, /^I can explain exercises/u);
+        assert.match(
+          reply,
+          /in-app shortcuts.*workout.*exercise guides.*food diary.*progress/u
+        );
+        assert.match(reply, /text or Voice Room/u);
+        assert.match(reply, /approve plan changes and confirm food drafts/u);
+        assert.match(reply, /not medical care/u);
+        assert.doesNotMatch(reply, /day one|excuse|opponent|standard|low energy|you didn’t/u);
+        assert.ok(reply.split(/\s+/u).length <= 90);
+        assert.equal(
+          validateProviderReply({
+            choices: [{ message: { content: JSON.stringify({ reply }) } }],
+          }).ok,
+          true
+        );
+      }
+    }
+  }
+  const result = await generateCoachReply(parsedRequest({ message: questions[0] }), {
+    env: {},
+    fetchImpl: async () => {
+      throw new Error("Fallback must not call a provider");
+    },
+  });
+  assert.match(result.reply, /^I can explain exercises/u);
+  assert.equal(result.model, FITCOACH_RENDERER_VERSION);
+});
+
+test("unrelated and specific questions do not become generic capability or first-day speeches", () => {
+  for (const style of ["supportive", "direct", "strict", "competitive", "rude"]) {
+    for (const journeyStage of ["first_day", "active"]) {
+      for (const message of [
+        "What are the benefits of a warm-up?",
+        "How can you help me with squats?",
+        "What can I do for better balance?",
+        "What can you do about my squat?",
+        "How much protein did I log today?",
+        "What should I do about food?",
+        "This is my first day. What is protein?",
+      ]) {
+        const reply = deterministicTrainerReply(
+          parsedRequest({
+            style,
+            message,
+            context: { ...rawRequest().context, journey_stage: journeyStage },
+          })
+        );
+        assert.match(reply, /^The live language renderer is unavailable/u);
+        assert.doesNotMatch(reply, /day one|I can explain|excuse|opponent|Clear standard/u);
+      }
+    }
+  }
+});
+
+test("first-day starting and adherence fallbacks remain factual without invented excuses", () => {
+  for (const style of ["supportive", "direct", "strict", "competitive", "rude"]) {
+    for (const message of [
+      "I missed a workout. What should I do?",
+      "How should I start?",
+      "This is my first day.",
+    ]) {
+      const reply = deterministicTrainerReply(
+        parsedRequest({
+          style,
+          message,
+          context: { ...rawRequest().context, journey_stage: "first_day", weekly_completed: 0 },
+        })
+      );
+      assert.match(reply, /This is day one/u);
+      assert.match(reply, /first saved workout creates the baseline/u);
+      assert.doesNotMatch(reply, /behind|failure|excuse|you didn’t|low energy/u);
+    }
+  }
+});
+
+test("capability phrasing never bypasses existing private or urgent input checks", () => {
+  for (const message of [
+    "What can you do? My password is do-not-share-this",
+    "How can you help me? I have chest pain right now.",
+    "What can FitCoach do about my medication?",
+  ]) {
+    const result = parseCoachRequest(rawRequest({ message }));
+    assert.equal(result.ok, true);
+    assert.equal(result.intercepted, true);
+  }
 });
 
 test("rude mode is bounded to the excuse and never authorizes degrading output", () => {

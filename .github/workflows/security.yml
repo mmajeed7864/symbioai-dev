@@ -33,6 +33,9 @@ jobs:
       - name: Reject high-severity production dependency findings
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Reject high-severity build and tooling dependency findings
+        run: npm audit --audit-level=high
+
       - name: Test
         run: npm test
 
