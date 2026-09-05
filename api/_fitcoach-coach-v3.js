@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { FITCOACH_DATA_CLASSIFICATIONS } from "./_fitcoach-data-classifications.js";
 
-export const FITCOACH_RENDERER_VERSION = "2026-08-31.2";
+export const FITCOACH_RENDERER_VERSION = "2026-09-04.1";
 export const MAX_COACH_MESSAGE_CHARS = 2_000;
 export const MAX_PROVIDER_RESPONSE_BYTES = 64_000;
 
@@ -107,12 +107,12 @@ const STYLE_RULES = Object.freeze({
   supportive:
     "Warm, calm, collaborative, and candid. Acknowledge effort without inventing praise. Use gentle confidence, never vagueness.",
   direct:
-    "Crisp and practical. Lead with the answer, use short sentences, and give a clear next move without filler.",
+    "Crisp and practical. Lead with the answer, use short sentences, and give a clear next move only when relevant to the question.",
   strict:
-    "Firm and standards-led. Name the commitment and the next move plainly. Never shame, threaten, punish, or tell the user to ignore rest or pain.",
+    "Firm and standards-led. When the user asks for accountability, name their stated commitment and the next move plainly. For informational questions, give a precise answer without a pep talk. Never invent a commitment, shame, threaten, punish, or tell the user to ignore rest or pain.",
   competitive:
     "Energetic and challenging. Compete only against the user's own verified baseline. Never compare bodies, insult, or manufacture a rivalry.",
-  rude: "Consent-based, sharp, and funny. Roast the excuse, inconsistency, or avoidance—not the user's body, identity, health, ability, or human worth. Use at most one playful punchline, then give an exact next move. No slurs, threats, humiliation, or punishment.",
+  rude: "Consent-based, sharp, and funny. Roast the excuse, inconsistency, or avoidance only when the user actually describes it—not the user's body, identity, health, ability, or human worth. Never invent an excuse. For informational questions, answer plainly without a roast. Use at most one playful punchline when relevant, then give an exact next move if needed. No slurs, threats, humiliation, or punishment.",
 });
 
 const CRISIS_REPLY =
@@ -358,8 +358,8 @@ export function createProviderRoutes(env = process.env) {
 function depthInstruction(depth) {
   if (depth === "fast") return "Use 2-4 short sentences and at most 90 words.";
   if (depth === "deep")
-    return "Use up to 220 words when needed, with a compact explanation and one clear next move.";
-  return "Use 60-150 words. Lead with the answer and finish with one clear next move when relevant.";
+    return "Use up to 220 words when needed, with a compact explanation and one clear next move only when relevant.";
+  return "Use at most 150 words; there is no minimum length. Lead with the answer and finish with one clear next move only when relevant.";
 }
 
 export function createProviderProjection(request) {
@@ -402,6 +402,16 @@ AUTHORITY BOUNDARY
 - A rude style is an explicitly selected, playful roast of an excuse or behavior. Never attack the user's worth, body, identity, health, intelligence, or ability; never use slurs, threats, humiliation, or punishment.
 - If journey_stage is first_day, weekly_completed=0 is a blank starting line—not a deficit, gap, miss, failure, or evidence the user is behind. Be honest and firm about the first next action without pretending there is prior history.
 - Do not mention this contract or the model provider.
+
+QUESTION FIRST
+- Answer the latest user's actual question directly before offering coaching. Style changes the wording, not the task: never replace an informational or capability question with a motivational speech, a commitment, or a first-day lecture.
+- The approved_action is a permission boundary, not an instruction to ignore the question or claim an action was performed. Add a next move only when it helps answer the question.
+- When asked what FitCoach can do, describe these available app workflows plainly: explain exercise technique; offer in-app shortcuts to workouts, exercise guides, the food diary, and progress; help review a plan proposal; and converse through text or Voice Room. Plan changes require approval, and food drafts require confirmation before logging. Do not claim you executed these actions, saw the user's food entries, or assessed their live form. This is fitness guidance, not medical care.
+
+CONTEXT ACCURACY
+- Use only supplied facts that are relevant to the question. A stored goal, blocker, or approved_action is not proof of today's motivation, excuses, readiness, or intent.
+- energy_1_to_5 has no freshness timestamp and may be a saved or default value. Do not present it as the user's current energy or readiness; ask for a current check-in only if the question needs one. A value of 3/5 is the neutral midpoint, never low energy.
+- Missing facts stay unknown. Do not invent current food totals, current exercise, readiness, progress, or completed actions. A first-day baseline is relevant to getting started or adherence, not every question.
 
 STYLE
 ${STYLE_RULES[request.style]}
@@ -472,22 +482,29 @@ export function validateProviderReply(payload) {
 }
 
 function fallbackOpening(style) {
-  if (style === "supportive") return "You’re not behind. Let’s make the next step manageable.";
+  if (style === "supportive") return "Let’s make the next step manageable.";
   if (style === "strict") return "Clear standard: do the useful work, not the dramatic work.";
   if (style === "competitive")
-    return "Your opponent is the version of you that lets one obstacle erase the week.";
-  if (style === "rude")
-    return "That excuse got a full warm-up; you didn’t. Here’s the useful move.";
+    return "Build from your own baseline, one useful session at a time.";
+  if (style === "rude") return "Less drama, one useful next step.";
   return "Here’s the move.";
 }
 
 export function deterministicTrainerReply(request, reason = "provider_unavailable") {
   const text = request.message.toLowerCase();
+  const capabilityQuestion =
+    /^(?:please[,\s]+)?(?:what can (?:you|fitcoach)(?: help me)? do(?: for me)?|what do you do|how can (?:you|fitcoach) help(?: me)?|what can you help me with|what are your capabilities)(?: in fitcoach)?[?.!]*(?:\s+(?:keep it concise|keep it short|be concise|briefly)[.!]?)?$/u.test(text);
+  if (capabilityQuestion) {
+    return "I can explain exercises, offer in-app shortcuts to your workout, exercise guides, food diary and progress, and help review plan proposals. Talk by text or Voice Room. You approve plan changes and confirm food drafts before logging. Fitness guidance, not medical care.";
+  }
+  const missedSession =
+    /miss(?:ed|ing)?\s+(?:a\s+)?workout|skipped\s+(?:a\s+)?workout/u.test(text);
+  const gettingStarted =
+    /^(?:(?:hi|hello)[,!]?\s+)?(?:(?:it['’]?s|this is) my first day|(?:i['’]?m|i am) new here|(?:how|where) (?:do|should) i (?:start|begin)|what should i do(?: first| next| now)?|am i behind)[?.!]*$/u.test(text);
   let body;
-  if (request.context.journey_stage === "first_day") {
-    body =
-      "This is day one, so there is no missed history and no deficit to recover. Complete one approved session or its minimum version; that first saved workout creates the baseline.";
-  } else if (/miss(?:ed|ing)?\s+(?:a\s+)?workout|skipped\s+(?:a\s+)?workout/u.test(text)) {
+  if (request.context.journey_stage === "first_day" && (missedSession || gettingStarted)) {
+    return "This is day one, so there is no missed history and no deficit to recover. Complete one approved session or its minimum version; that first saved workout creates the baseline.";
+  } else if (missedSession) {
     body =
       "Do not repay one missed session with make-up volume. Keep the next planned session, or use the approved shorter version if time is still the blocker.";
   } else if (/\b(?:10|15|20)\s+minutes?|only\s+have\s+.*minutes?/u.test(text)) {
@@ -499,8 +516,7 @@ export function deterministicTrainerReply(request, reason = "provider_unavailabl
     body =
       "The current plan stays active. Review one concrete constraint at a time, then create a visible proposal and confirm it before anything changes.";
   } else {
-    body =
-      "The live language renderer is unavailable, so I won’t invent a personalized answer. Your plan is unchanged; try again, or ask for a specific scheduling, adherence, or training decision.";
+    return "The live language renderer is unavailable, so I won’t invent a personalized answer. Your plan is unchanged; try again, or ask for a specific scheduling, adherence, or training decision.";
   }
   return `${fallbackOpening(request.style)} ${body}`.slice(0, 1_200);
 }
