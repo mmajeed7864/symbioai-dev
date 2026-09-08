@@ -11,6 +11,7 @@ import {
   limitFitCoachAccount,
   limitFitCoachIp,
 } from "./_fitcoach-rate-limit.js";
+import { isAllowedFitCoachOrigin, setFitCoachCors } from "./_fitcoach-cors.js";
 
 export const FITCOACH_PLATFORM_VERSION = "2026-08-31.1";
 export const FITCOACH_SYNC_CONSENT_POLICY = "sync_processing";
@@ -19,15 +20,6 @@ export const RECENT_AUTH_MAX_AGE_SECONDS = 10 * 60;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DEVICE_PATTERN = /^[a-zA-Z0-9._:-]{8,120}$/;
-const ALLOWED_ORIGINS = new Set([
-  "https://mmajeed7864.github.io",
-  "https://symbioai.dev",
-  "https://www.symbioai.dev",
-  "http://localhost:4173",
-  "http://127.0.0.1:4173",
-  "http://localhost:8080",
-  "http://127.0.0.1:8080",
-]);
 
 const isRecord = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
 const clean = (value, max = 160) =>
@@ -49,27 +41,19 @@ export class FitCoachPlatformError extends Error {
 }
 
 export function isAllowedPlatformOrigin(value) {
-  const origin = clean(value, 300);
   // Native URLSession/OkHttp requests do not send an Origin header. Browser
-  // callers do, and must match this explicit list.
-  return !origin || ALLOWED_ORIGINS.has(origin);
+  // callers (including native WebViews) do. Authentication is still required.
+  return isAllowedFitCoachOrigin(value, { allowMissing: true });
 }
 
 export function setFitCoachPlatformCors(req, res, methods = "GET, PUT, POST, DELETE, OPTIONS") {
-  const origin = clean(req?.headers?.origin, 300);
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", methods);
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Authorization, Content-Type, X-FitCoach-Build, X-FitCoach-Device"
-  );
-  res.setHeader("Cache-Control", "no-store, max-age=0");
+  setFitCoachCors(req, res, {
+    methods,
+    headers: "Authorization, Content-Type, X-FitCoach-Build, X-FitCoach-Device",
+    exposedHeaders: "Retry-After",
+    vary: "Origin, Authorization",
+  });
   res.setHeader("Pragma", "no-cache");
-  res.setHeader("Access-Control-Expose-Headers", "Retry-After");
-  res.setHeader("Vary", "Origin, Authorization");
-  res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "no-referrer");
 }
 

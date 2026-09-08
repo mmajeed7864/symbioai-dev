@@ -1,4 +1,5 @@
 import { Ratelimit } from "@upstash/ratelimit";
+import { isAllowedFitCoachOrigin, setFitCoachCors } from "./_fitcoach-cors.js";
 import {
   getChatRedis,
   markBudgetReservationDispatched,
@@ -23,13 +24,6 @@ import {
   unavailableVisionNutritionEstimate,
 } from "./_fitcoach-nutrition-v1.js";
 
-const ALLOWED_ORIGINS = new Set([
-  "https://mmajeed7864.github.io",
-  "https://symbioai.dev",
-  "https://www.symbioai.dev",
-  "http://localhost:8080",
-  "http://127.0.0.1:8080",
-]);
 const MAX_BODY_BYTES = 24_000;
 const NUTRITION_ACTIONS = new Set(["barcode_lookup", "text_search", "vision_estimate"]);
 let protectionState;
@@ -55,16 +49,6 @@ function getProtection() {
       }
     : null;
   return protectionState;
-}
-
-function setCors(req, res) {
-  const origin = String(req.headers.origin || "");
-  if (ALLOWED_ORIGINS.has(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-FitCoach-Build");
-  res.setHeader("Cache-Control", "no-store, max-age=0");
-  res.setHeader("Vary", "Origin");
-  res.setHeader("X-Content-Type-Options", "nosniff");
 }
 
 function ipFor(req) {
@@ -184,16 +168,15 @@ async function handleNutritionRequest(req, res) {
 }
 
 export default async function handler(req, res) {
-  setCors(req, res);
+  setFitCoachCors(req, res);
+  if (!isAllowedFitCoachOrigin(req.headers?.origin)) {
+    return res.status(403).json({ ok: false, error: "ORIGIN_NOT_ALLOWED" });
+  }
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false, error: "METHOD_NOT_ALLOWED" });
   }
 
-  const origin = String(req.headers.origin || "");
-  if (!ALLOWED_ORIGINS.has(origin)) {
-    return res.status(403).json({ ok: false, error: "ORIGIN_NOT_ALLOWED" });
-  }
   const contentLength = Number(req.headers["content-length"] || 0);
   if (!Number.isFinite(contentLength) || contentLength < 0 || contentLength > MAX_BODY_BYTES) {
     return res.status(413).json({ ok: false, error: "REQUEST_TOO_LARGE" });
