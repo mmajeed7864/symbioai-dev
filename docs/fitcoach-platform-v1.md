@@ -101,6 +101,32 @@ operations, not Supabase's own sign-up/login endpoints; those still need provide
 References: [Vercel trusted request headers](https://vercel.com/docs/headers/request-headers),
 [Upstash Redis REST command API](https://upstash.com/docs/redis/features/restapi).
 
+### Real Redis regression gate
+
+`npm run test:fitcoach:redis` requires a real `redis-server` executable on PATH or the absolute
+path in `FITCOACH_TEST_REDIS_SERVER`. Missing Redis is a failure, not a skipped passing check.
+The dedicated GitHub workflow builds Redis 7.2.16 from its pinned upstream archive and verifies
+its SHA-256 against the [upstream hash list](https://github.com/redis/redis-hashes/blob/master/README).
+No additional application dependency or hosted storage is installed.
+
+The fixture starts its own temporary server with TCP disabled, an owner-only Unix socket,
+32 MiB memory limit and disk persistence disabled. It only removes the private temporary
+directory it created, and only terminates that child process. Production Redis URLs, tokens,
+data and environment files are never used. The production-generated EVAL command and arguments
+run unchanged through the test transport; Redis itself executes the Lua, counters and clock.
+This checks the atomic semantics described by the [Redis Lua documentation](https://redis.io/docs/latest/develop/interact/programmability/eval-intro/).
+
+The suite proves exact shared allowances across independent concurrent connections, all operation
+budgets and initial TTLs, non-extending denials, actual expiry/reset, normalized IP/account aliases,
+account/scope separation, invalid/immortal bucket rejection and failure when the real socket is lost.
+The expiry test deliberately shortens one private test key to 250 ms; original configured TTLs are
+asserted separately. It does not wait every full 15-minute window.
+
+This is stronger than a simulated Redis result, but it is not hosted Upstash/Redis staging proof:
+HTTPS, provider authentication, regional replicas, production proxy headers, provider backup
+retention and actual Supabase/database/device journeys must still be verified before activation.
+Production limiter behavior and configured quotas are unchanged by this test-only addition.
+
 State is encrypted by the API before it reaches Postgres using per-account HKDF-derived
 AES-256-GCM keys, a random nonce, authenticated envelope metadata, and a plaintext digest. This is
 encryption at the application layer, not end-to-end encryption: the FitCoach API can decrypt state

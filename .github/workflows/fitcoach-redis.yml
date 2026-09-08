@@ -1,0 +1,47 @@
+name: FitCoach real Redis
+
+on:
+  pull_request:
+    paths:
+      - "api/_fitcoach-rate-limit.js"
+      - "tests/integration/**"
+      - "package.json"
+      - ".github/workflows/fitcoach-redis.yml"
+  push:
+    branches: [main]
+    paths:
+      - "api/_fitcoach-rate-limit.js"
+      - "tests/integration/**"
+      - "package.json"
+      - ".github/workflows/fitcoach-redis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redis-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+      - name: Build pinned test-only Redis
+        shell: bash
+        run: |
+          set -euo pipefail
+          redis_build_dir="$(mktemp -d "$RUNNER_TEMP/fitcoach-redis.XXXXXX")"
+          cd "$redis_build_dir"
+          curl -fsSL --proto '=https' --tlsv1.2 https://download.redis.io/releases/redis-7.2.16.tar.gz -o redis-7.2.16.tar.gz
+          echo '960a8ec15e34ff40e57ff16837b26b33bd81f2da6d24497bb63de532a323a18e  redis-7.2.16.tar.gz' | sha256sum --check --strict
+          tar -xzf redis-7.2.16.tar.gz
+          make -C redis-7.2.16 -j2 MALLOC=libc BUILD_TLS=no redis-server
+          echo "FITCOACH_TEST_REDIS_SERVER=$redis_build_dir/redis-7.2.16/src/redis-server" >> "$GITHUB_ENV"
+      - name: Exercise the production Lua against real Redis
+        run: |
+          "$FITCOACH_TEST_REDIS_SERVER" --version
+          npm run test:fitcoach:redis
