@@ -10,6 +10,7 @@ import {
   saveFitCoachSyncState,
   setFitCoachPlatformCors,
 } from "./_fitcoach-platform.js";
+import { respondFitCoachAuthFailure } from "./_fitcoach-rate-limit.js";
 
 const MAX_REQUEST_BYTES = 1_600_000;
 
@@ -33,8 +34,9 @@ export default async function handler(req, res) {
     return res.status(413).json({ ok: false, error: "REQUEST_TOO_LARGE" });
   }
 
-  const auth = await authenticateFitCoachRequest(req);
-  if (!auth.ok) return res.status(auth.status).json({ ok: false, error: auth.error });
+  const rateLimitScope = req.method === "GET" ? "sync_read" : "sync_write";
+  const auth = await authenticateFitCoachRequest(req, { rateLimitScope });
+  if (!auth.ok) return respondFitCoachAuthFailure(res, auth);
 
   try {
     if (req.method === "GET") {

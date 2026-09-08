@@ -8,6 +8,7 @@ import {
   publicPlatformError,
   setFitCoachPlatformCors,
 } from "./_fitcoach-platform.js";
+import { respondFitCoachAuthFailure } from "./_fitcoach-rate-limit.js";
 
 export default async function handler(req, res) {
   setFitCoachPlatformCors(req, res, "GET, OPTIONS");
@@ -24,8 +25,8 @@ export default async function handler(req, res) {
   if (!publicFitCoachPlatformConfig().account.entitlementsAvailable) {
     return res.status(503).json({ ok: false, error: "ENTITLEMENTS_NOT_CONFIGURED" });
   }
-  const auth = await authenticateFitCoachRequest(req);
-  if (!auth.ok) return res.status(auth.status).json({ ok: false, error: auth.error });
+  const auth = await authenticateFitCoachRequest(req, { rateLimitScope: "entitlements" });
+  if (!auth.ok) return respondFitCoachAuthFailure(res, auth);
 
   try {
     const entitlements = await loadFitCoachEntitlements(auth.subjectId);

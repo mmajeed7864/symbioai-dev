@@ -47,6 +47,9 @@ function platformEnv(overrides = {}) {
     FITCOACH_DATA_ENCRYPTION_KEY_B64: DATA_KEY,
     FITCOACH_DATA_ENCRYPTION_KEY_VERSION: "v1",
     FITCOACH_SYNC_CONSENT_VERSION: "2026-08-31.1",
+    UPSTASH_REDIS_REST_URL: "https://test.upstash.io",
+    UPSTASH_REDIS_REST_TOKEN: "test-only-redis-token",
+    FITCOACH_RATE_LIMIT_SECRET: "test-only-secret-not-a-credential".repeat(2),
     ...overrides,
   };
 }
@@ -204,10 +207,13 @@ test("Supabase validates the bearer before identity is accepted", async () => {
   let calledUrl = "";
   let calledHeaders;
   const auth = await authenticateFitCoachRequest(
-    { headers: { authorization: `Bearer ${AUTH_TOKEN}` } },
+    { headers: { authorization: `Bearer ${AUTH_TOKEN}` }, socket: { remoteAddress: "127.0.0.1" } },
     {
       env: platformEnv(),
       fetchImpl: async (url, options) => {
+        if (String(url) === "https://test.upstash.io") {
+          return { ok: true, json: async () => ({ result: [1, JSON.parse(options.body)[5]] }) };
+        }
         calledUrl = String(url);
         calledHeaders = options.headers;
         return {
@@ -461,7 +467,10 @@ test("subscription route fails closed without verifier setup and never echoes th
   const env = platformEnv({ FITCOACH_ALLOWED_CLIENT_BUILDS: "0.5.4" });
   const handler = createFitCoachSubscriptionsHandler({
     env,
-    fetchImpl: async (url) => {
+    fetchImpl: async (url, options) => {
+      if (String(url) === "https://test.upstash.io") {
+        return { ok: true, json: async () => ({ result: [1, JSON.parse(options.body)[5]] }) };
+      }
       assert.match(String(url), /\/auth\/v1\/user$/);
       return {
         ok: true,
@@ -473,6 +482,7 @@ test("subscription route fails closed without verifier setup and never echoes th
   await handler(
     {
       method: "POST",
+      socket: { remoteAddress: "127.0.0.1" },
       headers: {
         authorization: `Bearer ${AUTH_TOKEN}`,
         origin: "https://mmajeed7864.github.io",
@@ -522,6 +532,9 @@ test("successful subscription reconciliation stores only digests and returns ser
       },
     },
     fetchImpl: async (url, options = {}) => {
+      if (String(url) === "https://test.upstash.io") {
+        return { ok: true, json: async () => ({ result: [1, JSON.parse(options.body)[5]] }) };
+      }
       requests.push({ url: String(url), options });
       if (String(url).endsWith("/auth/v1/user")) {
         return {
@@ -553,6 +566,7 @@ test("successful subscription reconciliation stores only digests and returns ser
   await handler(
     {
       method: "POST",
+      socket: { remoteAddress: "127.0.0.1" },
       headers: {
         authorization: `Bearer ${AUTH_TOKEN}`,
         origin: "https://mmajeed7864.github.io",

@@ -11,6 +11,7 @@ import {
   setFitCoachPlatformCors,
   verifyFitCoachSubscription,
 } from "./_fitcoach-platform.js";
+import { respondFitCoachAuthFailure } from "./_fitcoach-rate-limit.js";
 
 const MAX_REQUEST_BYTES = 8_192;
 
@@ -39,8 +40,12 @@ export function createFitCoachSubscriptionsHandler({
       return res.status(413).json({ ok: false, error: "REQUEST_TOO_LARGE" });
     }
 
-    const auth = await authenticateFitCoachRequest(req, { fetchImpl, env });
-    if (!auth.ok) return res.status(auth.status).json({ ok: false, error: auth.error });
+    const auth = await authenticateFitCoachRequest(req, {
+      fetchImpl,
+      env,
+      rateLimitScope: "subscription",
+    });
+    if (!auth.ok) return respondFitCoachAuthFailure(res, auth);
 
     const parsed = parseSubscriptionRequest(req.body);
     if (!parsed.ok) return res.status(parsed.status).json({ ok: false, error: parsed.error });

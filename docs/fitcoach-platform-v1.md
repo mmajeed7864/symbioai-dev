@@ -49,6 +49,84 @@ Origin header, and requires the client-build header. Sync writes require the lat
 new sync writes. Writes use database compare-and-swap revisions so two devices cannot silently
 overwrite one another.
 
+### Distributed abuse protection
+
+Authenticated account routes consume an IP/network bucket **before** calling Supabase Auth, then
+an operation-specific account bucket **after** Supabase validates the subject. Changing a device
+ID, bearer token, request body, or API alias cannot reset the account bucket. On Vercel only the
+platform-supplied `x-vercel-forwarded-for` header is trusted; outside Vercel only the socket address
+is used. Unrecognized deployment/proxy setups must be reviewed instead of trusting arbitrary
+forwarded headers. IPv4-mapped IPv6 addresses normalize to IPv4; IPv6 addresses share a /64 bucket.
+
+Limits use atomic Redis Lua counters with expiring fixed windows starting at the first request:
+
+| Bucket                                             | Requests |     Window |
+| -------------------------------------------------- | -------: | ---------: |
+| Shared IP/network, across protected routes         |      120 |   1 minute |
+| Sync read, per account                             |       60 |   1 minute |
+| Sync write, per account                            |       30 |   1 minute |
+| Consent, per account                               |       10 | 10 minutes |
+| Export, per account                                |        3 | 15 minutes |
+| Deletion, per account                              |        3 | 15 minutes |
+| Entitlements, per account                          |       60 |   1 minute |
+| Subscription verify/restore/reconcile, per account |       10 | 10 minutes |
+| Other authenticated helpers, per account           |      120 |   1 minute |
+
+These are not sliding windows: requests can burst across a window boundary. A denied attempt
+does not extend the window. Shared gym/school networks also share the IP budget; validate these
+conservative starting limits with representative staging traffic before launch.
+
+`429 RATE_LIMITED` includes a CORS-exposed `Retry-After` header in seconds and a no-store response.
+Clients must honor this delay, use jittered backoff, preserve unsynced local changes, and never
+automatically retry account deletion or receipt submission as an unbounded loop. An unavailable,
+malformed, or timed-out limiter returns 503 instead of falling back to process-local counters.
+The Redis timeout is three seconds per check. Account data capabilities stay unavailable if the
+limiter is not configured; optional sign-in remains a separate capability. Configuration readiness
+does not claim that Redis, Supabase, or a purchase verifier has passed live health checks.
+
+Redis stores only operation-scoped HMAC pseudonyms and counters, not raw IPs, account UUIDs,
+tokens, workout data, or receipts. Pseudonyms are not anonymous data: include this processor and
+purpose in the privacy/retention review. Buckets expire after at most 15 minutes; provider backups,
+access logs, and retention require separate review. Use a dedicated random server-side
+`FITCOACH_RATE_LIMIT_SECRET` of at least 32 bytes; rotating it resets counters and should not be
+used to bypass active limits. Do not reuse the account encryption key.
+
+The implementation uses one atomic EVAL command per check, shared across function instances.
+No additional public Vercel function is created. Redis must support EVAL, PTTL, GET, SET/PX, and
+INCR. Configure a matched REST URL/token pair using the same precedence as the existing API:
+`UPSTASH_REDIS_REST_*`, `KV_REST_API_*`, or `SYMBIO_REDIS_REST_*`. A partial higher-priority pair
+fails closed; credentials are never mixed across pairs. This protects FitCoach account API
+operations, not Supabase's own sign-up/login endpoints; those still need provider-side controls.
+
+References: [Vercel trusted request headers](https://vercel.com/docs/headers/request-headers),
+[Upstash Redis REST command API](https://upstash.com/docs/redis/features/restapi).
+
+### Real Redis regression gate
+
+`npm run test:fitcoach:redis` requires a real `redis-server` executable on PATH or the absolute
+path in `FITCOACH_TEST_REDIS_SERVER`. Missing Redis is a failure, not a skipped passing check.
+The dedicated GitHub workflow builds Redis 7.2.16 from its pinned upstream archive and verifies
+its SHA-256 against the [upstream hash list](https://github.com/redis/redis-hashes/blob/master/README).
+No additional application dependency or hosted storage is installed.
+
+The fixture starts its own temporary server with TCP disabled, an owner-only Unix socket,
+32 MiB memory limit and disk persistence disabled. It only removes the private temporary
+directory it created, and only terminates that child process. Production Redis URLs, tokens,
+data and environment files are never used. The production-generated EVAL command and arguments
+run unchanged through the test transport; Redis itself executes the Lua, counters and clock.
+This checks the atomic semantics described by the [Redis Lua documentation](https://redis.io/docs/latest/develop/interact/programmability/eval-intro/).
+
+The suite proves exact shared allowances across independent concurrent connections, all operation
+budgets and initial TTLs, non-extending denials, actual expiry/reset, normalized IP/account aliases,
+account/scope separation, invalid/immortal bucket rejection and failure when the real socket is lost.
+The expiry test deliberately shortens one private test key to 250 ms; original configured TTLs are
+asserted separately. It does not wait every full 15-minute window.
+
+This is stronger than a simulated Redis result, but it is not hosted Upstash/Redis staging proof:
+HTTPS, provider authentication, regional replicas, production proxy headers, provider backup
+retention and actual Supabase/database/device journeys must still be verified before activation.
+Production limiter behavior and configured quotas are unchanged by this test-only addition.
+
 State is encrypted by the API before it reaches Postgres using per-account HKDF-derived
 AES-256-GCM keys, a random nonce, authenticated envelope metadata, and a plaintext digest. This is
 encryption at the application layer, not end-to-end encryption: the FitCoach API can decrypt state
@@ -128,6 +206,8 @@ Server secrets and gates:
 
 - `SUPABASE_URL`
 - `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (or the matched aliases above)
+- `FITCOACH_RATE_LIMIT_SECRET` (independent random secret, at least 32 bytes)
 - `FITCOACH_ACCOUNT_SYNC_ENABLED=1`
 - `FITCOACH_SYNC_CONSENT_VERSION=2026-08-31.1`
 - `FITCOACH_DATA_ENCRYPTION_KEYS_JSON` and `FITCOACH_DATA_ENCRYPTION_KEY_VERSION`
@@ -155,8 +235,10 @@ Before enabling accounts or premium in a public build:
    under the allowed age for the chosen launch regions without the required parental-consent flow.
 5. Back up Postgres and the encryption key ring, document rotation/recovery ownership, and prove a
    restore in staging.
-6. Add authenticated per-account/IP rate limits for sync, export, deletion, and store verification;
-   the current bounded contracts do not claim that production abuse protection is complete.
+6. Configure and exercise the implemented per-account/IP limits against real staging Redis and
+   concurrent function instances. Prove bounded traffic, TTL expiry, network/provider outages,
+   CORS Retry-After handling, and mobile sync backoff without lost local edits. Mocked transport
+   tests do not establish live distributed/concurrency behavior or production readiness.
 7. Run the full repository test, build, lint, secret-scan, and dependency-audit gates, then verify
    the live endpoints and database transitions. A passing deployment alone does not prove these
    integrations are configured.
