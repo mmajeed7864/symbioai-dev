@@ -81,6 +81,9 @@ test("diagnostic server cannot forward credentials, provider payloads or non-con
     ["fitcoach-speech-v2", { method: "POST", body: "malformed" }],
     ["fitcoach-chat-v3", { method: "OPTIONS", body: "malformed" }],
     ["fitcoach-platform-v1?fitcoach_route=account", {}],
+    ["fitcoach-platform-v1?fitcoach_route=config&fitcoach_route=account", {}],
+    ["fitcoach-platform-v1?fitcoach_route=account&fitcoach_route=config", {}],
+    ["fitcoach-platform-v1?fitcoach_route=config&fitcoach_route=config", {}],
     ["fitcoach-platform-v1?fitcoach_route=sync", { method: "POST", body: "{}" }],
     ["fitcoach-chat-v3", { method: "PUT", body: "{}" }],
   ]) {

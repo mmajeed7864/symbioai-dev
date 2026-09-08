@@ -38,9 +38,10 @@ export async function startFitCoachCorsFixture({ port = 0 } = {}) {
       res.end();
       return;
     }
+    const platformRoutes = url.searchParams.getAll("fitcoach_route");
     if (
       url.pathname === "/api/fitcoach-platform-v1" &&
-      url.searchParams.get("fitcoach_route") !== "config"
+      (platformRoutes.length !== 1 || platformRoutes[0] !== "config")
     ) {
       res.writeHead(400);
       res.end();
