@@ -6,6 +6,11 @@ import {
   randomBytes,
   timingSafeEqual,
 } from "node:crypto";
+import {
+  fitCoachRateLimitConfigured,
+  limitFitCoachAccount,
+  limitFitCoachIp,
+} from "./_fitcoach-rate-limit.js";
 
 export const FITCOACH_PLATFORM_VERSION = "2026-08-31.1";
 export const FITCOACH_SYNC_CONSENT_POLICY = "sync_processing";
@@ -62,6 +67,7 @@ export function setFitCoachPlatformCors(req, res, methods = "GET, PUT, POST, DEL
   );
   res.setHeader("Cache-Control", "no-store, max-age=0");
   res.setHeader("Pragma", "no-cache");
+  res.setHeader("Access-Control-Expose-Headers", "Retry-After");
   res.setHeader("Vary", "Origin, Authorization");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "no-referrer");
@@ -127,7 +133,7 @@ function providerNames(user) {
 
 export async function authenticateFitCoachRequest(
   req,
-  { fetchImpl = fetch, env = process.env } = {}
+  { fetchImpl = fetch, env = process.env, rateLimitScope = "account" } = {}
 ) {
   const token = bearerToken(req);
   if (!token) return { ok: false, status: 401, error: "AUTH_REQUIRED" };
@@ -138,6 +144,9 @@ export async function authenticateFitCoachRequest(
   } catch (error) {
     return { ok: false, status: error.status || 503, error: error.code || "AUTH_UNAVAILABLE" };
   }
+
+  const ipLimit = await limitFitCoachIp(req, { fetchImpl, env });
+  if (!ipLimit.ok) return ipLimit;
 
   let response;
   try {
@@ -156,6 +165,11 @@ export async function authenticateFitCoachRequest(
   if (!UUID_PATTERN.test(clean(user?.id, 80))) {
     return { ok: false, status: 401, error: "AUTH_INVALID" };
   }
+  const accountLimit = await limitFitCoachAccount(clean(user.id, 80), rateLimitScope, {
+    fetchImpl,
+    env,
+  });
+  if (!accountLimit.ok) return accountLimit;
 
   // Claims are consumed only after Supabase has validated the same bearer token.
   const claims = decodeJwtPayload(token);
@@ -284,11 +298,13 @@ export function publicFitCoachPlatformConfig(env = process.env) {
     encryptionConfigured = true;
   } catch {}
   const consentVersion = clean(env.FITCOACH_SYNC_CONSENT_VERSION, 80);
+  const abuseProtectionConfigured = fitCoachRateLimitConfigured(env);
   const syncAvailable = Boolean(
     env.FITCOACH_ACCOUNT_SYNC_ENABLED === "1" &&
     authEnabled &&
     storageConfigured &&
     encryptionConfigured &&
+    abuseProtectionConfigured &&
     /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/.test(consentVersion)
   );
   const apple = subscriptionVerifierReadiness("apple", env);
@@ -310,8 +326,8 @@ export function publicFitCoachPlatformConfig(env = process.env) {
     },
     account: {
       exportAvailable: syncAvailable,
-      deletionAvailable: Boolean(authEnabled && storageConfigured),
-      entitlementsAvailable: Boolean(authEnabled && storageConfigured),
+      deletionAvailable: Boolean(authEnabled && storageConfigured && abuseProtectionConfigured),
+      entitlementsAvailable: Boolean(authEnabled && storageConfigured && abuseProtectionConfigured),
       socialIdentityDeletionAvailable: false,
     },
     subscriptions: {
