@@ -41,6 +41,6 @@
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
-    "nodemailer": "^9.0.3"
+    "nodemailer": "^10.1.4"
   }
 }
